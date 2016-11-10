@@ -11,14 +11,18 @@ import javax.inject.Inject;
 
 import org.jboss.forge.addon.obsidian.generator.model.Pattern;
 import org.jboss.forge.addon.ui.context.UIBuilder;
+import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UISelectMany;
+import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
+import org.jboss.forge.addon.ui.util.Categories;
+import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.furnace.util.Lists;
 
@@ -42,6 +46,14 @@ public class ChoosePatternsWizardStep implements UIWizardStep
       patterns.addValueChangeListener(
                evt -> generatorModel.setPatterns(Lists.toList((Iterable<Pattern>) evt.getNewValue())));
       builder.add(patterns);
+   }
+
+   @Override
+   public UICommandMetadata getMetadata(UIContext context)
+   {
+      return Metadata.forCommand(getClass()).name("Obsidian: Choose Pattern")
+               .description("Choose the desired patterns")
+               .category(Categories.create("Obsidian"));
    }
 
    @Override

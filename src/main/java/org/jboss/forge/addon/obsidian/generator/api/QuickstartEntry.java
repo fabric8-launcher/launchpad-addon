@@ -7,19 +7,13 @@
 
 package org.jboss.forge.addon.obsidian.generator.api;
 
-import java.util.List;
-
 /**
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 public interface QuickstartEntry
 {
-
    String getName();
 
-   String getLanguageRuntime();
-
-   List<String> getPatterns();
-
+   String getGithubURL();
 }

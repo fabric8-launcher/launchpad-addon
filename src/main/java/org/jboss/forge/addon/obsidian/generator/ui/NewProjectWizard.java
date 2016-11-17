@@ -129,7 +129,7 @@ public class NewProjectWizard implements UIWizard
          return result;
       });
 
-      builder.add(named).add(topLevelPackage).add(type).add(buildSystem);
+      builder.add(type).add(buildSystem).add(named).add(topLevelPackage);
    }
 
    private boolean isProjectTypeBuildable(ProjectType type, ProjectProvider buildSystem)

@@ -1,4 +1,4 @@
-== obsidian-generator
+== obsidian-addon
 :idprefix: id_ 
 This addon *provides classes* for use in other addons. 
         

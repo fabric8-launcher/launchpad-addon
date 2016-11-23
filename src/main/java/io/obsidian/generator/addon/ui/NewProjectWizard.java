@@ -5,18 +5,18 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.jboss.forge.addon.obsidian.generator.ui;
+package io.obsidian.generator.addon.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.facets.FacetFactory;
+import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFacet;
 import org.jboss.forge.addon.projects.ProjectFactory;
@@ -41,11 +41,16 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.jboss.forge.furnace.services.Imported;
 
 /**
- *
+ * The project type for
+ * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 public class NewProjectWizard implements UIWizard
 {
+   @Inject
+   @WithAttributes(label = "Project type", required = true)
+   private UISelectOne<ProjectType> type;
+
    @Inject
    @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
    private UIInput<String> named;
@@ -55,12 +60,7 @@ public class NewProjectWizard implements UIWizard
    private UIInput<String> topLevelPackage;
 
    @Inject
-   @WithAttributes(label = "Project type", required = true)
-   private UISelectOne<ProjectType> type;
-
-   @Inject
-   @WithAttributes(label = "Build system")
-   private UISelectOne<ProjectProvider> buildSystem;
+   private MavenBuildSystem buildSystem;
 
    @Inject
    private FacetFactory facetFactory;
@@ -106,15 +106,6 @@ public class NewProjectWizard implements UIWizard
       }
       type.setValueChoices(projectTypes);
 
-      buildSystem.setItemLabelConverter(ProjectProvider::getType);
-      buildSystem.setDefaultValue(() -> {
-         Iterator<ProjectProvider> iterator = buildSystem.getValueChoices().iterator();
-         if (iterator.hasNext())
-         {
-            return iterator.next();
-         }
-         return null;
-      });
       topLevelPackage.setDefaultValue(() -> {
          String result = named.getValue();
          if (result != null)
@@ -129,7 +120,7 @@ public class NewProjectWizard implements UIWizard
          return result;
       });
 
-      builder.add(type).add(buildSystem).add(named).add(topLevelPackage);
+      builder.add(type).add(named).add(topLevelPackage);
    }
 
    private boolean isProjectTypeBuildable(ProjectType type, ProjectProvider buildSystem)
@@ -201,8 +192,7 @@ public class NewProjectWizard implements UIWizard
    public Result execute(UIExecutionContext context) throws Exception
    {
       ProjectType value = type.getValue();
-      ProjectProvider buildSystemValue = buildSystem.getValue();
-      Project project = projectFactory.createTempProject(buildSystemValue);
+      Project project = projectFactory.createTempProject(buildSystem);
       UIContext uiContext = context.getUIContext();
       MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
       metadataFacet.setProjectName(named.getValue());
@@ -216,7 +206,7 @@ public class NewProjectWizard implements UIWizard
          {
             for (Class<? extends ProjectFacet> facet : requiredFacets)
             {
-               Class<? extends ProjectFacet> buildSystemFacet = buildSystemValue.resolveProjectFacet(facet);
+               Class<? extends ProjectFacet> buildSystemFacet = buildSystem.resolveProjectFacet(facet);
                if (!project.hasFacet(buildSystemFacet))
                {
                   facetFactory.install(project, buildSystemFacet);
@@ -227,7 +217,7 @@ public class NewProjectWizard implements UIWizard
       uiContext.setSelection(project.getRoot());
       uiContext.getAttributeMap().put(Project.class, project);
 
-      return Results.success(project.getRoot().getFullyQualifiedName());
+      return Results.success("Project created in " + project.getRoot().getFullyQualifiedName());
    }
 
 }

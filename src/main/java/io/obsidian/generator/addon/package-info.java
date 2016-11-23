@@ -1,0 +1,1 @@
+package io.obsidian.generator.addon;

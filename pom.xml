@@ -14,6 +14,7 @@
       <version.furnace>2.24.3.Final</version.furnace>
       <version.forge>3.3.3.Final</version.forge>
       <version.wildfly-swarm>1.0.5.Final</version.wildfly-swarm>
+      <version.fabric8.devops>2.3.74</version.fabric8.devops>
 
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
@@ -58,6 +59,20 @@
       </plugins>
    </build>
    <dependencies>
+      <!--  Spring Boot addon -->
+      <dependency>
+         <groupId>io.fabric8.forge</groupId>
+         <artifactId>devops</artifactId>
+         <classifier>forge-addon</classifier>
+         <version>${version.fabric8.devops}</version>
+      </dependency>
+      <!-- Vert.x addon -->
+      <dependency>
+         <groupId>me.escoffier.forge</groupId>
+         <artifactId>vertx-forge-addon</artifactId>
+         <classifier>forge-addon</classifier>
+         <version>1.0.0</version>
+      </dependency>
       <dependency>
          <groupId>org.jboss.forge.furnace.container</groupId>
          <artifactId>cdi</artifactId>
@@ -76,18 +91,16 @@
          <artifactId>projects</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
+      
+      <!-- WildFly Swarm -->
+      <!-- 
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
          <artifactId>wildfly-swarm</artifactId>
          <classifier>forge-addon</classifier>
          <version>${version.wildfly-swarm}</version>
       </dependency>
-
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>maven</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
+       -->
 
       <dependency>
          <groupId>org.jboss.forge.furnace.test</groupId>

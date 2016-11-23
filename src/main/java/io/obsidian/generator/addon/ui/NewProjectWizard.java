@@ -7,11 +7,7 @@
 
 package io.obsidian.generator.addon.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -20,9 +16,7 @@ import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFacet;
 import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.projects.ProjectProvider;
 import org.jboss.forge.addon.projects.ProjectType;
-import org.jboss.forge.addon.projects.ProvidedProjectFacet;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -38,7 +32,9 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.jboss.forge.furnace.services.Imported;
+
+import io.fabric8.forge.devops.springboot.SpringBootProjectType;
+import io.vertx.forge.project.VertxProjectType;
 
 /**
  * The project type for
@@ -69,7 +65,10 @@ public class NewProjectWizard implements UIWizard
    private ProjectFactory projectFactory;
 
    @Inject
-   private Imported<ProjectProvider> projectProviders;
+   private SpringBootProjectType springBootProjectType;
+
+   @Inject
+   private VertxProjectType vertxProjectType;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -85,26 +84,7 @@ public class NewProjectWizard implements UIWizard
       {
          type.setItemLabelConverter(ProjectType::getType);
       }
-
-      // Add Project types
-      List<ProjectType> projectTypes = new ArrayList<>();
-      for (ProjectType projectType : type.getValueChoices())
-      {
-         for (ProjectProvider buildSystem : projectProviders)
-         {
-            if (projectType.isEnabled(uiContext) && isProjectTypeBuildable(projectType, buildSystem))
-            {
-               projectTypes.add(projectType);
-               break;
-            }
-         }
-      }
-      Collections.sort(projectTypes, (left, right) -> left.priority() - right.priority());
-      if (!projectTypes.isEmpty())
-      {
-         type.setDefaultValue(projectTypes.get(0));
-      }
-      type.setValueChoices(projectTypes);
+      type.setDefaultValue(springBootProjectType).setValueChoices(getAllowedProjectTypes());
 
       topLevelPackage.setDefaultValue(() -> {
          String result = named.getValue();
@@ -123,47 +103,9 @@ public class NewProjectWizard implements UIWizard
       builder.add(type).add(named).add(topLevelPackage);
    }
 
-   private boolean isProjectTypeBuildable(ProjectType type, ProjectProvider buildSystem)
+   private Iterable<ProjectType> getAllowedProjectTypes()
    {
-      boolean result = false;
-      Iterable<Class<? extends ProvidedProjectFacet>> requiredFacets = getRequiredBuildSystemFacets(type);
-      if (requiredFacets == null || !requiredFacets.iterator().hasNext())
-      {
-         result = true;
-      }
-      else
-      {
-         for (Class<? extends ProvidedProjectFacet> required : requiredFacets)
-         {
-            result = false;
-            for (Class<? extends ProvidedProjectFacet> provided : buildSystem.getProvidedFacetTypes())
-            {
-               if (provided.isAssignableFrom(required))
-                  result = true;
-            }
-            if (!result)
-               break;
-         }
-      }
-      return result;
-   }
-
-   @SuppressWarnings("unchecked")
-   private Iterable<Class<? extends ProvidedProjectFacet>> getRequiredBuildSystemFacets(ProjectType type)
-   {
-      Set<Class<? extends ProvidedProjectFacet>> result = new HashSet<>();
-      Iterable<Class<? extends ProjectFacet>> requiredFacets = type.getRequiredFacets();
-      if (requiredFacets != null)
-      {
-         for (Class<? extends ProjectFacet> facetType : requiredFacets)
-         {
-            if (ProvidedProjectFacet.class.isAssignableFrom(facetType))
-            {
-               result.add((Class<? extends ProvidedProjectFacet>) facetType);
-            }
-         }
-      }
-      return result;
+      return Arrays.asList(springBootProjectType, vertxProjectType);
    }
 
    @Override

@@ -8,6 +8,7 @@
 package io.obsidian.generator.addon.ui;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import javax.inject.Inject;
 
@@ -20,11 +21,8 @@ import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.projects.archetype.ArchetypeHelper;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.projects.facets.MetadataFacet;
-import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
+import org.jboss.forge.addon.resource.ResourceFactory;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -59,7 +57,7 @@ public class NewProjectWizard implements UIWizard
    private UIInput<String> topLevelPackage;
 
    @Inject
-   private ProjectFactory projectFactory;
+   private ResourceFactory resourceFactory;
 
    @Inject
    private ArchetypeCatalogFactoryRegistry registry;
@@ -131,19 +129,15 @@ public class NewProjectWizard implements UIWizard
       }
       Dependency resolvedArtifact = dependencyResolver.resolveArtifact(depQuery);
       FileResource<?> artifact = resolvedArtifact.getArtifact();
-      Project project = projectFactory.createTempProject();
-      MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
-      metadataFacet.setProjectName(named.getValue());
-      metadataFacet.setProjectGroupName(topLevelPackage.getValue());
-      File fileRoot = project.getRoot().reify(DirectoryResource.class).getUnderlyingResourceObject();
-      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), fileRoot,
-               metadataFacet.getProjectGroupName(), metadataFacet.getProjectName(), metadataFacet.getProjectVersion());
+      File tmpDir = Files.createTempDirectory("projectdir").toFile();
+      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), tmpDir,
+               topLevelPackage.getValue(), named.getValue(), "1.0.0-SNAPSHOT");
       archetypeHelper.setPackageName(topLevelPackage.getValue());
       archetypeHelper.execute();
 
-      context.getUIContext().setSelection(project.getRoot());
+      context.getUIContext().setSelection(resourceFactory.create(tmpDir));
 
-      return Results.success("Project created in " + project.getRoot().getFullyQualifiedName());
+      return Results.success("Project created in " + tmpDir);
    }
 
 }

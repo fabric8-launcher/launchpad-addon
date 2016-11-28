@@ -59,20 +59,11 @@
       </plugins>
    </build>
    <dependencies>
-      <!--  Spring Boot addon -->
-      <dependency>
-         <groupId>io.fabric8.forge</groupId>
-         <artifactId>devops</artifactId>
-         <classifier>forge-addon</classifier>
-         <version>${version.fabric8.devops}</version>
-      </dependency>
-      <!-- Vert.x addon -->
-      <dependency>
-         <groupId>me.escoffier.forge</groupId>
-         <artifactId>vertx-forge-addon</artifactId>
-         <classifier>forge-addon</classifier>
-         <version>1.0.0</version>
-      </dependency>
+      <!-- 3rd Party addons -->
+      <!-- <dependency> <groupId>io.fabric8.forge</groupId> <artifactId>devops</artifactId> <classifier>forge-addon</classifier> 
+         <version>${version.fabric8.devops}</version> </dependency> <dependency> <groupId>io.fabric8.forge</groupId> <artifactId>camel</artifactId> 
+         <classifier>forge-addon</classifier> <version>${version.fabric8.devops}</version> </dependency> <dependency> <groupId>me.escoffier.forge</groupId> 
+         <artifactId>vertx-forge-addon</artifactId> <classifier>forge-addon</classifier> <version>1.0.0</version> </dependency> -->
       <dependency>
          <groupId>org.jboss.forge.furnace.container</groupId>
          <artifactId>cdi</artifactId>
@@ -91,16 +82,25 @@
          <artifactId>projects</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
-      
-      <!-- WildFly Swarm -->
-      <!-- 
+
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>wildfly-swarm</artifactId>
+         <artifactId>maven</artifactId>
          <classifier>forge-addon</classifier>
-         <version>${version.wildfly-swarm}</version>
       </dependency>
-       -->
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>maven-impl-projects</artifactId>
+         <version>${version.forge}</version>
+         <scope>provided</scope>
+      </dependency>
+
+
+
+      <!-- WildFly Swarm -->
+      <!-- <dependency> <groupId>org.jboss.forge.addon</groupId> <artifactId>wildfly-swarm</artifactId> <classifier>forge-addon</classifier> 
+         <version>${version.wildfly-swarm}</version> </dependency> -->
 
       <dependency>
          <groupId>org.jboss.forge.furnace.test</groupId>

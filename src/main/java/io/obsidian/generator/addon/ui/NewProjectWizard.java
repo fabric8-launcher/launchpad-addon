@@ -7,34 +7,37 @@
 
 package io.obsidian.generator.addon.ui;
 
-import java.util.Arrays;
+import java.io.File;
 
 import javax.inject.Inject;
 
-import org.jboss.forge.addon.facets.FacetFactory;
-import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
+import org.apache.maven.archetype.catalog.Archetype;
+import org.jboss.forge.addon.dependencies.Coordinate;
+import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.DependencyRepository;
+import org.jboss.forge.addon.dependencies.DependencyResolver;
+import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
+import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
+import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
+import org.jboss.forge.addon.maven.projects.archetype.ArchetypeHelper;
 import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.ProjectFacet;
 import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
+import org.jboss.forge.addon.resource.DirectoryResource;
+import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
-import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-
-import io.fabric8.forge.devops.springboot.SpringBootProjectType;
-import io.vertx.forge.project.VertxProjectType;
+import org.jboss.forge.furnace.util.Strings;
 
 /**
  * The project type for
@@ -45,7 +48,7 @@ public class NewProjectWizard implements UIWizard
 {
    @Inject
    @WithAttributes(label = "Project type", required = true)
-   private UISelectOne<ProjectType> type;
+   private UISelectOne<Archetype> type;
 
    @Inject
    @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
@@ -56,19 +59,13 @@ public class NewProjectWizard implements UIWizard
    private UIInput<String> topLevelPackage;
 
    @Inject
-   private MavenBuildSystem buildSystem;
-
-   @Inject
-   private FacetFactory facetFactory;
-
-   @Inject
    private ProjectFactory projectFactory;
 
    @Inject
-   private SpringBootProjectType springBootProjectType;
+   private ArchetypeCatalogFactoryRegistry registry;
 
    @Inject
-   private VertxProjectType vertxProjectType;
+   private DependencyResolver dependencyResolver;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -82,10 +79,9 @@ public class NewProjectWizard implements UIWizard
 
       if (uiContext.getProvider().isGUI())
       {
-         type.setItemLabelConverter(ProjectType::getType);
+         type.setItemLabelConverter(Archetype::getDescription);
       }
-      type.setDefaultValue(springBootProjectType).setValueChoices(getAllowedProjectTypes());
-
+      type.setValueChoices(registry.getArchetypeCatalogFactory("Quickstarts").getArchetypeCatalog().getArchetypes());
       topLevelPackage.setDefaultValue(() -> {
          String result = named.getValue();
          if (result != null)
@@ -103,11 +99,6 @@ public class NewProjectWizard implements UIWizard
       builder.add(type).add(named).add(topLevelPackage);
    }
 
-   private Iterable<ProjectType> getAllowedProjectTypes()
-   {
-      return Arrays.asList(springBootProjectType, vertxProjectType);
-   }
-
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
@@ -117,47 +108,40 @@ public class NewProjectWizard implements UIWizard
    }
 
    @Override
-   public NavigationResult next(UINavigationContext context) throws Exception
-   {
-      ProjectType nextStep = type.getValue();
-      if (nextStep != null)
-      {
-         return nextStep.next(context);
-      }
-      else
-      {
-         return null;
-      }
-   }
-
-   @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      ProjectType value = type.getValue();
-      Project project = projectFactory.createTempProject(buildSystem);
-      UIContext uiContext = context.getUIContext();
-      MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
-      metadataFacet.setProjectName(named.getValue());
-      metadataFacet.setProjectVersion("1.0.0-SNAPSHOT");
-      metadataFacet.setProjectGroupName(topLevelPackage.getValue());
-      // Install the required facets
-      if (value != null)
+      Archetype chosenArchetype = type.getValue();
+      Coordinate coordinate = CoordinateBuilder.create().setGroupId(chosenArchetype.getGroupId())
+               .setArtifactId(chosenArchetype.getArtifactId())
+               .setVersion(chosenArchetype.getVersion());
+      DependencyQueryBuilder depQuery = DependencyQueryBuilder.create(coordinate);
+      String repository = chosenArchetype.getRepository();
+      if (!Strings.isNullOrEmpty(repository))
       {
-         Iterable<Class<? extends ProjectFacet>> requiredFacets = value.getRequiredFacets();
-         if (requiredFacets != null)
+         if (repository.endsWith(".xml"))
          {
-            for (Class<? extends ProjectFacet> facet : requiredFacets)
-            {
-               Class<? extends ProjectFacet> buildSystemFacet = buildSystem.resolveProjectFacet(facet);
-               if (!project.hasFacet(buildSystemFacet))
-               {
-                  facetFactory.install(project, buildSystemFacet);
-               }
-            }
+            int lastRepositoryPath = repository.lastIndexOf('/');
+            if (lastRepositoryPath > -1)
+               repository = repository.substring(0, lastRepositoryPath);
+         }
+         if (!repository.isEmpty())
+         {
+            depQuery.setRepositories(new DependencyRepository("archetype", repository));
          }
       }
-      uiContext.setSelection(project.getRoot());
-      uiContext.getAttributeMap().put(Project.class, project);
+      Dependency resolvedArtifact = dependencyResolver.resolveArtifact(depQuery);
+      FileResource<?> artifact = resolvedArtifact.getArtifact();
+      Project project = projectFactory.createTempProject();
+      MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
+      metadataFacet.setProjectName(named.getValue());
+      metadataFacet.setProjectGroupName(topLevelPackage.getValue());
+      File fileRoot = project.getRoot().reify(DirectoryResource.class).getUnderlyingResourceObject();
+      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), fileRoot,
+               metadataFacet.getProjectGroupName(), metadataFacet.getProjectName(), metadataFacet.getProjectVersion());
+      archetypeHelper.setPackageName(topLevelPackage.getValue());
+      archetypeHelper.execute();
+
+      context.getUIContext().setSelection(project.getRoot());
 
       return Results.success("Project created in " + project.getRoot().getFullyQualifiedName());
    }

@@ -22,7 +22,6 @@ import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.projects.archetype.ArchetypeHelper;
 import org.jboss.forge.addon.resource.FileResource;
-import org.jboss.forge.addon.resource.ResourceFactory;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -57,7 +56,8 @@ public class NewProjectWizard implements UIWizard
    private UIInput<String> topLevelPackage;
 
    @Inject
-   private ResourceFactory resourceFactory;
+   @WithAttributes(label = "Project version", required = true, defaultValue = "1.0.0-SNAPSHOT")
+   private UIInput<String> version;
 
    @Inject
    private ArchetypeCatalogFactoryRegistry registry;
@@ -94,7 +94,7 @@ public class NewProjectWizard implements UIWizard
          return result;
       });
 
-      builder.add(type).add(named).add(topLevelPackage);
+      builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 
    @Override
@@ -131,11 +131,11 @@ public class NewProjectWizard implements UIWizard
       FileResource<?> artifact = resolvedArtifact.getArtifact();
       File tmpDir = Files.createTempDirectory("projectdir").toFile();
       ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), tmpDir,
-               topLevelPackage.getValue(), named.getValue(), "1.0.0-SNAPSHOT");
+               topLevelPackage.getValue(), named.getValue(), version.getValue());
       archetypeHelper.setPackageName(topLevelPackage.getValue());
       archetypeHelper.execute();
 
-      context.getUIContext().setSelection(resourceFactory.create(tmpDir));
+      context.getUIContext().setSelection(tmpDir);
 
       return Results.success("Project created in " + tmpDir);
    }

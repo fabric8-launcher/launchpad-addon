@@ -1,7 +1,7 @@
 #!/bin/bash
 body='{
 "request": {
-  "message": "Build triggered because of obsidian-addon change"
+  "message":"Build triggered because of obsidian-addon change",
   "branch":"master"
 }}'
 

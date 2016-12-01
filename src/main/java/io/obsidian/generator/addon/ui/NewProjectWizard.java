@@ -34,7 +34,6 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.jboss.forge.furnace.util.Strings;
 
 /**
  * The project type for
@@ -113,26 +112,15 @@ public class NewProjectWizard implements UIWizard
                .setArtifactId(chosenArchetype.getArtifactId())
                .setVersion(chosenArchetype.getVersion());
       DependencyQueryBuilder depQuery = DependencyQueryBuilder.create(coordinate);
-      String repository = chosenArchetype.getRepository();
-      if (!Strings.isNullOrEmpty(repository))
-      {
-         if (repository.endsWith(".xml"))
-         {
-            int lastRepositoryPath = repository.lastIndexOf('/');
-            if (lastRepositoryPath > -1)
-               repository = repository.substring(0, lastRepositoryPath);
-         }
-         if (!repository.isEmpty())
-         {
-            depQuery.setRepositories(new DependencyRepository("archetype", repository));
-         }
-      }
+      // TODO: Using JBoss nexus repository for now
+      depQuery.setRepositories(new DependencyRepository("archetypes",
+               "https://repository.jboss.org/nexus/content/repositories/snapshots"));
       Dependency resolvedArtifact = dependencyResolver.resolveArtifact(depQuery);
       FileResource<?> artifact = resolvedArtifact.getArtifact();
       File tmpDir = Files.createTempDirectory("projectdir").toFile();
       ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), tmpDir,
                topLevelPackage.getValue(), named.getValue(), version.getValue());
-      archetypeHelper.setPackageName(topLevelPackage.getValue());
+      // archetypeHelper.setPackageName(topLevelPackage.getValue());
       archetypeHelper.execute();
 
       context.getUIContext().setSelection(tmpDir);

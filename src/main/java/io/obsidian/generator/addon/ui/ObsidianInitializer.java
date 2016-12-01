@@ -24,8 +24,7 @@ public class ObsidianInitializer
 
    public void onInit(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) throws Exception
    {
-      // TODO: Change Archetype URL
       registry.addArchetypeCatalogFactory("Quickstarts", new URL(
-               "https://gist.githubusercontent.com/cmoulliard/e9fac6b3040526780f2e96dcfa980c35/raw/5efe2d244fbe31bf9207c5dd5cb857e05a0e1928/gistfile1.txt"));
+               "https://repository.jboss.org/nexus/service/local/artifact/maven/redirect?r=snapshots&g=io.obsidian&a=archetypes-catalog&v=1.0.0-SNAPSHOT&e=xml&c=archetype-catalog"));
    }
 }

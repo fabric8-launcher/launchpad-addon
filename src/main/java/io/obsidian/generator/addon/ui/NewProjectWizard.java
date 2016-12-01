@@ -79,20 +79,6 @@ public class NewProjectWizard implements UIWizard
          type.setItemLabelConverter(Archetype::getDescription);
       }
       type.setValueChoices(registry.getArchetypeCatalogFactory("Quickstarts").getArchetypeCatalog().getArchetypes());
-      topLevelPackage.setDefaultValue(() -> {
-         String result = named.getValue();
-         if (result != null)
-         {
-            result = ("org." + result).replaceAll("\\W+", ".");
-            result = result.trim();
-            result = result.replaceAll("^\\.", "");
-            result = result.replaceAll("\\.$", "");
-         }
-         else
-            result = "org.example";
-         return result;
-      });
-
       builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 

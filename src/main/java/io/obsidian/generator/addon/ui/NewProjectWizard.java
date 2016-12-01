@@ -9,6 +9,7 @@ package io.obsidian.generator.addon.ui;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -78,7 +79,13 @@ public class NewProjectWizard implements UIWizard
       {
          type.setItemLabelConverter(Archetype::getDescription);
       }
-      type.setValueChoices(registry.getArchetypeCatalogFactory("Quickstarts").getArchetypeCatalog().getArchetypes());
+      List<Archetype> archetypes = registry.getArchetypeCatalogFactory("Quickstarts").getArchetypeCatalog()
+               .getArchetypes();
+      type.setValueChoices(archetypes);
+      if (!archetypes.isEmpty())
+      {
+         type.setDefaultValue(archetypes.get(0));
+      }
       builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 

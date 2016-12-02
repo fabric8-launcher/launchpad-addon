@@ -8,12 +8,21 @@
 package io.obsidian.generator.addon.ui;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Produces;
 
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
+import org.jboss.forge.addon.projects.ProjectType;
+import org.jboss.forge.addon.swarm.project.WildFlySwarmProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
+
+import io.fabric8.forge.devops.springboot.SpringBootProjectType;
+import io.vertx.forge.project.VertxProjectType;
 
 /**
  *
@@ -26,5 +35,15 @@ public class ObsidianInitializer
    {
       registry.addArchetypeCatalogFactory("Quickstarts", new URL(
                "https://repository.jboss.org/nexus/service/local/artifact/maven/redirect?r=snapshots&g=io.obsidian&a=archetypes-catalog&v=1.0.0-SNAPSHOT&e=xml&c=archetype-catalog"));
+   }
+
+   @Produces
+   @ApplicationScoped
+   public List<ProjectType> getSupportedProjectTypes(
+            SpringBootProjectType springBoot,
+            WildFlySwarmProjectType wildFlySwarm,
+            VertxProjectType vertx)
+   {
+      return Arrays.asList(springBoot, wildFlySwarm, vertx);
    }
 }

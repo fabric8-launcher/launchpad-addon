@@ -22,7 +22,9 @@ import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.projects.archetype.ArchetypeHelper;
+import org.jboss.forge.addon.parser.java.utils.Packages;
 import org.jboss.forge.addon.resource.FileResource;
+import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -34,14 +36,13 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
-import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 /**
  * The project type for
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class NewProjectWizard implements UIWizard
+public class NewProjectFromQuickstartWizard implements UICommand
 {
    @Inject
    @WithAttributes(label = "Project type", required = true)
@@ -92,8 +93,8 @@ public class NewProjectWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Obsidian: New Project")
-               .description("Generate your project")
+      return Metadata.forCommand(getClass()).name("Obsidian: New Quickstart")
+               .description("Generate your project from a quickstart")
                .category(Categories.create("Obsidian"));
    }
 
@@ -112,8 +113,10 @@ public class NewProjectWizard implements UIWizard
       FileResource<?> artifact = resolvedArtifact.getArtifact();
       File tmpDir = Files.createTempDirectory("projectdir").toFile();
       ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), tmpDir,
-               topLevelPackage.getValue(), named.getValue(), version.getValue());
-      // archetypeHelper.setPackageName(topLevelPackage.getValue());
+               topLevelPackage.getValue(), named.getValue(),
+               version.getValue());
+      archetypeHelper.setPackageName(Packages.toValidPackageName(topLevelPackage.getValue()) + "."
+               + Packages.toValidPackageName(named.getValue()));
       archetypeHelper.execute();
 
       context.getUIContext().setSelection(tmpDir);

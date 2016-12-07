@@ -17,7 +17,6 @@ import javax.enterprise.inject.Produces;
 
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.projects.ProjectType;
-import org.jboss.forge.addon.swarm.project.WildFlySwarmProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
 
@@ -41,9 +40,9 @@ public class ObsidianInitializer
    @ApplicationScoped
    public List<ProjectType> getSupportedProjectTypes(
             SpringBootProjectType springBoot,
-            WildFlySwarmProjectType wildFlySwarm,
+            // WildFlySwarmProjectType wildFlySwarm,
             VertxProjectType vertx)
    {
-      return Arrays.asList(springBoot, wildFlySwarm, vertx);
+      return Arrays.asList(springBoot, vertx);
    }
 }

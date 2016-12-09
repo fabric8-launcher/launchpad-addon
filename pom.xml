@@ -8,7 +8,7 @@
    </parent>
    <groupId>org.jboss.forge.addon</groupId>
    <artifactId>obsidian-generator</artifactId>
-   <version>1.0.1-SNAPSHOT</version>
+   <version>1.0.0</version>
    <properties>
       <version.furnace>2.24.3.Final</version.furnace>
       <version.forge>3.4.0.Final</version.forge>
@@ -168,7 +168,7 @@
       <connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</connection>
       <developerConnection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</developerConnection>
       <url>http://github.com/obsidian-toaster/obsidian-addon</url>
-      <tag>HEAD</tag>
+      <tag>1.0.0</tag>
    </scm>
 
    <distributionManagement>

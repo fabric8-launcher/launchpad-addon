@@ -14,7 +14,7 @@
       <version.forge>3.4.0.Final</version.forge>
       <version.wildfly-swarm>1.0.8.Final</version.wildfly-swarm>
       <version.fabric8.devops>2.3.80</version.fabric8.devops>
-      <version.vertx>1.0.0</version.vertx>
+      <version.vertx>1.0.1-SNAPSHOT</version.vertx>
       
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>

@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package io.obsidian.generator.addon.ui;
+package org.obsidiantoaster.generator.addon.ui;
 
 import java.net.URL;
 import java.util.Arrays;

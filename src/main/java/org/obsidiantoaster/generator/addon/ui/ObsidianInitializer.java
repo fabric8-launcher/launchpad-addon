@@ -15,6 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 
+import io.obsidian.generator.addon.ui.config.ConfigValue;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;
@@ -30,10 +31,12 @@ import io.vertx.forge.project.VertxProjectType;
 public class ObsidianInitializer
 {
 
+   @ConfigValue("archetype.catalog")
+   private String archetypeCatalogLocation;
+
    public void onInit(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) throws Exception
    {
-      registry.addArchetypeCatalogFactory("Quickstarts", new URL(
-               "https://repository.jboss.org/nexus/service/local/artifact/maven/redirect?r=snapshots&g=io.obsidian&a=archetypes-catalog&v=1.0.0-SNAPSHOT&e=xml&c=archetype-catalog"));
+      registry.addArchetypeCatalogFactory("Quickstarts", new URL(archetypeCatalogLocation));
    }
 
    @Produces

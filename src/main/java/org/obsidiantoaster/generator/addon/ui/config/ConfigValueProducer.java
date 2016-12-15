@@ -1,4 +1,4 @@
-package io.obsidian.generator.addon.ui.config;
+package org.obsidiantoaster.generator.addon.ui.config;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;

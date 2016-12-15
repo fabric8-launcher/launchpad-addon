@@ -1,4 +1,4 @@
-package io.obsidian.generator.addon.ui.config;
+package org.obsidiantoaster.generator.addon.ui.config;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;

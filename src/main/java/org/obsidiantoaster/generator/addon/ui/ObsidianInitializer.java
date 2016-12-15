@@ -15,7 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 
-import io.obsidian.generator.addon.ui.config.ConfigValue;
+import org.obsidiantoaster.generator.addon.ui.config.ConfigValue;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;

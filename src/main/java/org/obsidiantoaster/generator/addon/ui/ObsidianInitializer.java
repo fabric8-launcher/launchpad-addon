@@ -22,6 +22,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 import org.obsidiantoaster.generator.addon.ui.config.ConfigValue;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
@@ -38,7 +39,7 @@ import io.vertx.forge.project.VertxProjectType;
  */
 public class ObsidianInitializer
 {
-
+   @Inject
    @ConfigValue("archetype.catalog")
    private String archetypeCatalogLocation;
 

@@ -42,7 +42,6 @@ import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.obsidiantoaster.generator.addon.facet.Fabric8MavenPluginFacet;
 
 /**
  * The project type for
@@ -131,9 +130,6 @@ public class NewProjectGeneratorWizard implements UIWizard
          }
       }
 
-      // Install the Fabric8 Maven Plugin
-      facetFactory.install(project, Fabric8MavenPluginFacet.class);
-
       UIContext uiContext = context.getUIContext();
       uiContext.setSelection(project.getRoot());
       uiContext.getAttributeMap().put(Project.class, project);
@@ -150,6 +146,7 @@ public class NewProjectGeneratorWizard implements UIWizard
       {
          builder.add(nextStep.next(context));
       }
+      builder.add(InstallFabric8PluginStep.class);
       return builder.build();
    }
 

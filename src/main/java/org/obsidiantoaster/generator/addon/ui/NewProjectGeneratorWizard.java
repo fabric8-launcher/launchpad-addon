@@ -38,9 +38,11 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+import org.obsidiantoaster.generator.addon.facet.Fabric8MavenPluginFacet;
 
 /**
  * The project type for
@@ -128,6 +130,10 @@ public class NewProjectGeneratorWizard implements UIWizard
             }
          }
       }
+
+      // Install the Fabric8 Maven Plugin
+      facetFactory.install(project, Fabric8MavenPluginFacet.class);
+
       UIContext uiContext = context.getUIContext();
       uiContext.setSelection(project.getRoot());
       uiContext.getAttributeMap().put(Project.class, project);
@@ -138,15 +144,13 @@ public class NewProjectGeneratorWizard implements UIWizard
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
+      NavigationResultBuilder builder = NavigationResultBuilder.create();
       ProjectType nextStep = type.getValue();
       if (nextStep != null)
       {
-         return nextStep.next(context);
+         builder.add(nextStep.next(context));
       }
-      else
-      {
-         return null;
-      }
+      return builder.build();
    }
 
 }

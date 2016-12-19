@@ -6,9 +6,9 @@
       <artifactId>jboss-parent</artifactId>
       <version>20</version>
    </parent>
-   <groupId>org.jboss.forge.addon</groupId>
+   <groupId>org.obsidiantoaster.forge</groupId>
    <artifactId>obsidian-generator</artifactId>
-   <version>1.0.1-SNAPSHOT</version>
+   <version>1.0.0-SNAPSHOT</version>
    <properties>
       <version.furnace>2.24.3.Final</version.furnace>
       <version.forge>3.4.0.Final</version.forge>

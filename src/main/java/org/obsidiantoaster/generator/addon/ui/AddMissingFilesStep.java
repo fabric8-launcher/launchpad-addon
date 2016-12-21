@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -33,6 +34,8 @@ public class AddMissingFilesStep implements UIWizardStep
       UIContext uiContext = context.getUIContext();
       Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       Project project = (Project) attributeMap.get(Project.class);
+      MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
+      String name = metadataFacet.getProjectName();
       DirectoryResource root = project.getRoot().reify(DirectoryResource.class);
       FileResource<?> child = root.getChild("README.md").reify(FileResource.class);
       try (InputStream stream = getClass().getResourceAsStream("README.md"))
@@ -43,7 +46,6 @@ public class AddMissingFilesStep implements UIWizardStep
       DirectoryResource fabric8Dir = root.getChildDirectory("src/main/fabric8");
       fabric8Dir.mkdirs();
       FileResource<?> routeYml = fabric8Dir.getChild("route.yml").reify(FileResource.class);
-      String name = (String) attributeMap.get("chosenProjectType");
       try (InputStream stream = getClass().getResourceAsStream("route.yml"))
       {
          String contents = Streams.toString(stream);

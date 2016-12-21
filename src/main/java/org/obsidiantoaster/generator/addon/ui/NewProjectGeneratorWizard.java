@@ -16,6 +16,7 @@
 package org.obsidiantoaster.generator.addon.ui;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -117,7 +118,8 @@ public class NewProjectGeneratorWizard implements UIWizard
       metadataFacet.setProjectVersion(version.getValue());
       metadataFacet.setProjectGroupName(Packages.toValidPackageName(topLevelPackage.getValue()));
       // Install the required facets
-      Iterable<Class<? extends ProjectFacet>> requiredFacets = type.getValue().getRequiredFacets();
+      ProjectType projectType = type.getValue();
+      Iterable<Class<? extends ProjectFacet>> requiredFacets = projectType.getRequiredFacets();
       if (requiredFacets != null)
       {
          for (Class<? extends ProjectFacet> facet : requiredFacets)
@@ -132,7 +134,9 @@ public class NewProjectGeneratorWizard implements UIWizard
 
       UIContext uiContext = context.getUIContext();
       uiContext.setSelection(project.getRoot());
-      uiContext.getAttributeMap().put(Project.class, project);
+      Map<Object, Object> attributeMap = uiContext.getAttributeMap();
+      attributeMap.put(Project.class, project);
+      attributeMap.put("chosenProjectType", projectType.toString());
 
       return Results.success();
    }
@@ -147,7 +151,7 @@ public class NewProjectGeneratorWizard implements UIWizard
          builder.add(nextStep.next(context));
       }
       builder.add(InstallFabric8PluginStep.class);
-      builder.add(AddReadmeStep.class);
+      builder.add(AddMissingFilesStep.class);
       return builder.build();
    }
 

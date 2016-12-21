@@ -28,7 +28,7 @@ To build the project, execute the following maven command:
 mvn clean install
 ```
 
-# OpenShift Online
+# Deploy in OpenShift Online
 
 1. Go to [OpenShift Online](https://console.dev-preview-int.openshift.com/console/command-line) to get the token used by the oc client for authentication and project access. 
 
@@ -42,3 +42,10 @@ mvn clean install
     ```
     mvn clean fabric8:deploy
     ```
+4.  To access the HTTP Server, execute this oc command to get the HOST/PORT address exposed by the route
+    ```
+    oc get route/<artifactid>
+    ```
+
+ 5. Next, simply curl or copy/paste the `http://HOST/PORT` address within your browser !   
+   

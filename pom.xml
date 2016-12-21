@@ -30,6 +30,7 @@
                <tagNameFormat>@{project.version}</tagNameFormat>
             </configuration>
          </plugin>
+         <!--
          <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -41,6 +42,7 @@
                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
             </configuration>
          </plugin>
+         -->
          <plugin>
             <artifactId>maven-jar-plugin</artifactId>
             <executions>
@@ -177,15 +179,4 @@
       <tag>HEAD</tag>
    </scm>
 
-   <distributionManagement>
-      <snapshotRepository>
-         <id>ossrh</id>
-         <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-      <repository>
-         <id>ossrh</id>
-         <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
-   </distributionManagement>
-
-</project>
+ </project>

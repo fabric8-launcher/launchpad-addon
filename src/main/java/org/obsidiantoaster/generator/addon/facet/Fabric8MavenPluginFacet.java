@@ -16,7 +16,6 @@ import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.facets.AbstractProjectFacet;
 
 import io.fabric8.forge.addon.utils.MavenHelpers;
-import io.fabric8.forge.addon.utils.VersionHelper;
 
 /**
  *
@@ -24,6 +23,7 @@ import io.fabric8.forge.addon.utils.VersionHelper;
  */
 public class Fabric8MavenPluginFacet extends AbstractProjectFacet
 {
+   private static final String FMP_VERSION = "3.1.92";
 
    @Override
    public boolean install()
@@ -32,8 +32,7 @@ public class Fabric8MavenPluginFacet extends AbstractProjectFacet
       ConfigurationElementBuilder elementBuilder = ConfigurationElementBuilder.create().setName("resources");
       elementBuilder.addChild("labels").addChild("service").addChild("expose").setText("true");
       MavenPluginBuilder pluginBuilder = MavenPluginBuilder.create()
-               .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-maven-plugin",
-                        VersionHelper.fabric8MavenPluginVersion()))
+               .setCoordinate(MavenHelpers.createCoordinate("io.fabric8", "fabric8-maven-plugin", FMP_VERSION))
                .setConfiguration(ConfigurationBuilder.create().addConfigurationElement(elementBuilder))
                .addExecution(ExecutionBuilder.create().addGoal("resource").addGoal("build"));
       MavenPluginFacet pluginFacet = project.getFacet(MavenPluginFacet.class);

@@ -22,7 +22,7 @@ import freemarker.template.Template;
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class TemplateTest
+public class TemplateRouteTest
 {
    @Test
    public void testTemplateProcessing() throws Exception

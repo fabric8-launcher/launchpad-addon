@@ -48,3 +48,14 @@ mvn clean install
     ```
 
  5. Next, simply curl or copy/paste the `http://HOST/PORT` address within your browser !
+
+ 6. Discover and play with <#switch type>
+                            <#case "vert.x">
+Eclipse Vert.x - [Doc][1]
+    [1] : http://vertx.io/docs/
+                                <#break>
+                            <#case "spring-boot">
+Spring Boot - [Doc][1]
+    [1] : https://spring.io/guides
+                                <#break>
+                            </#switch>

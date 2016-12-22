@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -9,7 +8,7 @@
    </parent>
    <groupId>org.obsidiantoaster.forge</groupId>
    <artifactId>obsidian-generator</artifactId>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>1.0.0.Alpha1</version>
    <properties>
       <version.furnace>2.24.3.Final</version.furnace>
       <version.forge>3.4.0.Final</version.forge>
@@ -182,7 +181,7 @@
       <connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</connection>
       <developerConnection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</developerConnection>
       <url>http://github.com/obsidian-toaster/obsidian-addon</url>
-      <tag>HEAD</tag>
+      <tag>1.0.0.Alpha1</tag>
    </scm>
 
 </project>

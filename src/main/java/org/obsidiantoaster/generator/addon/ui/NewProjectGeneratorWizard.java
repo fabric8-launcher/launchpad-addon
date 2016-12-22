@@ -152,8 +152,7 @@ public class NewProjectGeneratorWizard implements UIWizard
       {
          builder.add(nextStep.next(context));
       }
-      builder.add(InstallFabric8PluginStep.class);
-      builder.add(AddMissingFilesStep.class);
+      builder.add(PerformExtraTasksStep.class);
       return builder.build();
    }
 

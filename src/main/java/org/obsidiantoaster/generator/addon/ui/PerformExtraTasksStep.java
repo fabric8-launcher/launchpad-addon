@@ -7,11 +7,17 @@
 
 package org.obsidiantoaster.generator.addon.ui;
 
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.maven.model.Build;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.jboss.forge.addon.maven.projects.MavenFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
@@ -30,7 +36,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class AddMissingFilesStep implements UIWizardStep
+public class PerformExtraTasksStep implements UIWizardStep
 {
    @Inject
    TemplateFactory templateFactory;
@@ -46,9 +52,24 @@ public class AddMissingFilesStep implements UIWizardStep
       Project project = (Project) attributeMap.get(Project.class);
       DirectoryResource root = project.getRoot().reify(DirectoryResource.class);
 
+      // Add Fabric8 plugin
+      String pluginPomXml = getTemplateFor("plugin-template.xml.ftl").process(attributeMap);
+      Model pluginModel = new MavenXpp3Reader().read(new StringReader(pluginPomXml));
+      Plugin fabric8MavenPlugin = pluginModel.getBuild().getPlugins().get(0);
+      MavenFacet mavenFacet = project.getFacet(MavenFacet.class);
+      Model model = mavenFacet.getModel();
+      Build build = model.getBuild();
+      if (build == null)
+      {
+         build = new Build();
+         model.setBuild(build);
+      }
+      build.addPlugin(fabric8MavenPlugin);
+      mavenFacet.setModel(model);
+
       // Create README.md
       FileResource<?> child = root.getChild("README.md").reify(FileResource.class);
-      child.setContents(getTemplateFor("README.md").process(attributeMap));
+      child.setContents(getTemplateFor("README.md.ftl").process(attributeMap));
 
       // Create src/main/fabric8 dir
       DirectoryResource fabric8Dir = root.getChildDirectory("src/main/fabric8");
@@ -56,11 +77,11 @@ public class AddMissingFilesStep implements UIWizardStep
 
       // Create route.yml
       FileResource<?> routeYml = fabric8Dir.getChild("route.yml").reify(FileResource.class);
-      routeYml.setContents(getTemplateFor("route.yml").process(attributeMap));
+      routeYml.setContents(getTemplateFor("route.yml.ftl").process(attributeMap));
 
       // Create svc.yml
       FileResource<?> svcYml = fabric8Dir.getChild("svc.yml").reify(FileResource.class);
-      svcYml.setContents(getTemplateFor("svc.yml").process(attributeMap));
+      svcYml.setContents(getTemplateFor("svc.yml.ftl").process(attributeMap));
 
       return Results.success();
    }

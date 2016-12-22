@@ -40,7 +40,7 @@ import io.vertx.forge.project.VertxProjectType;
 public class ObsidianInitializer
 {
    @Inject
-   @ConfigValue("archetype.catalog")
+   @ConfigValue("ARCHETYPE_CATALOG")
    private String archetypeCatalogLocation;
 
    public void onInit(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) throws Exception

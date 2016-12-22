@@ -50,11 +50,7 @@ public class ConfigValueProducer
    public String configValueProducer(InjectionPoint ip)
    {
       ConfigValue configValue = ip.getAnnotated().getAnnotation(ConfigValue.class);
-      String property = System.getenv(configValue.value());
-      if (property == null)
-      {
-         property = System.getProperty(configValue.value());
-      }
+      String property = System.getProperty(configValue.value(), System.getenv(configValue.value()));
       return property != null ? property : properties.getProperty(configValue.value());
    }
 }

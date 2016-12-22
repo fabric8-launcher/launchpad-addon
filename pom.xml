@@ -8,7 +8,7 @@
    </parent>
    <groupId>org.obsidiantoaster.forge</groupId>
    <artifactId>obsidian-generator</artifactId>
-   <version>1.0.0.Alpha1</version>
+   <version>1.0.0-SNAPSHOT</version>
    <properties>
       <version.furnace>2.24.3.Final</version.furnace>
       <version.forge>3.4.0.Final</version.forge>
@@ -181,7 +181,7 @@
       <connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</connection>
       <developerConnection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</developerConnection>
       <url>http://github.com/obsidian-toaster/obsidian-addon</url>
-      <tag>1.0.0.Alpha1</tag>
+      <tag>HEAD</tag>
    </scm>
 
 </project>

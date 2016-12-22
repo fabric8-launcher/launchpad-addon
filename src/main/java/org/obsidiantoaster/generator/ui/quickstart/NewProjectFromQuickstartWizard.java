@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.addon.ui;
+package org.obsidiantoaster.generator.ui.quickstart;
 
 import java.io.File;
 import java.nio.file.Files;

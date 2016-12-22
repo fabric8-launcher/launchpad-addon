@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.addon.ui;
+package org.obsidiantoaster.generator.ui.starter;
 
 import java.io.StringReader;
 import java.net.URL;

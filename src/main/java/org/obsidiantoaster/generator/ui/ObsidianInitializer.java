@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.addon.ui;
+package org.obsidiantoaster.generator.ui;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -24,11 +24,11 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.obsidiantoaster.generator.addon.ui.config.ConfigValue;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
+import org.obsidiantoaster.generator.config.ConfigValue;
 
 import io.fabric8.forge.devops.springboot.SpringBootProjectType;
 import io.vertx.forge.project.VertxProjectType;

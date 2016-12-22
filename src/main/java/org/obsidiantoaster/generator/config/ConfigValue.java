@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.addon.ui.config;
+package org.obsidiantoaster.generator.config;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;

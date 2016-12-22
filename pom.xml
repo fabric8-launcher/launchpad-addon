@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -15,7 +16,7 @@
       <version.wildfly-swarm>1.0.8.Final</version.wildfly-swarm>
       <version.fabric8.devops>2.3.80</version.fabric8.devops>
       <version.vertx>1.1.0</version.vertx>
-      
+
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,7 +31,6 @@
                <tagNameFormat>@{project.version}</tagNameFormat>
             </configuration>
          </plugin>
-         <!--
          <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -38,11 +38,10 @@
             <extensions>true</extensions>
             <configuration>
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-               <serverId>ossrh</serverId>
-               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+               <serverId>jboss-releases-repository</serverId>
+               <nexusUrl>https://repository.jboss.org/nexus/</nexusUrl>
             </configuration>
          </plugin>
-         -->
          <plugin>
             <artifactId>maven-jar-plugin</artifactId>
             <executions>
@@ -116,6 +115,13 @@
          <scope>provided</scope>
       </dependency>
 
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>templates</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
       <dependency>
          <groupId>org.jboss.forge.furnace.test</groupId>
          <artifactId>furnace-test-harness</artifactId>
@@ -179,4 +185,4 @@
       <tag>HEAD</tag>
    </scm>
 
- </project>
+</project>

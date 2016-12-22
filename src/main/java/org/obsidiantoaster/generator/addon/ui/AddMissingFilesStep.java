@@ -7,20 +7,24 @@
 
 package org.obsidiantoaster.generator.addon.ui;
 
-import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
-import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
+import org.jboss.forge.addon.resource.Resource;
+import org.jboss.forge.addon.resource.ResourceFactory;
+import org.jboss.forge.addon.templates.Template;
+import org.jboss.forge.addon.templates.TemplateFactory;
+import org.jboss.forge.addon.templates.freemarker.FreemarkerTemplate;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
-import org.jboss.forge.furnace.util.Streams;
 
 /**
  *
@@ -28,37 +32,43 @@ import org.jboss.forge.furnace.util.Streams;
  */
 public class AddMissingFilesStep implements UIWizardStep
 {
+   @Inject
+   TemplateFactory templateFactory;
+
+   @Inject
+   ResourceFactory resourceFactory;
+
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
       UIContext uiContext = context.getUIContext();
       Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       Project project = (Project) attributeMap.get(Project.class);
-      MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
-      String name = metadataFacet.getProjectName();
       DirectoryResource root = project.getRoot().reify(DirectoryResource.class);
+
+      // Create README.md
       FileResource<?> child = root.getChild("README.md").reify(FileResource.class);
-      try (InputStream stream = getClass().getResourceAsStream("README.md"))
-      {
-         child.setContents(stream);
-      }
+      child.setContents(getTemplateFor("README.md").process(attributeMap));
+
       // Create src/main/fabric8 dir
       DirectoryResource fabric8Dir = root.getChildDirectory("src/main/fabric8");
       fabric8Dir.mkdirs();
+
+      // Create route.yml
       FileResource<?> routeYml = fabric8Dir.getChild("route.yml").reify(FileResource.class);
-      try (InputStream stream = getClass().getResourceAsStream("route.yml"))
-      {
-         String contents = Streams.toString(stream);
-         routeYml.setContents(contents.replaceAll(Pattern.quote("${name}"), name));
-      }
+      routeYml.setContents(getTemplateFor("route.yml").process(attributeMap));
+
+      // Create svc.yml
       FileResource<?> svcYml = fabric8Dir.getChild("svc.yml").reify(FileResource.class);
-      try (InputStream stream = getClass().getResourceAsStream("svc.yml"))
-      {
-         String contents = Streams.toString(stream);
-         svcYml.setContents(contents.replaceAll(Pattern.quote("${name}"), name));
-      }
+      svcYml.setContents(getTemplateFor("svc.yml").process(attributeMap));
 
       return Results.success();
+   }
+
+   private Template getTemplateFor(String name)
+   {
+      Resource<URL> resource = resourceFactory.create(getClass().getResource(name));
+      return templateFactory.create(resource, FreemarkerTemplate.class);
    }
 
 }

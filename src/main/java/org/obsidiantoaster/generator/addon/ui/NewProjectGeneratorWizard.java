@@ -136,7 +136,9 @@ public class NewProjectGeneratorWizard implements UIWizard
       uiContext.setSelection(project.getRoot());
       Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       attributeMap.put(Project.class, project);
-      attributeMap.put("chosenProjectType", projectType.toString());
+
+      attributeMap.put("name", metadataFacet.getProjectName());
+      attributeMap.put("type", projectType.toString());
 
       return Results.success();
    }

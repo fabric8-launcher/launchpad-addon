@@ -47,5 +47,4 @@ mvn clean install
     oc get route/<artifactid>
     ```
 
- 5. Next, simply curl or copy/paste the `http://HOST/PORT` address within your browser !   
-   
+ 5. Next, simply curl or copy/paste the `http://HOST/PORT` address within your browser !

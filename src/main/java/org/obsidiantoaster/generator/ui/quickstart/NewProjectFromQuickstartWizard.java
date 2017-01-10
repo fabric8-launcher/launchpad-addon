@@ -114,9 +114,6 @@ public class NewProjectFromQuickstartWizard implements UICommand
                .setArtifactId(chosenArchetype.getArtifactId())
                .setVersion(chosenArchetype.getVersion());
       DependencyQueryBuilder depQuery = DependencyQueryBuilder.create(coordinate);
-      // TODO: Using JBoss nexus repository for now
-      depQuery.setRepositories(new DependencyRepository("archetypes",
-               "https://repository.jboss.org/nexus/content/repositories/snapshots"));
       Dependency resolvedArtifact = dependencyResolver.resolveArtifact(depQuery);
       FileResource<?> artifact = resolvedArtifact.getArtifact();
       File tmpDir = Files.createTempDirectory("projectdir").toFile();

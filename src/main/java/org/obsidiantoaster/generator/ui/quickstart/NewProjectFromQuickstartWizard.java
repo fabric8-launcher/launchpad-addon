@@ -57,7 +57,8 @@ public class NewProjectFromQuickstartWizard implements UICommand
    private UISelectOne<Archetype> type;
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
+   @WithAttributes(label = "Project name", required = true, defaultValue = "demo",
+           note = "Downloadable project zip and application jar are based on the project name")
    private UIInput<String> named;
 
    @Inject

@@ -19,6 +19,12 @@
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+       
+      <!-- SCM Properties -->
+      <obs.scm.git.connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</obs.scm.git.connection>
+      <obs.scm.dev.connection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</obs.scm.dev.connection>
+      <obs.scm.url>http://github.com/obsidian-toaster/obsidian-addon</obs.scm.url>
+      <obs.scm.tag>HEAD</obs.scm.tag>
    </properties>
    <build>
       <finalName>obsidian-generator</finalName>
@@ -178,10 +184,10 @@
    </profiles>
 
    <scm>
-      <connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</connection>
-      <developerConnection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</developerConnection>
-      <url>http://github.com/obsidian-toaster/obsidian-addon</url>
-      <tag>HEAD</tag>
+      <connection>${obs.scm.git.connection}</connection>
+      <developerConnection>${obs.scm.dev.connection}</developerConnection>
+      <url>${obs.scm.url}</url>
+      <tag>${obs.scm.tag}</tag>
    </scm>
 
 </project>

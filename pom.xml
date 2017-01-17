@@ -49,6 +49,7 @@
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
                <serverId>${serverId}</serverId>
                <nexusUrl>${nexusUrl}</nexusUrl>
+               <skipStaging>true</skipStaging>
             </configuration>
          </plugin>
          <plugin>

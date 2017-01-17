@@ -25,6 +25,10 @@
       <obs.scm.dev.connection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</obs.scm.dev.connection>
       <obs.scm.url>http://github.com/obsidian-toaster/obsidian-addon</obs.scm.url>
       <obs.scm.tag>HEAD</obs.scm.tag>
+
+      <!-- Nexus Staging Repo -->
+      <serverId>jboss-releases-repository</serverId>
+      <nexusUrl>https://repository.jboss.org/nexus/</nexusUrl>
    </properties>
    <build>
       <finalName>obsidian-generator</finalName>
@@ -43,8 +47,8 @@
             <extensions>true</extensions>
             <configuration>
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-               <serverId>jboss-releases-repository</serverId>
-               <nexusUrl>https://repository.jboss.org/nexus/</nexusUrl>
+               <serverId>${serverId}</serverId>
+               <nexusUrl>${nexusUrl}</nexusUrl>
             </configuration>
          </plugin>
          <plugin>

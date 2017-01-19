@@ -29,6 +29,7 @@
       <!-- Nexus Staging Repo -->
       <serverId>jboss-releases-repository</serverId>
       <nexusUrl>https://repository.jboss.org/nexus/</nexusUrl>
+      <skipStaging>false</skipStaging>
    </properties>
    <build>
       <finalName>obsidian-generator</finalName>
@@ -49,7 +50,7 @@
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
                <serverId>${serverId}</serverId>
                <nexusUrl>${nexusUrl}</nexusUrl>
-               <skipStaging>true</skipStaging>
+               <skipStaging>${skipStaging}</skipStaging>
             </configuration>
          </plugin>
          <plugin>

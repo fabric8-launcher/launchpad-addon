@@ -18,6 +18,7 @@ package org.obsidiantoaster.generator.ui;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -46,6 +47,8 @@ public class ObsidianInitializer
 
    public void onInit(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) throws Exception
    {
+      Logger.getLogger(getClass().getName())
+               .info("Registering the following archetype catalog location: " + archetypeCatalogLocation);
       registry.addArchetypeCatalogFactory("Quickstarts", new URL(archetypeCatalogLocation));
    }
 
@@ -53,7 +56,7 @@ public class ObsidianInitializer
    @ApplicationScoped
    public List<ProjectType> getSupportedProjectTypes(
             SpringBootProjectType springBoot,
-             WildFlySwarmProjectType wildFlySwarm,
+            WildFlySwarmProjectType wildFlySwarm,
             VertxProjectType vertx)
    {
       return Arrays.asList(springBoot, wildFlySwarm, vertx);

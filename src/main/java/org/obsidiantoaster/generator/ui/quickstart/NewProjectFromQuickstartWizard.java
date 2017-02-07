@@ -24,12 +24,11 @@ import javax.inject.Inject;
 import org.apache.maven.archetype.catalog.Archetype;
 import org.jboss.forge.addon.dependencies.Coordinate;
 import org.jboss.forge.addon.dependencies.Dependency;
-import org.jboss.forge.addon.dependencies.DependencyRepository;
 import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
-import org.jboss.forge.addon.maven.projects.archetype.ArchetypeHelper;
+import org.jboss.forge.addon.maven.archetype.ArchetypeHelper;
 import org.jboss.forge.addon.parser.java.utils.Packages;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.command.UICommand;
@@ -57,8 +56,7 @@ public class NewProjectFromQuickstartWizard implements UICommand
    private UISelectOne<Archetype> type;
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo",
-           note = "Downloadable project zip and application jar are based on the project name")
+   @WithAttributes(label = "Project name", required = true, defaultValue = "demo", note = "Downloadable project zip and application jar are based on the project name")
    private UIInput<String> named;
 
    @Inject

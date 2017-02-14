@@ -43,6 +43,7 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+import org.obsidiantoaster.generator.ui.ObsidianInitializer;
 
 /**
  * The project type for
@@ -87,7 +88,8 @@ public class NewProjectFromQuickstartWizard implements UICommand
       {
          type.setItemLabelConverter(Archetype::getDescription);
       }
-      List<Archetype> archetypes = registry.getArchetypeCatalogFactory("Quickstarts").getArchetypeCatalog()
+      List<Archetype> archetypes = registry.getArchetypeCatalogFactory(ObsidianInitializer.OBSIDIAN_QUICKSTARTS_CATALOG)
+               .getArchetypeCatalog()
                .getArchetypes();
       type.setValueChoices(archetypes);
       if (!archetypes.isEmpty())

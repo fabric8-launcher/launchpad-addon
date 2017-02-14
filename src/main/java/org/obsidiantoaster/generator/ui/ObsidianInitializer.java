@@ -41,6 +41,8 @@ import io.vertx.forge.project.VertxProjectType;
  */
 public class ObsidianInitializer
 {
+   public static final String OBSIDIAN_QUICKSTARTS_CATALOG = "Quickstarts";
+
    @Inject
    @ConfigValue("ARCHETYPE_CATALOG")
    private String archetypeCatalogLocation;
@@ -49,7 +51,7 @@ public class ObsidianInitializer
    {
       Logger.getLogger(getClass().getName())
                .info("Registering the following archetype catalog location: " + archetypeCatalogLocation);
-      registry.addArchetypeCatalogFactory("Quickstarts", new URL(archetypeCatalogLocation));
+      registry.addArchetypeCatalogFactory(OBSIDIAN_QUICKSTARTS_CATALOG, new URL(archetypeCatalogLocation));
    }
 
    @Produces

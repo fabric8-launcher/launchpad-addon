@@ -10,8 +10,8 @@
    <artifactId>obsidian-generator</artifactId>
    <version>1.0.0-SNAPSHOT</version>
    <properties>
-      <version.furnace>2.25.0.Final</version.furnace>
-      <version.forge>3.5.0.Final</version.forge>
+      <version.furnace>2.25.2.Final</version.furnace>
+      <version.forge>3.5.1.Final</version.forge>
       <version.wildfly-swarm>2017.2.0</version.wildfly-swarm>
       <version.fabric8.devops>2.3.80</version.fabric8.devops>
       <version.vertx>1.2.1</version.vertx>

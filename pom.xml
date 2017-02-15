@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -19,7 +20,7 @@
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-       
+
       <!-- SCM Properties -->
       <obs.scm.git.connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</obs.scm.git.connection>
       <obs.scm.dev.connection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</obs.scm.dev.connection>
@@ -34,6 +35,27 @@
    <build>
       <finalName>obsidian-generator</finalName>
       <plugins>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>flush-archetypes</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                     <goal>java</goal>
+                  </goals>
+                  <configuration>
+                     <mainClass>org.obsidiantoaster.generator.ui.quickstart.FlushArchetypes</mainClass>
+                     <classpathScope>compile</classpathScope>
+                     <arguments>
+                        <argument>https://repository.jboss.org/nexus/service/local/artifact/maven/redirect?r=public&amp;g=org.obsidiantoaster&amp;a=archetypes-catalog&amp;v=${project.version}&amp;e=xml&amp;c=archetype-catalog</argument>
+                        <argument>${project.build.directory}/classes/org/obsidiantoaster/generator/ui/quickstart</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <artifactId>maven-release-plugin</artifactId>
             <configuration>

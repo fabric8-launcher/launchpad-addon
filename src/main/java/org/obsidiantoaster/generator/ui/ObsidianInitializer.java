@@ -15,22 +15,18 @@
  */
 package org.obsidiantoaster.generator.ui;
 
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.addon.swarm.project.WildFlySwarmProjectType;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
-import org.obsidiantoaster.generator.config.ConfigValue;
 
 import io.fabric8.forge.devops.springboot.SpringBootProjectType;
 import io.vertx.forge.project.VertxProjectType;
@@ -43,15 +39,10 @@ public class ObsidianInitializer
 {
    public static final String OBSIDIAN_QUICKSTARTS_CATALOG = "Quickstarts";
 
-   @Inject
-   @ConfigValue("ARCHETYPE_CATALOG")
-   private String archetypeCatalogLocation;
-
    public void onInit(@Observes @Local PostStartup startup, ArchetypeCatalogFactoryRegistry registry) throws Exception
    {
-      Logger.getLogger(getClass().getName())
-               .info("Registering the following archetype catalog location: " + archetypeCatalogLocation);
-      registry.addArchetypeCatalogFactory(OBSIDIAN_QUICKSTARTS_CATALOG, new URL(archetypeCatalogLocation));
+      registry.addArchetypeCatalogFactory(OBSIDIAN_QUICKSTARTS_CATALOG,
+               getClass().getResource("archetype-catalog.xml"));
    }
 
    @Produces

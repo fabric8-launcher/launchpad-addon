@@ -22,6 +22,7 @@ import org.apache.maven.archetype.catalog.Archetype;
 import org.apache.maven.archetype.catalog.ArchetypeCatalog;
 import org.apache.maven.archetype.catalog.io.xpp3.ArchetypeCatalogXpp3Reader;
 import org.jboss.forge.addon.dependencies.Dependency;
+import org.jboss.forge.addon.dependencies.DependencyRepository;
 import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.dependencies.MavenDependencyResolver;
@@ -80,7 +81,9 @@ public class FlushArchetypes
                      .setGroupId(archetype.getGroupId())
                      .setArtifactId(archetype.getArtifactId())
                      .setVersion(archetype.getVersion());
-            Dependency artifact = resolver.resolveArtifact(DependencyQueryBuilder.create(coordinate));
+            Dependency artifact = resolver.resolveArtifact(
+                     DependencyQueryBuilder.create(coordinate).setRepositories(new DependencyRepository(
+                              "jboss-repository", "http://repository.jboss.org/nexus/content/groups/public/")));
             FileResource<?> file = artifact.getArtifact();
             File targetFile = new File(outputPath, archetype.getArtifactId() + ".jar").getAbsoluteFile();
             log.info(String.format("Copying %s to %s %n", file, targetFile));

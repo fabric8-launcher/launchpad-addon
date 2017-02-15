@@ -16,21 +16,16 @@
 package org.obsidiantoaster.generator.ui.quickstart;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import org.apache.maven.archetype.catalog.Archetype;
-import org.jboss.forge.addon.dependencies.Coordinate;
-import org.jboss.forge.addon.dependencies.Dependency;
-import org.jboss.forge.addon.dependencies.DependencyResolver;
-import org.jboss.forge.addon.dependencies.builder.CoordinateBuilder;
-import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.archetype.ArchetypeHelper;
 import org.jboss.forge.addon.parser.java.utils.Packages;
-import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -71,9 +66,6 @@ public class NewProjectFromQuickstartWizard implements UICommand
    @Inject
    private ArchetypeCatalogFactoryRegistry registry;
 
-   @Inject
-   private DependencyResolver dependencyResolver;
-
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
@@ -111,14 +103,9 @@ public class NewProjectFromQuickstartWizard implements UICommand
    public Result execute(UIExecutionContext context) throws Exception
    {
       Archetype chosenArchetype = type.getValue();
-      Coordinate coordinate = CoordinateBuilder.create().setGroupId(chosenArchetype.getGroupId())
-               .setArtifactId(chosenArchetype.getArtifactId())
-               .setVersion(chosenArchetype.getVersion());
-      DependencyQueryBuilder depQuery = DependencyQueryBuilder.create(coordinate);
-      Dependency resolvedArtifact = dependencyResolver.resolveArtifact(depQuery);
-      FileResource<?> artifact = resolvedArtifact.getArtifact();
+      InputStream artifactStream = getClass().getResourceAsStream(chosenArchetype.getArtifactId() + ".jar");
       File tmpDir = Files.createTempDirectory("projectdir").toFile();
-      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifact.getResourceInputStream(), tmpDir,
+      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifactStream, tmpDir,
                topLevelPackage.getValue(), named.getValue(),
                version.getValue());
       archetypeHelper.setPackageName(Packages.toValidPackageName(topLevelPackage.getValue()) + "."

@@ -43,6 +43,8 @@ import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+import org.obsidiantoaster.generator.ui.input.ProjectName;
+import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
 
 /**
  * The project type for
@@ -56,12 +58,10 @@ public class NewProjectGeneratorWizard implements UIWizard
    private UISelectOne<ProjectType> type;
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
-   private UIInput<String> named;
+   private ProjectName named;
 
    @Inject
-   @WithAttributes(label = "Top level package", defaultValue = "com.example")
-   private UIInput<String> topLevelPackage;
+   private TopLevelPackage topLevelPackage;
 
    @Inject
    @WithAttributes(label = "Project version", required = true, defaultValue = "1.0.0-SNAPSHOT")
@@ -83,12 +83,6 @@ public class NewProjectGeneratorWizard implements UIWizard
    public void initializeUI(UIBuilder builder) throws Exception
    {
       UIContext uiContext = builder.getUIContext();
-      named.addValidator(context -> {
-         if (named.getValue() != null && named.getValue().matches(".*[^-_.a-zA-Z0-9].*"))
-            context.addValidationError(named,
-                     "Project name must not contain spaces or special characters.");
-      });
-
       if (uiContext.getProvider().isGUI())
       {
          type.setItemLabelConverter(ProjectType::getType);

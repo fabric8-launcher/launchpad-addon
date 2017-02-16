@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -39,6 +40,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.obsidiantoaster.generator.ui.ObsidianInitializer;
+import org.obsidiantoaster.generator.ui.input.ProjectName;
+import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
 
 /**
  * The project type for
@@ -47,17 +50,18 @@ import org.obsidiantoaster.generator.ui.ObsidianInitializer;
  */
 public class NewProjectFromQuickstartWizard implements UICommand
 {
+
+   private static final Pattern SPECIAL_CHARS = Pattern.compile(".*[^-_.a-zA-Z0-9].*");
+
    @Inject
    @WithAttributes(label = "Project type", required = true)
    private UISelectOne<Archetype> type;
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo", note = "Downloadable project zip and application jar are based on the project name")
-   private UIInput<String> named;
+   private ProjectName named;
 
    @Inject
-   @WithAttributes(label = "Top level package", defaultValue = "com.example")
-   private UIInput<String> topLevelPackage;
+   private TopLevelPackage topLevelPackage;
 
    @Inject
    @WithAttributes(label = "Project version", required = true, defaultValue = "1.0.0-SNAPSHOT")
@@ -70,11 +74,6 @@ public class NewProjectFromQuickstartWizard implements UICommand
    public void initializeUI(UIBuilder builder) throws Exception
    {
       UIContext uiContext = builder.getUIContext();
-      named.addValidator(context -> {
-         if (named.getValue() != null && named.getValue().matches(".*[^-_.a-zA-Z0-9].*"))
-            context.addValidationError(named,
-                     "Project name must not contain spaces or special characters.");
-      });
 
       if (uiContext.getProvider().isGUI())
       {

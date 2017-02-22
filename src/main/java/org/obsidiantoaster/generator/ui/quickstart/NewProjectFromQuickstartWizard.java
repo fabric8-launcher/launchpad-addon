@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -50,9 +49,6 @@ import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
  */
 public class NewProjectFromQuickstartWizard implements UICommand
 {
-
-   private static final Pattern SPECIAL_CHARS = Pattern.compile(".*[^-_.a-zA-Z0-9].*");
-
    @Inject
    @WithAttributes(label = "Project type", required = true)
    private UISelectOne<Archetype> type;

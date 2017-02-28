@@ -26,7 +26,6 @@ import org.apache.maven.archetype.catalog.Archetype;
 import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
 import org.jboss.forge.addon.maven.archetype.ArchetypeHelper;
 import org.jboss.forge.addon.parser.java.utils.Packages;
-import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -38,6 +37,7 @@ import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+import org.jboss.forge.addon.ui.wizard.UIWizard;
 import org.obsidiantoaster.generator.ui.ObsidianInitializer;
 import org.obsidiantoaster.generator.ui.input.ProjectName;
 import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
@@ -47,7 +47,7 @@ import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class NewProjectFromQuickstartWizard implements UICommand
+public class NewProjectFromQuickstartWizard implements UIWizard
 {
    @Inject
    @WithAttributes(label = "Project type", required = true)

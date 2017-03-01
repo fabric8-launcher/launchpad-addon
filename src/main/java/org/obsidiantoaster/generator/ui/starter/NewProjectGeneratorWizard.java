@@ -140,6 +140,10 @@ public class NewProjectGeneratorWizard implements UIWizard
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      attributeMap.put("name", named.getValue());
+      attributeMap.put("type", type.getValue());
+
       NavigationResultBuilder builder = NavigationResultBuilder.create();
       ProjectType nextStep = type.getValue();
       if (nextStep != null)

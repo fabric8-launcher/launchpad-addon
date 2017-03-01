@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -29,10 +30,12 @@ import org.jboss.forge.addon.parser.java.utils.Packages;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
@@ -92,6 +95,15 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       return Metadata.forCommand(getClass()).name("Obsidian: New Quickstart")
                .description("Generate your project from a quickstart")
                .category(Categories.create("Obsidian"));
+   }
+
+   @Override
+   public NavigationResult next(UINavigationContext context) throws Exception
+   {
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      attributeMap.put("name", named.getValue());
+      attributeMap.put("type", type.getValue());
+      return null;
    }
 
    @Override

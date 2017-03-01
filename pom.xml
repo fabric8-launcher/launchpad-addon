@@ -12,7 +12,7 @@
    <properties>
       <version.furnace>2.25.2.Final</version.furnace>
       <version.forge>3.6.0.Alpha1</version.forge>
-      <version.wildfly-swarm>2017.2.0</version.wildfly-swarm>
+      <version.wildfly-swarm>2017.3.2</version.wildfly-swarm>
       <version.fabric8.devops>2.3.80</version.fabric8.devops>
       <version.vertx>1.2.1</version.vertx>
 

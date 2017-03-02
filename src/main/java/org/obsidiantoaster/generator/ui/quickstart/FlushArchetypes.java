@@ -87,7 +87,7 @@ public class FlushArchetypes
             FileResource<?> file = artifact.getArtifact();
             File targetFile = new File(outputPath, archetype.getArtifactId() + ".jar").getAbsoluteFile();
             log.info(String.format("Copying %s to %s %n", file, targetFile));
-            io.fabric8.utils.Files.copy(file.getUnderlyingResourceObject(), targetFile);
+            Files.copy(file.getUnderlyingResourceObject().toPath(), targetFile.toPath());
          }
       }
    }

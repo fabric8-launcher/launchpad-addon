@@ -10,7 +10,7 @@
          <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>fabric8-maven-plugin</artifactId>
-            <version>3.1.92</version>
+            <version>${version.fabric8-maven-plugin}</version>
             <executions>
                <execution>
                   <goals>

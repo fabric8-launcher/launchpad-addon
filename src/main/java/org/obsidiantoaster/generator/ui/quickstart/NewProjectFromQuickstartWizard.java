@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.eclipse.jgit.api.Git;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.resource.ResourceFactory;
@@ -132,12 +133,29 @@ public class NewProjectFromQuickstartWizard implements UIWizard
                .setCloneAllBranches(false)
                .call().close();
       // Perform changes
-      MavenModelResource modelResource = resourceFactory.create(new File(projectDir, "pom.xml"))
-               .reify(MavenModelResource.class);
+      MavenModelResource modelResource = resourceFactory.create(MavenModelResource.class,
+               new File(projectDir, "pom.xml"));
       Model model = modelResource.getCurrentModel();
       model.setGroupId(topLevelPackage.getValue());
       model.setArtifactId(named.getValue());
       model.setVersion(version.getValue());
+
+      // Change child modules
+      for (String module : model.getModules())
+      {
+         File moduleDir = new File(projectDir, module);
+         MavenModelResource moduleModelResource = resourceFactory.create(MavenModelResource.class,
+                  new File(moduleDir, "pom.xml"));
+         Model moduleModel = modelResource.getCurrentModel();
+         Parent parent = moduleModel.getParent();
+         if (parent != null)
+         {
+            parent.setGroupId(model.getGroupId());
+            parent.setArtifactId(model.getArtifactId());
+            parent.setVersion(model.getVersion());
+            moduleModelResource.setCurrentModel(moduleModel);
+         }
+      }
       // FIXME: Change package name
       modelResource.setCurrentModel(model);
       // Delete unwanted files

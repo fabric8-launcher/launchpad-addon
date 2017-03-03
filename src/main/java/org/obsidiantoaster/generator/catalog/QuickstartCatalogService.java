@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -55,14 +58,17 @@ public class QuickstartCatalogService
    private List<Quickstart> quickstarts = new ArrayList<>();
 
    private ScheduledExecutorService executorService;
+   private ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    @Inject
    private ClientFactory clientFactory;
 
    void index() throws IOException
    {
+      WriteLock lock = reentrantLock.writeLock();
       try
       {
+         lock.lock();
          if (catalogPath == null)
          {
             catalogPath = Files.createTempDirectory("quickstart-catalog");
@@ -123,6 +129,10 @@ public class QuickstartCatalogService
       {
          throw new IOException("Error while performing GIT operation", cause);
       }
+      finally
+      {
+         lock.unlock();
+      }
    }
 
    @PostConstruct
@@ -171,7 +181,16 @@ public class QuickstartCatalogService
    public List<Quickstart> getQuickstarts()
    {
       List<Quickstart> result = new ArrayList<>();
-      result.addAll(quickstarts);
+      Lock readLock = reentrantLock.readLock();
+      try
+      {
+         readLock.lock();
+         result.addAll(quickstarts);
+      }
+      finally
+      {
+         readLock.unlock();
+      }
       return result;
    }
 }

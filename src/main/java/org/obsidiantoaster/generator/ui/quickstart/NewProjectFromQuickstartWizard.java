@@ -99,7 +99,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       {
          type.setDefaultValue(quickstarts.get(0));
       }
-      type.setDescription(() -> type.getValue().getDescription());
+      type.setDescription(() -> type.hasValue() ? type.getValue().getDescription() : null);
       builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 

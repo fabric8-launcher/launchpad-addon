@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -45,14 +48,14 @@ import org.yaml.snakeyaml.Yaml;
 public class QuickstartCatalogService
 {
    private static final String QUICKSTART_METADATA_URL_TEMPLATE = "https://raw.githubusercontent.com/{githubRepo}/{githubRef}/{obsidianDescriptorPath}";
-
    private static final String GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
-
-   private Logger logger = Logger.getLogger(getClass().getName());
+   private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
    private Path catalogPath;
 
    private List<Quickstart> quickstarts = new ArrayList<>();
+
+   private ScheduledExecutorService executorService;
 
    @Inject
    private ClientFactory clientFactory;
@@ -134,19 +137,29 @@ public class QuickstartCatalogService
    @PostConstruct
    void init()
    {
-      try
-      {
-         index();
-      }
-      catch (IOException e)
-      {
-         e.printStackTrace();
-      }
+      executorService = Executors.newScheduledThreadPool(1);
+      // Index every 5 minutes
+      executorService.scheduleAtFixedRate(() -> {
+         try
+         {
+            logger.info("Indexing contents ...");
+            index();
+            logger.info("Finished content indexing");
+         }
+         catch (IOException e)
+         {
+            e.printStackTrace();
+         }
+      }, 0, 5, TimeUnit.MINUTES);
    }
 
    @PreDestroy
    void destroy()
    {
+      if (executorService != null)
+      {
+         executorService.shutdown();
+      }
       if (catalogPath != null)
       {
          logger.info("Removing " + catalogPath);

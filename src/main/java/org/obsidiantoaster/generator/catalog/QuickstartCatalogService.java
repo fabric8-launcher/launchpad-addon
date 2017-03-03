@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -60,15 +59,7 @@ public class QuickstartCatalogService
    @Inject
    private ClientFactory clientFactory;
 
-   /**
-    * Find a {@link Quickstart} by its id
-    */
-   public Optional<Quickstart> getQuickstart(String id)
-   {
-      return quickstarts.stream().filter(q -> id.equals(q.getId())).findAny();
-   }
-
-   public void index() throws IOException
+   void index() throws IOException
    {
       try
       {

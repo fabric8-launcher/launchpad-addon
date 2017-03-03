@@ -7,6 +7,8 @@
 
 package org.obsidiantoaster.generator.catalog.model;
 
+import java.beans.Transient;
+
 /**
  * A quickstart representation
  * 
@@ -119,6 +121,7 @@ public class Quickstart
    /**
     * @return the metadata
     */
+   @Transient
    public QuickstartMetadata getMetadata()
    {
       return metadata;

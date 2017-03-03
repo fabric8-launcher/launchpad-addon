@@ -8,7 +8,7 @@
    </parent>
    <groupId>org.obsidiantoaster.forge</groupId>
    <artifactId>obsidian-generator</artifactId>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>1.0.0.Alpha2_02</version>
    <properties>
       <version.furnace>2.25.2.Final</version.furnace>
       <version.forge>3.6.0.Alpha2</version.forge>
@@ -214,7 +214,7 @@
       <connection>${obs.scm.git.connection}</connection>
       <developerConnection>${obs.scm.dev.connection}</developerConnection>
       <url>${obs.scm.url}</url>
-      <tag>${obs.scm.tag}</tag>
+      <tag>1.0.0.Alpha2_02</tag>
    </scm>
 
 </project>

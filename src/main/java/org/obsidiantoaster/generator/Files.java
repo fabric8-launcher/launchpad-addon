@@ -19,6 +19,12 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class Files
 {
+   public static String removeFileExtension(String file)
+   {
+      int idx = file.lastIndexOf('.');
+      return idx > 0 ? file.substring(0, idx) : file;
+   }
+
    /**
     * @throws IOException
     */

@@ -44,14 +44,9 @@ import org.yaml.snakeyaml.Yaml;
 @Singleton
 public class QuickstartCatalogService
 {
-   /**
-    * 
-    */
    private static final String QUICKSTART_METADATA_URL_TEMPLATE = "https://raw.githubusercontent.com/{githubRepo}/{githubRef}/{obsidianDescriptorPath}";
 
-   // @Inject
-   // @ConfigurationValue("GIT_REPO")
-   private String gitRepository = "https://github.com/obsidian-toaster/quickstart-catalog.git";
+   private static final String GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
 
    private Logger logger = Logger.getLogger(getClass().getName());
 
@@ -79,7 +74,7 @@ public class QuickstartCatalogService
             catalogPath = Files.createTempDirectory("quickstart-catalog");
             logger.info("Created " + catalogPath);
             // Clone repository here
-            Git.cloneRepository().setProgressMonitor(new TextProgressMonitor()).setURI(gitRepository)
+            Git.cloneRepository().setProgressMonitor(new TextProgressMonitor()).setURI(GIT_REPOSITORY)
                      .setDirectory(catalogPath.toFile()).call().close();
          }
          else
@@ -109,7 +104,7 @@ public class QuickstartCatalogService
                   {
                      // Read YAML entry
                      Quickstart quickstart = yaml.loadAs(reader, Quickstart.class);
-                     quickstart.setId(file.toFile().getName());
+                     quickstart.setId(org.obsidiantoaster.generator.Files.removeFileExtension(file.toFile().getName()));
                      Map<String, Object> templateValues = new HashMap<>();
                      templateValues.put("githubRepo", quickstart.getGithubRepo());
                      templateValues.put("githubRef", quickstart.getGitRef());

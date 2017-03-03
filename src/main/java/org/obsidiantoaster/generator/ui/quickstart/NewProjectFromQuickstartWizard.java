@@ -16,17 +16,19 @@
 package org.obsidiantoaster.generator.ui.quickstart;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.maven.archetype.catalog.Archetype;
-import org.jboss.forge.addon.maven.archetype.ArchetypeCatalogFactoryRegistry;
-import org.jboss.forge.addon.maven.archetype.ArchetypeHelper;
-import org.jboss.forge.addon.parser.java.utils.Packages;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
+import org.eclipse.jgit.api.Git;
+import org.jboss.forge.addon.maven.resources.MavenModelResource;
+import org.jboss.forge.addon.resource.ResourceFactory;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -41,7 +43,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.obsidiantoaster.generator.ui.ObsidianInitializer;
+import org.obsidiantoaster.generator.catalog.QuickstartCatalogService;
+import org.obsidiantoaster.generator.catalog.model.Quickstart;
 import org.obsidiantoaster.generator.ui.input.ProjectName;
 import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
 
@@ -52,9 +55,14 @@ import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
  */
 public class NewProjectFromQuickstartWizard implements UIWizard
 {
+   /**
+    * Files to be deleted after project creation (if exists)
+    */
+   private static final String[] FILES_TO_BE_DELETED = { ".git", ".travis", ".travis.yml" };
+
    @Inject
    @WithAttributes(label = "Project type", required = true)
-   private UISelectOne<Archetype> type;
+   private UISelectOne<Quickstart> type;
 
    @Inject
    private ProjectName named;
@@ -67,7 +75,10 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    private UIInput<String> version;
 
    @Inject
-   private ArchetypeCatalogFactoryRegistry registry;
+   private ResourceFactory resourceFactory;
+
+   @Inject
+   private QuickstartCatalogService catalogService;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -76,16 +87,19 @@ public class NewProjectFromQuickstartWizard implements UIWizard
 
       if (uiContext.getProvider().isGUI())
       {
-         type.setItemLabelConverter(Archetype::getDescription);
+         type.setItemLabelConverter(Quickstart::getName);
       }
-      List<Archetype> archetypes = registry.getArchetypeCatalogFactory(ObsidianInitializer.OBSIDIAN_QUICKSTARTS_CATALOG)
-               .getArchetypeCatalog()
-               .getArchetypes();
-      type.setValueChoices(archetypes);
-      if (!archetypes.isEmpty())
+      else
       {
-         type.setDefaultValue(archetypes.get(0));
+         type.setItemLabelConverter(Quickstart::getId);
       }
+      List<Quickstart> quickstarts = catalogService.getQuickstarts();
+      type.setValueChoices(quickstarts);
+      if (!quickstarts.isEmpty())
+      {
+         type.setDefaultValue(quickstarts.get(0));
+      }
+      type.setDescription(() -> type.hasValue() ? type.getValue().getDescription() : null);
       builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 
@@ -109,19 +123,59 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Archetype chosenArchetype = type.getValue();
-      InputStream artifactStream = getClass().getResourceAsStream(chosenArchetype.getArtifactId() + ".jar");
-      File tmpDir = Files.createTempDirectory("projectdir").toFile();
-      ArchetypeHelper archetypeHelper = new ArchetypeHelper(artifactStream, tmpDir,
-               topLevelPackage.getValue(), named.getValue(),
-               version.getValue());
-      archetypeHelper.setPackageName(Packages.toValidPackageName(topLevelPackage.getValue()) + "."
-               + Packages.toValidPackageName(named.getValue()));
-      archetypeHelper.execute();
+      Quickstart qs = type.getValue();
+      File projectDir = Files.createTempDirectory("projectdir").toFile();
+      // Clone Git repository
+      Git.cloneRepository()
+               .setDirectory(projectDir)
+               .setURI("https://github.com/" + qs.getGithubRepo())
+               .setBranch(qs.getGitRef())
+               .setCloneAllBranches(false)
+               .call().close();
+      // Perform changes
+      MavenModelResource modelResource = resourceFactory.create(MavenModelResource.class,
+               new File(projectDir, "pom.xml"));
+      Model model = modelResource.getCurrentModel();
+      model.setGroupId(topLevelPackage.getValue());
+      model.setArtifactId(named.getValue());
+      model.setVersion(version.getValue());
 
-      context.getUIContext().setSelection(tmpDir);
-
-      return Results.success("Project created in " + tmpDir);
+      // Change child modules
+      for (String module : model.getModules())
+      {
+         File moduleDir = new File(projectDir, module);
+         MavenModelResource moduleModelResource = resourceFactory.create(MavenModelResource.class,
+                  new File(moduleDir, "pom.xml"));
+         Model moduleModel = modelResource.getCurrentModel();
+         Parent parent = moduleModel.getParent();
+         if (parent != null)
+         {
+            parent.setGroupId(model.getGroupId());
+            parent.setArtifactId(model.getArtifactId());
+            parent.setVersion(model.getVersion());
+            moduleModelResource.setCurrentModel(moduleModel);
+         }
+      }
+      // FIXME: Change package name
+      modelResource.setCurrentModel(model);
+      // Delete unwanted files
+      deleteUnwantedFiles(projectDir);
+      context.getUIContext().setSelection(projectDir);
+      return Results.success("Project created in " + projectDir);
    }
 
+   private void deleteUnwantedFiles(File projectDir)
+   {
+      for (String file : FILES_TO_BE_DELETED)
+      {
+         Path pathToDelete = projectDir.toPath().resolve(file);
+         try
+         {
+            org.obsidiantoaster.generator.Files.deleteRecursively(pathToDelete);
+         }
+         catch (IOException ignored)
+         {
+         }
+      }
+   }
 }

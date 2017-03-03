@@ -181,15 +181,22 @@ public class QuickstartCatalogService
    public List<Quickstart> getQuickstarts()
    {
       List<Quickstart> result = new ArrayList<>();
-      Lock readLock = reentrantLock.readLock();
-      try
+      if (!quickstarts.isEmpty())
       {
-         readLock.lock();
          result.addAll(quickstarts);
       }
-      finally
+      else     
       {
+         Lock readLock = reentrantLock.readLock();
+         try
+         {
+            readLock.lock();
+            result.addAll(quickstarts);
+         }
+         finally
+         {
          readLock.unlock();
+         }
       }
       return result;
    }

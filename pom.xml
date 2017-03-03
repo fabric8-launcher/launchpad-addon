@@ -69,8 +69,8 @@
             <extensions>true</extensions>
             <configuration>
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-               <serverId>${serverId}</serverId>
-               <nexusUrl>${nexusUrl}</nexusUrl>
+               <serverId>ossrh</serverId>
+               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                <skipStaging>${skipStaging}</skipStaging>
             </configuration>
          </plugin>

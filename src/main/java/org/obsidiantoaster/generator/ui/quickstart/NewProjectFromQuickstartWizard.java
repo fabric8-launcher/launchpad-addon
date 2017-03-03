@@ -88,6 +88,10 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       {
          type.setItemLabelConverter(Quickstart::getName);
       }
+      else
+      {
+         type.setItemLabelConverter(Quickstart::getId);
+      }
       List<Quickstart> quickstarts = catalogService.getQuickstarts();
       type.setValueChoices(quickstarts);
       if (!quickstarts.isEmpty())

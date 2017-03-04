@@ -42,8 +42,9 @@ import org.obsidiantoaster.generator.catalog.model.QuickstartMetadata;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * The {@link QuickstartCatalogService} reads from the Quickstart catalog populates {@link Quickstart} objects
- * 
+ * This service reads from the Quickstart catalog Github repository in https://github.com/obsidian-toaster/quickstart-catalog
+ * and marshalls into {@link Quickstart} objects.
+ 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 @Singleton
@@ -54,7 +55,6 @@ public class QuickstartCatalogService
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
    private Path catalogPath;
-
    private List<Quickstart> quickstarts = new ArrayList<>();
 
    private ScheduledExecutorService executorService;
@@ -63,8 +63,12 @@ public class QuickstartCatalogService
    @Inject
    private ClientFactory clientFactory;
 
+   /**
+    * Clones the catalog git repository and reads the obsidian metadata on each quickstart repository
+    */
    void index() throws IOException
    {
+      Client client = clientFactory.createClient();      
       WriteLock lock = reentrantLock.writeLock();
       try
       {
@@ -88,7 +92,6 @@ public class QuickstartCatalogService
          }
          final List<Quickstart> quickstarts = new ArrayList<>();
          final Yaml yaml = new Yaml();
-         Client client = clientFactory.createClient();
          WebTarget target = client.target(QUICKSTART_METADATA_URL_TEMPLATE);
          // Read the YAML files
          Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
@@ -104,6 +107,7 @@ public class QuickstartCatalogService
                   {
                      // Read YAML entry
                      Quickstart quickstart = yaml.loadAs(reader, Quickstart.class);
+                     // Quickstart ID = filename without extension
                      quickstart.setId(org.obsidiantoaster.generator.Files.removeFileExtension(file.toFile().getName()));
                      Map<String, Object> templateValues = new HashMap<>();
                      templateValues.put("githubRepo", quickstart.getGithubRepo());
@@ -132,6 +136,7 @@ public class QuickstartCatalogService
       finally
       {
          lock.unlock();
+         client.close();
       }
    }
 

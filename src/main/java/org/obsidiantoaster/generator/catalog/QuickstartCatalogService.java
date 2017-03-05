@@ -7,6 +7,9 @@
 
 package org.obsidiantoaster.generator.catalog;
 
+import static org.obsidiantoaster.generator.Files.deleteRecursively;
+import static org.obsidiantoaster.generator.Files.removeFileExtension;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -15,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +46,9 @@ import org.obsidiantoaster.generator.catalog.model.QuickstartMetadata;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * This service reads from the Quickstart catalog Github repository in https://github.com/obsidian-toaster/quickstart-catalog
- * and marshalls into {@link Quickstart} objects.
- 
+ * This service reads from the Quickstart catalog Github repository in
+ * https://github.com/obsidian-toaster/quickstart-catalog and marshalls into {@link Quickstart} objects.
+ * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 @Singleton
@@ -68,7 +72,7 @@ public class QuickstartCatalogService
     */
    void index() throws IOException
    {
-      Client client = clientFactory.createClient();      
+      Client client = clientFactory.createClient();
       WriteLock lock = reentrantLock.writeLock();
       try
       {
@@ -100,7 +104,7 @@ public class QuickstartCatalogService
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
             {
-               if (file.toString().endsWith(".yaml"))
+               if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml"))
                {
                   logger.info("Reading " + file + " ...");
                   try (BufferedReader reader = Files.newBufferedReader(file))
@@ -108,7 +112,7 @@ public class QuickstartCatalogService
                      // Read YAML entry
                      Quickstart quickstart = yaml.loadAs(reader, Quickstart.class);
                      // Quickstart ID = filename without extension
-                     quickstart.setId(org.obsidiantoaster.generator.Files.removeFileExtension(file.toFile().getName()));
+                     quickstart.setId(removeFileExtension(file.toFile().getName()));
                      Map<String, Object> templateValues = new HashMap<>();
                      templateValues.put("githubRepo", quickstart.getGithubRepo());
                      templateValues.put("githubRef", quickstart.getGitRef());
@@ -172,7 +176,7 @@ public class QuickstartCatalogService
          // Remove all the YAML files
          try
          {
-            org.obsidiantoaster.generator.Files.deleteRecursively(catalogPath);
+            deleteRecursively(catalogPath);
          }
          catch (IOException ignored)
          {
@@ -185,24 +189,15 @@ public class QuickstartCatalogService
     */
    public List<Quickstart> getQuickstarts()
    {
-      List<Quickstart> result = new ArrayList<>();
-      if (!quickstarts.isEmpty())
+      Lock readLock = reentrantLock.readLock();
+      try
       {
-         result.addAll(quickstarts);
+         readLock.lock();
+         return Collections.unmodifiableList(quickstarts);
       }
-      else     
+      finally
       {
-         Lock readLock = reentrantLock.readLock();
-         try
-         {
-            readLock.lock();
-            result.addAll(quickstarts);
-         }
-         finally
-         {
          readLock.unlock();
-         }
       }
-      return result;
    }
 }

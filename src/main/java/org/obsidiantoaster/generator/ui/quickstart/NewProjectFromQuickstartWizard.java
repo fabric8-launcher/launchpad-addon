@@ -15,6 +15,8 @@
  */
 package org.obsidiantoaster.generator.ui.quickstart;
 
+import static org.obsidiantoaster.generator.Files.deleteRecursively;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -173,7 +175,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
          Path pathToDelete = projectDir.toPath().resolve(file);
          try
          {
-            org.obsidiantoaster.generator.Files.deleteRecursively(pathToDelete);
+            deleteRecursively(pathToDelete);
          }
          catch (IOException ignored)
          {

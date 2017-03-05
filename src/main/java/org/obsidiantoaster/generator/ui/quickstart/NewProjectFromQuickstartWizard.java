@@ -139,29 +139,32 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       // Perform changes
       MavenModelResource modelResource = resourceFactory.create(MavenModelResource.class,
                new File(projectDir, "pom.xml"));
-      Model model = modelResource.getCurrentModel();
-      model.setGroupId(topLevelPackage.getValue());
-      model.setArtifactId(named.getValue());
-      model.setVersion(version.getValue());
-
-      // Change child modules
-      for (String module : model.getModules())
+      if (modelResource != null && modelResource.exists()) 
       {
-         File moduleDir = new File(projectDir, module);
-         MavenModelResource moduleModelResource = resourceFactory.create(MavenModelResource.class,
-                  new File(moduleDir, "pom.xml"));
-         Model moduleModel = modelResource.getCurrentModel();
-         Parent parent = moduleModel.getParent();
-         if (parent != null)
+         Model model = modelResource.getCurrentModel();
+         model.setGroupId(topLevelPackage.getValue());
+         model.setArtifactId(named.getValue());
+         model.setVersion(version.getValue());
+
+         // Change child modules
+         for (String module : model.getModules())
          {
-            parent.setGroupId(model.getGroupId());
-            parent.setArtifactId(model.getArtifactId());
-            parent.setVersion(model.getVersion());
-            moduleModelResource.setCurrentModel(moduleModel);
+            File moduleDir = new File(projectDir, module);
+            MavenModelResource moduleModelResource = resourceFactory.create(MavenModelResource.class,
+                     new File(moduleDir, "pom.xml"));
+            Model moduleModel = modelResource.getCurrentModel();
+            Parent parent = moduleModel.getParent();
+            if (parent != null)
+            {
+               parent.setGroupId(model.getGroupId());
+               parent.setArtifactId(model.getArtifactId());
+               parent.setVersion(model.getVersion());
+               moduleModelResource.setCurrentModel(moduleModel);
+            }
          }
+         // FIXME: Change package name
+         modelResource.setCurrentModel(model);
       }
-      // FIXME: Change package name
-      modelResource.setCurrentModel(model);
       // Delete unwanted files
       deleteUnwantedFiles(projectDir);
       context.getUIContext().setSelection(projectDir);

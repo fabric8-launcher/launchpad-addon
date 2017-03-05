@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
@@ -99,7 +100,8 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       {
          type.setDefaultValue(quickstarts.get(0));
       }
-      type.setDescription(() -> type.hasValue() ? type.getValue().getDescription() : null);
+      Callable<String> description = () -> type.getValue() != null ? type.getValue().getDescription() : null;
+      type.setDescription(description).setNote(description);
       builder.add(type).add(named).add(topLevelPackage).add(version);
    }
 

@@ -131,6 +131,7 @@ public class QuickstartCatalogService
                return FileVisitResult.CONTINUE;
             }
          });
+         Collections.sort(quickstarts, (l, r) -> l.getDescription().compareTo(r.getDescription()));
          this.quickstarts = quickstarts;
       }
       catch (GitAPIException cause)

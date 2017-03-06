@@ -86,11 +86,17 @@
    <dependencies>
       <!-- 3rd Party addons -->
       <!-- Spring Boot -->
-      <dependency>
+<!--      <dependency>
          <groupId>io.fabric8.forge</groupId>
          <artifactId>devops</artifactId>
          <classifier>forge-addon</classifier>
          <version>${version.fabric8.devops}</version>
+      </dependency>-->
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>spring-boot</artifactId>
+         <classifier>forge-addon</classifier>
+         <version>1.0.0-SNAPSHOT</version>
       </dependency>
       <!-- Vert.x -->
       <dependency>

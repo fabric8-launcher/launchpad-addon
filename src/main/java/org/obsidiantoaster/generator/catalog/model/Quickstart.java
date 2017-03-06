@@ -19,7 +19,6 @@ public class Quickstart
    private String id;
    private String githubRepo;
    private String gitRef;
-   private String openshiftTemplatePath;
    private String obsidianDescriptorPath;
 
    private QuickstartMetadata metadata;
@@ -63,14 +62,6 @@ public class Quickstart
    }
 
    /**
-    * @return the openshiftTemplatePath
-    */
-   public String getOpenshiftTemplatePath()
-   {
-      return openshiftTemplatePath;
-   }
-
-   /**
     * @return the obsidianDescriptorPath
     */
    public String getObsidianDescriptorPath()
@@ -100,14 +91,6 @@ public class Quickstart
    public void setGitRef(String gitRef)
    {
       this.gitRef = gitRef;
-   }
-
-   /**
-    * @param openshiftTemplatePath the openshiftTemplatePath to set
-    */
-   public void setOpenshiftTemplatePath(String openshiftTemplatePath)
-   {
-      this.openshiftTemplatePath = openshiftTemplatePath;
    }
 
    /**

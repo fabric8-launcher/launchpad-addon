@@ -139,7 +139,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       // Perform changes
       MavenModelResource modelResource = resourceFactory.create(MavenModelResource.class,
                new File(projectDir, "pom.xml"));
-      if (modelResource != null && modelResource.exists()) 
+      if (modelResource != null && modelResource.exists())
       {
          Model model = modelResource.getCurrentModel();
          model.setGroupId(topLevelPackage.getValue());

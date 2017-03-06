@@ -149,7 +149,7 @@ public class QuickstartCatalogService
    void init()
    {
       executorService = Executors.newScheduledThreadPool(1);
-      // Index every 5 minutes
+      // Index every 30 minutes
       executorService.scheduleAtFixedRate(() -> {
          try
          {
@@ -161,7 +161,7 @@ public class QuickstartCatalogService
          {
             e.printStackTrace();
          }
-      }, 0, 5, TimeUnit.MINUTES);
+      }, 0, 30, TimeUnit.MINUTES);
    }
 
    @PreDestroy

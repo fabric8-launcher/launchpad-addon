@@ -21,12 +21,10 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 
+import io.vertx.forge.project.VertxProjectType;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.addon.springboot.project.SpringBootProjectType;
 import org.jboss.forge.addon.swarm.project.WildFlySwarmProjectType;
-
-//import io.fabric8.forge.devops.springboot.SpringBootProjectType;
-import io.vertx.forge.project.VertxProjectType;
 
 /**
  * 

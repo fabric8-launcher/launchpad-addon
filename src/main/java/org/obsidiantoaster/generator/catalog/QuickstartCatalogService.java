@@ -149,7 +149,9 @@ public class QuickstartCatalogService
    void init()
    {
       executorService = Executors.newScheduledThreadPool(1);
-      // Index every 30 minutes
+      long indexPeriod = Long
+               .parseLong(System.getProperty("INDEX_PERIOD", System.getenv().getOrDefault("INDEX_PERIOD", "30")));
+      logger.info("Indexing every " + indexPeriod + " minutes");
       executorService.scheduleAtFixedRate(() -> {
          try
          {
@@ -161,7 +163,7 @@ public class QuickstartCatalogService
          {
             e.printStackTrace();
          }
-      }, 0, 30, TimeUnit.MINUTES);
+      }, 0, indexPeriod, TimeUnit.MINUTES);
    }
 
    @PreDestroy

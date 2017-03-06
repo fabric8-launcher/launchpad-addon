@@ -166,12 +166,6 @@
          <artifactId>arquillian-furnace-classpath</artifactId>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>org.jglue.cdi-unit</groupId>
-         <artifactId>cdi-unit</artifactId>
-         <version>3.0.0</version>
-         <scope>test</scope>
-      </dependency>
    </dependencies>
    <dependencyManagement>
       <dependencies>

@@ -19,7 +19,7 @@ public class Quickstart
    private String id;
    private String githubRepo;
    private String gitRef;
-   private String obsidianDescriptorPath;
+   private String obsidianDescriptorPath = ".obsidian/obsidian.yaml";
 
    private QuickstartMetadata metadata;
 

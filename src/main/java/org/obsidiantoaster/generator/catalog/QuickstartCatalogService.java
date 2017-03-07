@@ -39,7 +39,6 @@ import javax.ws.rs.client.WebTarget;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.jboss.forge.addon.rest.ClientFactory;
 import org.obsidiantoaster.generator.catalog.model.Quickstart;
 import org.obsidiantoaster.generator.catalog.model.QuickstartMetadata;
@@ -82,8 +81,7 @@ public class QuickstartCatalogService
             catalogPath = Files.createTempDirectory("quickstart-catalog");
             logger.info("Created " + catalogPath);
             // Clone repository here
-            Git.cloneRepository().setProgressMonitor(new TextProgressMonitor()).setURI(GIT_REPOSITORY)
-                     .setDirectory(catalogPath.toFile()).call().close();
+            Git.cloneRepository().setURI(GIT_REPOSITORY).setDirectory(catalogPath.toFile()).call().close();
          }
          else
          {
@@ -91,7 +89,7 @@ public class QuickstartCatalogService
             // Perform a git pull
             try (Git git = Git.open(catalogPath.toFile()))
             {
-               git.pull().setProgressMonitor(new TextProgressMonitor()).setRebase(true).call();
+               git.pull().setRebase(true).call();
             }
          }
          final List<Quickstart> quickstarts = new ArrayList<>();

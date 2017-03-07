@@ -19,7 +19,6 @@ import static org.obsidiantoaster.generator.Files.deleteRecursively;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.eclipse.jgit.api.Git;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
-import org.jboss.forge.addon.resource.ResourceFactory;
+import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -76,9 +75,6 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Inject
    @WithAttributes(label = "Project version", required = true, defaultValue = "1.0.0-SNAPSHOT")
    private UIInput<String> version;
-
-   @Inject
-   private ResourceFactory resourceFactory;
 
    @Inject
    private QuickstartCatalogService catalogService;
@@ -128,17 +124,17 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    public Result execute(UIExecutionContext context) throws Exception
    {
       Quickstart qs = type.getValue();
-      File projectDir = Files.createTempDirectory("projectdir").toFile();
+      DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
+      DirectoryResource projectDirectory = initialDir.getOrCreateChildDirectory(named.getValue());
       // Clone Git repository
       Git.cloneRepository()
-               .setDirectory(projectDir)
+               .setDirectory(projectDirectory.getUnderlyingResourceObject())
                .setURI("https://github.com/" + qs.getGithubRepo())
                .setBranch(qs.getGitRef())
                .setCloneAllBranches(false)
                .call().close();
       // Perform changes
-      MavenModelResource modelResource = resourceFactory.create(MavenModelResource.class,
-               new File(projectDir, "pom.xml"));
+      MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
       if (modelResource != null && modelResource.exists())
       {
          Model model = modelResource.getCurrentModel();
@@ -149,9 +145,9 @@ public class NewProjectFromQuickstartWizard implements UIWizard
          // Change child modules
          for (String module : model.getModules())
          {
-            File moduleDir = new File(projectDir, module);
-            MavenModelResource moduleModelResource = resourceFactory.create(MavenModelResource.class,
-                     new File(moduleDir, "pom.xml"));
+            DirectoryResource moduleDirResource = projectDirectory.getChildDirectory(module);
+            MavenModelResource moduleModelResource = moduleDirResource.getChildOfType(MavenModelResource.class,
+                     "pom.xml");
             Model moduleModel = modelResource.getCurrentModel();
             Parent parent = moduleModel.getParent();
             if (parent != null)
@@ -166,9 +162,9 @@ public class NewProjectFromQuickstartWizard implements UIWizard
          modelResource.setCurrentModel(model);
       }
       // Delete unwanted files
-      deleteUnwantedFiles(projectDir);
-      context.getUIContext().setSelection(projectDir);
-      return Results.success("Project created in " + projectDir);
+      deleteUnwantedFiles(projectDirectory.getUnderlyingResourceObject());
+      context.getUIContext().setSelection(projectDirectory);
+      return Results.success("Project created in " + projectDirectory);
    }
 
    private void deleteUnwantedFiles(File projectDir)

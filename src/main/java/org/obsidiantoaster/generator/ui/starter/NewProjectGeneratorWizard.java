@@ -28,6 +28,7 @@ import org.jboss.forge.addon.projects.ProjectFacet;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.ProjectType;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
+import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -106,7 +107,10 @@ public class NewProjectGeneratorWizard implements UIWizard
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Project project = projectFactory.createTempProject(mavenBuildSystem);
+      UIContext uiContext = context.getUIContext();
+      DirectoryResource initialSelection = (DirectoryResource) uiContext.getInitialSelection().get();
+      Project project = projectFactory.createProject(initialSelection.getChildDirectory(named.getValue()),
+               mavenBuildSystem);
       MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
       metadataFacet.setProjectName(named.getValue());
       metadataFacet.setProjectVersion(version.getValue());
@@ -125,8 +129,6 @@ public class NewProjectGeneratorWizard implements UIWizard
             }
          }
       }
-
-      UIContext uiContext = context.getUIContext();
       uiContext.setSelection(project.getRoot());
       Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       attributeMap.put(Project.class, project);

@@ -55,6 +55,7 @@ public class QuickstartCatalogService
 {
    private static final String QUICKSTART_METADATA_URL_TEMPLATE = "https://raw.githubusercontent.com/{githubRepo}/{githubRef}/{obsidianDescriptorPath}";
    private static final String GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
+   private static final String GIT_REF = "master";
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
    private Path catalogPath;
@@ -81,7 +82,10 @@ public class QuickstartCatalogService
             catalogPath = Files.createTempDirectory("quickstart-catalog");
             logger.info("Created " + catalogPath);
             // Clone repository here
-            Git.cloneRepository().setURI(GIT_REPOSITORY).setDirectory(catalogPath.toFile()).call().close();
+            Git.cloneRepository()
+                     .setURI(getEnvVarOrSysProp("CATALOG_GIT_REPOSITORY", GIT_REPOSITORY))
+                     .setBranch(getEnvVarOrSysProp("CATALOG_GIT_REF", GIT_REF))
+                     .setDirectory(catalogPath.toFile()).call().close();
          }
          else
          {
@@ -147,8 +151,7 @@ public class QuickstartCatalogService
    void init()
    {
       executorService = Executors.newScheduledThreadPool(1);
-      long indexPeriod = Long
-               .parseLong(System.getProperty("INDEX_PERIOD", System.getenv().getOrDefault("INDEX_PERIOD", "30")));
+      long indexPeriod = Long.parseLong(getEnvVarOrSysProp("CATALOG_INDEX_PERIOD", "30"));
       logger.info("Indexing every " + indexPeriod + " minutes");
       executorService.scheduleAtFixedRate(() -> {
          try
@@ -183,6 +186,11 @@ public class QuickstartCatalogService
          {
          }
       }
+   }
+
+   private static String getEnvVarOrSysProp(String name, String defaultValue)
+   {
+      return System.getProperty(name, System.getenv().getOrDefault(name, defaultValue));
    }
 
    /**

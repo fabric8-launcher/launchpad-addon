@@ -56,11 +56,12 @@ public class QuickstartCatalogService
    private static final String GIT_REF = "master";
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
+   private static final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
+
    private Path catalogPath;
    private List<Quickstart> quickstarts = new ArrayList<>();
 
    private ScheduledExecutorService executorService;
-   private ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    /**
     * Clones the catalog git repository and reads the obsidian metadata on each quickstart repository

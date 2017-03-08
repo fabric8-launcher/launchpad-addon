@@ -1,0 +1,63 @@
+/*
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.obsidiantoaster.generator;
+
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.function.Predicate;
+
+/**
+ *
+ * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
+ */
+public class CopyFileVisitor extends SimpleFileVisitor<Path>
+{
+   private final Path targetPath;
+   private final Predicate<Path> filter;
+   private Path sourcePath;
+
+   public CopyFileVisitor(Path targetPath, Predicate<Path> filter)
+   {
+      this.targetPath = targetPath;
+      this.filter = filter;
+   }
+
+   @Override
+   public FileVisitResult preVisitDirectory(final Path dir,
+            final BasicFileAttributes attrs) throws IOException
+   {
+      if (!filter.test(dir))
+      {
+         return FileVisitResult.SKIP_SUBTREE;
+      }
+      if (sourcePath == null)
+      {
+         sourcePath = dir;
+      }
+      else
+      {
+         Path target = targetPath.resolve(sourcePath.relativize(dir));
+         java.nio.file.Files.createDirectories(target);
+      }
+      return FileVisitResult.CONTINUE;
+   }
+
+   @Override
+   public FileVisitResult visitFile(final Path file,
+            final BasicFileAttributes attrs) throws IOException
+   {
+      if (filter.test(file))
+      {
+         java.nio.file.Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+      }
+      return FileVisitResult.CONTINUE;
+   }
+}

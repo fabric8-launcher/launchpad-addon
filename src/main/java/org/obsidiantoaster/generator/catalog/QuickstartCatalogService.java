@@ -11,6 +11,7 @@ import static org.obsidiantoaster.generator.Files.deleteRecursively;
 import static org.obsidiantoaster.generator.Files.removeFileExtension;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -19,7 +20,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -28,20 +28,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.jboss.forge.addon.rest.ClientFactory;
-import org.obsidiantoaster.generator.catalog.model.Quickstart;
-import org.obsidiantoaster.generator.catalog.model.QuickstartMetadata;
+import org.obsidiantoaster.generator.CopyFileVisitor;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -53,7 +50,6 @@ import org.yaml.snakeyaml.Yaml;
 @Singleton
 public class QuickstartCatalogService
 {
-   private static final String QUICKSTART_METADATA_URL_TEMPLATE = "https://raw.githubusercontent.com/{githubRepo}/{githubRef}/{obsidianDescriptorPath}";
    private static final String GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
    private static final String GIT_REF = "master";
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
@@ -64,15 +60,11 @@ public class QuickstartCatalogService
    private ScheduledExecutorService executorService;
    private ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
-   @Inject
-   private ClientFactory clientFactory;
-
    /**
     * Clones the catalog git repository and reads the obsidian metadata on each quickstart repository
     */
    void index() throws IOException
    {
-      Client client = clientFactory.createClient();
       WriteLock lock = reentrantLock.writeLock();
       try
       {
@@ -80,12 +72,13 @@ public class QuickstartCatalogService
          if (catalogPath == null)
          {
             catalogPath = Files.createTempDirectory("quickstart-catalog");
+
             logger.info("Created " + catalogPath);
-            // Clone repository here
+            // Clone repository
             Git.cloneRepository()
                      .setURI(getEnvVarOrSysProp("CATALOG_GIT_REPOSITORY", GIT_REPOSITORY))
                      .setBranch(getEnvVarOrSysProp("CATALOG_GIT_REF", GIT_REF))
-                     .setDirectory(catalogPath.toFile()).call().close();
+                     .setDirectory(catalogPath.toFile()).call();
          }
          else
          {
@@ -95,10 +88,22 @@ public class QuickstartCatalogService
             {
                git.pull().setRebase(true).call();
             }
+            // Git pull on the existing repositories
+            Path moduleRoot = catalogPath.resolve("modules");
+            if (Files.isDirectory(moduleRoot))
+            {
+               for (File repository : moduleRoot.toFile().listFiles())
+               {
+                  try (Git git = Git.open(repository))
+                  {
+                     logger.info("Pulling changes to" + repository);
+                     git.pull().setRebase(true).call();
+                  }
+               }
+            }
          }
          final List<Quickstart> quickstarts = new ArrayList<>();
          final Yaml yaml = new Yaml();
-         WebTarget target = client.target(QUICKSTART_METADATA_URL_TEMPLATE);
          // Read the YAML files
          Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
          {
@@ -108,26 +113,35 @@ public class QuickstartCatalogService
             {
                if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml"))
                {
+                  String id = removeFileExtension(file.toFile().getName());
                   logger.info("Reading " + file + " ...");
+                  Path moduleDir = catalogPath.resolve("modules/" + id);
                   try (BufferedReader reader = Files.newBufferedReader(file))
                   {
                      // Read YAML entry
                      Quickstart quickstart = yaml.loadAs(reader, Quickstart.class);
                      // Quickstart ID = filename without extension
-                     quickstart.setId(removeFileExtension(file.toFile().getName()));
-                     Map<String, Object> templateValues = new HashMap<>();
-                     templateValues.put("githubRepo", quickstart.getGithubRepo());
-                     templateValues.put("githubRef", quickstart.getGitRef());
-                     templateValues.put("obsidianDescriptorPath", quickstart.getObsidianDescriptorPath());
-
-                     String response = target.resolveTemplates(templateValues).request().get(String.class);
-                     Map<String, String> values = yaml.loadAs(response, Map.class);
-                     QuickstartMetadata qm = new QuickstartMetadata();
-                     qm.setName(values.get("name"));
-                     qm.setDescription(values.get("description"));
-                     quickstart.setMetadata(qm);
-
+                     quickstart.setId(id);
+                     // Module does not exist. Clone it
+                     if (Files.notExists(moduleDir))
+                     {
+                        Git.cloneRepository()
+                                 .setDirectory(moduleDir.toFile())
+                                 .setURI("https://github.com/" + quickstart.getGithubRepo())
+                                 .setBranch(quickstart.getGitRef())
+                                 .call().close();
+                     }
+                     Path metadataPath = moduleDir.resolve(quickstart.getObsidianDescriptorPath());
+                     try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
+                     {
+                        Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
+                        quickstart.setMetadata(metadata);
+                     }
                      quickstarts.add(quickstart);
+                  }
+                  catch (GitAPIException gitException)
+                  {
+                     logger.log(Level.SEVERE, "Error while reading git repository", gitException);
                   }
                }
                return FileVisitResult.CONTINUE;
@@ -143,7 +157,6 @@ public class QuickstartCatalogService
       finally
       {
          lock.unlock();
-         client.close();
       }
    }
 
@@ -208,5 +221,19 @@ public class QuickstartCatalogService
       {
          readLock.unlock();
       }
+   }
+
+   /**
+    * Copies a
+    * 
+    * @param quickstart
+    * @param to
+    * @return
+    * @throws IOException
+    */
+   public Path copy(Quickstart quickstart, Path to, Predicate<Path> filter) throws IOException
+   {
+      Path modulePath = catalogPath.resolve("modules/" + quickstart.getId());
+      return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
    }
 }

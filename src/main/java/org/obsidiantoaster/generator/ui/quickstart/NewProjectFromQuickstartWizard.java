@@ -15,11 +15,7 @@
  */
 package org.obsidiantoaster.generator.ui.quickstart;
 
-import static org.obsidiantoaster.generator.Files.deleteRecursively;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -28,7 +24,6 @@ import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
-import org.eclipse.jgit.api.Git;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -45,8 +40,8 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
+import org.obsidiantoaster.generator.catalog.Quickstart;
 import org.obsidiantoaster.generator.catalog.QuickstartCatalogService;
-import org.obsidiantoaster.generator.catalog.model.Quickstart;
 import org.obsidiantoaster.generator.ui.input.ProjectName;
 import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
 
@@ -60,7 +55,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    /**
     * Files to be deleted after project creation (if exists)
     */
-   private static final String[] FILES_TO_BE_DELETED = { ".git", ".travis", ".travis.yml" };
+   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store");
 
    @Inject
    @WithAttributes(label = "Project type", required = true)
@@ -125,14 +120,9 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    {
       Quickstart qs = type.getValue();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      DirectoryResource projectDirectory = initialDir.getOrCreateChildDirectory(named.getValue());
-      // Clone Git repository
-      Git.cloneRepository()
-               .setDirectory(projectDirectory.getUnderlyingResourceObject())
-               .setURI("https://github.com/" + qs.getGithubRepo())
-               .setBranch(qs.getGitRef())
-               .setCloneAllBranches(false)
-               .call().close();
+      DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
+      catalogService.copy(qs, projectDirectory.getUnderlyingResourceObject().toPath(),
+               (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
       // Perform changes
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
       if (modelResource != null && modelResource.exists())
@@ -161,24 +151,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
          // FIXME: Change package name
          modelResource.setCurrentModel(model);
       }
-      // Delete unwanted files
-      deleteUnwantedFiles(projectDirectory.getUnderlyingResourceObject());
       context.getUIContext().setSelection(projectDirectory);
       return Results.success("Project created in " + projectDirectory);
-   }
-
-   private void deleteUnwantedFiles(File projectDir)
-   {
-      for (String file : FILES_TO_BE_DELETED)
-      {
-         Path pathToDelete = projectDir.toPath().resolve(file);
-         try
-         {
-            deleteRecursively(pathToDelete);
-         }
-         catch (IOException ignored)
-         {
-         }
-      }
    }
 }

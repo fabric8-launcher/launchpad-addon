@@ -5,9 +5,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.catalog.model;
+package org.obsidiantoaster.generator.catalog;
 
-import java.beans.Transient;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A quickstart representation
@@ -21,7 +23,7 @@ public class Quickstart
    private String gitRef;
    private String obsidianDescriptorPath = ".obsidian/obsidian.yaml";
 
-   private QuickstartMetadata metadata;
+   private Map<String, Object> metadata = Collections.emptyMap();
 
    public Quickstart()
    {
@@ -29,12 +31,12 @@ public class Quickstart
 
    public String getName()
    {
-      return getMetadata() != null ? getMetadata().getName() : null;
+      return Objects.toString(getMetadata().get("name"), getId());
    }
 
    public String getDescription()
    {
-      return getMetadata() != null ? getMetadata().getDescription() : null;
+      return Objects.toString(getMetadata().get("description"), "No description available");
    }
 
    /**
@@ -104,8 +106,7 @@ public class Quickstart
    /**
     * @return the metadata
     */
-   @Transient
-   public QuickstartMetadata getMetadata()
+   public Map<String, Object> getMetadata()
    {
       return metadata;
    }
@@ -113,7 +114,7 @@ public class Quickstart
    /**
     * @param metadata the metadata to set
     */
-   public void setMetadata(QuickstartMetadata metadata)
+   public void setMetadata(Map<String, Object> metadata)
    {
       this.metadata = metadata;
    }

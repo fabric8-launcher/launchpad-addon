@@ -133,10 +133,13 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);
       // Do not cache anything
       projectFactory.invalidateCaches();
-      catalogService.copy(qs, project, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
-      // Perform changes
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
-      if (modelResource != null && modelResource.exists())
+      // Delete existing pom
+      modelResource.delete();
+      // Copy contents (including pom.xml if exists)
+      catalogService.copy(qs, project, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
+      // Perform model changes
+      if (modelResource.exists())
       {
          Model model = modelResource.getCurrentModel();
          model.setGroupId(topLevelPackage.getValue());

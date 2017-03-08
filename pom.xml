@@ -13,7 +13,7 @@
    <properties>
       <version.furnace>2.25.2.Final</version.furnace>
       <version.forge>3.6.0.Final</version.forge>
-      <version.wildfly-swarm>2017.3.2</version.wildfly-swarm>
+      <version.wildfly-swarm>2017.3.3</version.wildfly-swarm>
       <version.springboot-addon>1.0.0.Alpha2</version.springboot-addon>
       <version.vertx-addon>1.2.1</version.vertx-addon>
       <version.fabric8-maven-plugin>3.1.92</version.fabric8-maven-plugin>

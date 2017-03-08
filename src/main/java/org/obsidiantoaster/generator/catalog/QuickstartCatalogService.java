@@ -226,12 +226,7 @@ public class QuickstartCatalogService
    }
 
    /**
-    * Copies a
-    * 
-    * @param quickstart
-    * @param to
-    * @return
-    * @throws IOException
+    * Copies the {@link Quickstart} contents to the specified {@link Project}
     */
    public Path copy(Quickstart quickstart, Project project, Predicate<Path> filter) throws IOException
    {

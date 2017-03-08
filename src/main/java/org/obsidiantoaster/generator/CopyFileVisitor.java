@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.Predicate;
 
@@ -56,7 +57,8 @@ public class CopyFileVisitor extends SimpleFileVisitor<Path>
    {
       if (filter.test(file))
       {
-         java.nio.file.Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+         java.nio.file.Files.copy(file, targetPath.resolve(sourcePath.relativize(file)),
+                  StandardCopyOption.REPLACE_EXISTING);
       }
       return FileVisitResult.CONTINUE;
    }

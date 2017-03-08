@@ -38,6 +38,8 @@ import javax.inject.Singleton;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.resource.DirectoryResource;
 import org.obsidiantoaster.generator.CopyFileVisitor;
 import org.yaml.snakeyaml.Yaml;
 
@@ -231,9 +233,10 @@ public class QuickstartCatalogService
     * @return
     * @throws IOException
     */
-   public Path copy(Quickstart quickstart, Path to, Predicate<Path> filter) throws IOException
+   public Path copy(Quickstart quickstart, Project project, Predicate<Path> filter) throws IOException
    {
       Path modulePath = catalogPath.resolve("modules/" + quickstart.getId());
+      Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
       return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
    }
 }

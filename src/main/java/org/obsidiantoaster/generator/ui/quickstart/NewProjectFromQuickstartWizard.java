@@ -24,13 +24,15 @@ import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
-import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -44,6 +46,7 @@ import org.obsidiantoaster.generator.catalog.Quickstart;
 import org.obsidiantoaster.generator.catalog.QuickstartCatalogService;
 import org.obsidiantoaster.generator.ui.input.ProjectName;
 import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
+import org.obsidiantoaster.generator.ui.input.Version;
 
 /**
  * The project type for
@@ -68,11 +71,16 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    private TopLevelPackage topLevelPackage;
 
    @Inject
-   @WithAttributes(label = "Project version", required = true, defaultValue = "1.0.0-SNAPSHOT")
-   private UIInput<String> version;
+   private Version version;
 
    @Inject
    private QuickstartCatalogService catalogService;
+
+   @Inject
+   private ProjectFactory projectFactory;
+
+   @Inject
+   private MavenBuildSystem mavenBuildSystem;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -121,8 +129,11 @@ public class NewProjectFromQuickstartWizard implements UIWizard
       Quickstart qs = type.getValue();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
-      catalogService.copy(qs, projectDirectory.getUnderlyingResourceObject().toPath(),
-               (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
+      // Using ProjectFactory to invoke bound listeners
+      Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);
+      // Do not cache anything
+      projectFactory.invalidateCaches();
+      catalogService.copy(qs, project, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
       // Perform changes
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
       if (modelResource != null && modelResource.exists())

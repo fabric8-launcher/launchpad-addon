@@ -114,7 +114,7 @@ public class QuickstartCatalogService
                if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml"))
                {
                   String id = removeFileExtension(file.toFile().getName());
-                  logger.info("Reading " + file + " ...");
+                  logger.info("Indexing " + file + " ...");
                   Path moduleDir = catalogPath.resolve("modules/" + id);
                   try (BufferedReader reader = Files.newBufferedReader(file))
                   {

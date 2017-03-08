@@ -138,7 +138,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
             DirectoryResource moduleDirResource = projectDirectory.getChildDirectory(module);
             MavenModelResource moduleModelResource = moduleDirResource.getChildOfType(MavenModelResource.class,
                      "pom.xml");
-            Model moduleModel = modelResource.getCurrentModel();
+            Model moduleModel = moduleModelResource.getCurrentModel();
             Parent parent = moduleModel.getParent();
             if (parent != null)
             {
@@ -148,7 +148,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
                moduleModelResource.setCurrentModel(moduleModel);
             }
          }
-         // FIXME: Change package name
+         // TODO: Change package name
          modelResource.setCurrentModel(model);
       }
       context.getUIContext().setSelection(projectDirectory);

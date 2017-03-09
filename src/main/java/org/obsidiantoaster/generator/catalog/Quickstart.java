@@ -26,9 +26,6 @@ public class Quickstart
 
    private Map<String, Object> metadata = Collections.emptyMap();
 
-   public Quickstart()
-   {
-   }
 
    public String getName()
    {

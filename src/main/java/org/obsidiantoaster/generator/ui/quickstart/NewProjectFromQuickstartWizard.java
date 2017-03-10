@@ -166,6 +166,6 @@ public class NewProjectFromQuickstartWizard implements UIWizard
          modelResource.setCurrentModel(model);
       }
       context.getUIContext().setSelection(projectDirectory);
-      return Results.success("Project created in " + projectDirectory);
+      return Results.success();
    }
 }

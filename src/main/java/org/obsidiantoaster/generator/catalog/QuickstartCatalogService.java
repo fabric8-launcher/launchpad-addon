@@ -7,9 +7,16 @@
 
 package org.obsidiantoaster.generator.catalog;
 
-import static org.obsidiantoaster.generator.Files.deleteRecursively;
-import static org.obsidiantoaster.generator.Files.removeFileExtension;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.resource.DirectoryResource;
+import org.obsidiantoaster.generator.CopyFileVisitor;
+import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -18,10 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,16 +36,8 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.resource.DirectoryResource;
-import org.obsidiantoaster.generator.CopyFileVisitor;
-import org.yaml.snakeyaml.Yaml;
+import static org.obsidiantoaster.generator.Files.deleteRecursively;
+import static org.obsidiantoaster.generator.Files.removeFileExtension;
 
 /**
  * This service reads from the Quickstart catalog Github repository in
@@ -66,7 +62,7 @@ public class QuickstartCatalogService
    /**
     * Clones the catalog git repository and reads the obsidian metadata on each quickstart repository
     */
-   void index() throws IOException
+   private void index() throws IOException
    {
       WriteLock lock = reentrantLock.writeLock();
       try
@@ -152,7 +148,7 @@ public class QuickstartCatalogService
                return FileVisitResult.CONTINUE;
             }
          });
-         Collections.sort(quickstarts, (l, r) -> l.getName().compareTo(r.getName()));
+         quickstarts.sort(Comparator.comparing(Quickstart::getName));
          this.quickstarts = Collections.unmodifiableList(quickstarts);
       }
       catch (GitAPIException cause)
@@ -181,7 +177,7 @@ public class QuickstartCatalogService
             }
             catch (IOException e)
             {
-               e.printStackTrace();
+               logger.log(Level.SEVERE, "Error while indexing",e);
             }
          }, 0, indexPeriod, TimeUnit.MINUTES);
       }
@@ -197,13 +193,14 @@ public class QuickstartCatalogService
       if (catalogPath != null)
       {
          logger.info("Removing " + catalogPath);
-         // Remove all the YAML files
          try
          {
+         // Remove all the YAML files
             deleteRecursively(catalogPath);
          }
-         catch (IOException ignored)
+         catch (IOException e)
          {
+            logger.log(Level.FINEST, "Error while deleting catalog path",e);
          }
       }
    }
@@ -213,9 +210,6 @@ public class QuickstartCatalogService
       return System.getProperty(name, System.getenv().getOrDefault(name, defaultValue));
    }
 
-   /**
-    * @return a copy of the indexed {@link QuickstartMetadata} files
-    */
    public List<Quickstart> getQuickstarts()
    {
       Lock readLock = reentrantLock.readLock();

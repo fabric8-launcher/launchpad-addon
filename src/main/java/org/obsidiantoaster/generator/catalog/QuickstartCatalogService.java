@@ -59,7 +59,7 @@ public class QuickstartCatalogService
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    private Path catalogPath;
-   private List<Quickstart> quickstarts = new ArrayList<>();
+   private List<Quickstart> quickstarts;
 
    private ScheduledExecutorService executorService;
 
@@ -153,7 +153,7 @@ public class QuickstartCatalogService
             }
          });
          Collections.sort(quickstarts, (l, r) -> l.getName().compareTo(r.getName()));
-         this.quickstarts = quickstarts;
+         this.quickstarts = Collections.unmodifiableList(quickstarts);
       }
       catch (GitAPIException cause)
       {
@@ -222,7 +222,7 @@ public class QuickstartCatalogService
       try
       {
          readLock.lock();
-         return Collections.unmodifiableList(quickstarts);
+         return quickstarts;
       }
       finally
       {

@@ -81,7 +81,8 @@ public class QuickstartCatalogService
             Git.cloneRepository()
                      .setURI(getEnvVarOrSysProp("CATALOG_GIT_REPOSITORY", GIT_REPOSITORY))
                      .setBranch(getEnvVarOrSysProp("CATALOG_GIT_REF", GIT_REF))
-                     .setDirectory(catalogPath.toFile()).call();
+                     .setDirectory(catalogPath.toFile())
+                     .call().close();
          }
          else
          {

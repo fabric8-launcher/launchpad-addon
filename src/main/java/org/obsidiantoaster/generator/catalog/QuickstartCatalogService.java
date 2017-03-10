@@ -72,6 +72,7 @@ public class QuickstartCatalogService
       try
       {
          lock.lock();
+         logger.info("Indexing contents ...");
          if (catalogPath == null)
          {
             catalogPath = Files.createTempDirectory("quickstart-catalog");
@@ -160,6 +161,7 @@ public class QuickstartCatalogService
       }
       finally
       {
+         logger.info("Finished content indexing");
          lock.unlock();
       }
    }
@@ -175,9 +177,7 @@ public class QuickstartCatalogService
          executorService.scheduleAtFixedRate(() -> {
             try
             {
-               logger.info("Indexing contents ...");
-               index();
-               logger.info("Finished content indexing");
+               index();  
             }
             catch (IOException e)
             {

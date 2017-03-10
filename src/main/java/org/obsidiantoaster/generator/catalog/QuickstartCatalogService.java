@@ -59,7 +59,7 @@ public class QuickstartCatalogService
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    private Path catalogPath;
-   private List<Quickstart> quickstarts;
+   private volatile List<Quickstart> quickstarts;
 
    private ScheduledExecutorService executorService;
 

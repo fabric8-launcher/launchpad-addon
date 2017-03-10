@@ -166,21 +166,24 @@ public class QuickstartCatalogService
    @PostConstruct
    void init()
    {
-      executorService = Executors.newScheduledThreadPool(1);
       long indexPeriod = Long.parseLong(getEnvVarOrSysProp("CATALOG_INDEX_PERIOD", "30"));
-      logger.info("Indexing every " + indexPeriod + " minutes");
-      executorService.scheduleAtFixedRate(() -> {
-         try
-         {
-            logger.info("Indexing contents ...");
-            index();
-            logger.info("Finished content indexing");
-         }
-         catch (IOException e)
-         {
-            e.printStackTrace();
-         }
-      }, 0, indexPeriod, TimeUnit.MINUTES);
+      if (indexPeriod > 0L) 
+      {
+         executorService = Executors.newScheduledThreadPool(1);
+         logger.info("Indexing every " + indexPeriod + " minutes");
+         executorService.scheduleAtFixedRate(() -> {
+            try
+            {
+               logger.info("Indexing contents ...");
+               index();
+               logger.info("Finished content indexing");
+            }
+            catch (IOException e)
+            {
+               e.printStackTrace();
+            }
+         }, 0, indexPeriod, TimeUnit.MINUTES);
+      }
    }
 
    @PreDestroy

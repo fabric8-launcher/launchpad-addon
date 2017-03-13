@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -126,11 +127,9 @@ public class QuickstartCatalogService
             }
          }
          final List<Quickstart> quickstarts = new ArrayList<>();
-         final Yaml yaml = new Yaml();
          // Read the YAML files
          Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
          {
-            @SuppressWarnings("unchecked")
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
             {
@@ -138,39 +137,8 @@ public class QuickstartCatalogService
                if (ioFile.getName().endsWith(".yaml") || ioFile.getName().endsWith(".yml"))
                {
                   String id = removeFileExtension(ioFile.getName());
-                  logger.info(() -> "Indexing " + file + " ...");
-                  Path moduleDir = catalogPath.resolve("modules/" + id);
-                  try (BufferedReader reader = Files.newBufferedReader(file))
-                  {
-                     // Read YAML entry
-                     Quickstart quickstart = yaml.loadAs(reader, Quickstart.class);
-                     // Quickstart ID = filename without extension
-                     quickstart.setId(id);
-                     // Module does not exist. Clone it
-                     if (Files.notExists(moduleDir))
-                     {
-                        Git.cloneRepository()
-                                 .setDirectory(moduleDir.toFile())
-                                 .setURI("https://github.com/" + quickstart.getGithubRepo())
-                                 .setBranch(quickstart.getGitRef())
-                                 .call().close();
-                     }
-                     Path metadataPath = moduleDir.resolve(quickstart.getObsidianDescriptorPath());
-                     try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
-                     {
-                        Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
-                        quickstart.setMetadata(metadata);
-                     }
-                     quickstarts.add(quickstart);
-                  }
-                  catch (GitAPIException gitException)
-                  {
-                     logger.log(Level.SEVERE, "Error while reading git repository", gitException);
-                  }
-                  catch (Exception e)
-                  {
-                     logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
-                  }
+                  Path modulePath = catalogPath.resolve("modules/" + id);
+                  indexQuickstart(id, file, modulePath).ifPresent(quickstarts::add);
                }
                return FileVisitResult.CONTINUE;
             }
@@ -191,6 +159,52 @@ public class QuickstartCatalogService
          logger.info(() -> "Finished content indexing");
          lock.unlock();
       }
+   }
+
+   /**
+    * Takes a YAML file from the repository and indexes it
+    * 
+    * @param file A YAML file from the quickstart-catalog repository
+    * @return an {@link Optional} containing a {@link Quickstart}
+    */
+   @SuppressWarnings("unchecked")
+   private Optional<Quickstart> indexQuickstart(String id, Path file, Path moduleDir)
+   {
+      final Yaml yaml = new Yaml();
+      logger.info(() -> "Indexing " + file + " ...");
+
+      Quickstart quickstart = null;
+      try (BufferedReader reader = Files.newBufferedReader(file))
+      {
+         // Read YAML entry
+         quickstart = yaml.loadAs(reader, Quickstart.class);
+         // Quickstart ID = filename without extension
+         quickstart.setId(id);
+         // Module does not exist. Clone it
+         if (Files.notExists(moduleDir))
+         {
+            Git.cloneRepository()
+                     .setDirectory(moduleDir.toFile())
+                     .setURI("https://github.com/" + quickstart.getGithubRepo())
+                     .setBranch(quickstart.getGitRef())
+                     .call().close();
+         }
+         Path metadataPath = moduleDir.resolve(quickstart.getObsidianDescriptorPath());
+         try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
+         {
+            Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
+            quickstart.setMetadata(metadata);
+         }
+      }
+      catch (GitAPIException gitException)
+      {
+         logger.log(Level.SEVERE, "Error while reading git repository", gitException);
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
+      }
+      return Optional.ofNullable(quickstart);
    }
 
    @PostConstruct

@@ -73,7 +73,7 @@ public class QuickstartCatalogService
    /**
     * Clones the catalog git repository and reads the obsidian metadata on each quickstart repository
     */
-   private void index() throws IOException
+   private void index()
    {
       WriteLock lock = reentrantLock.writeLock();
       try
@@ -156,6 +156,10 @@ public class QuickstartCatalogService
                   {
                      logger.log(Level.SEVERE, "Error while reading git repository", gitException);
                   }
+                  catch (Exception e)
+                  {
+                     logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
+                  }
                }
                return FileVisitResult.CONTINUE;
             }
@@ -163,9 +167,13 @@ public class QuickstartCatalogService
          quickstarts.sort(Comparator.comparing(Quickstart::getName));
          this.quickstarts = Collections.unmodifiableList(quickstarts);
       }
-      catch (GitAPIException cause)
+      catch (GitAPIException e)
       {
-         throw new IOException("Error while performing GIT operation", cause);
+         logger.log(Level.SEVERE, "Error while performing Git operation", e);
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Error while indexing", e);
       }
       finally
       {
@@ -182,27 +190,11 @@ public class QuickstartCatalogService
       {
          executorService = Executors.newScheduledThreadPool(1);
          logger.info("Indexing every " + indexPeriod + " minutes");
-         executorService.scheduleAtFixedRate(() -> {
-            try
-            {
-               index();
-            }
-            catch (IOException e)
-            {
-               logger.log(Level.SEVERE, "Error while indexing", e);
-            }
-         }, 0, indexPeriod, TimeUnit.MINUTES);
+         executorService.scheduleAtFixedRate(this::index, 0, indexPeriod, TimeUnit.MINUTES);
       }
       else
       {
-         try
-         {
-            index();
-         }
-         catch (IOException e)
-         {
-            logger.log(Level.SEVERE, "Error while indexing", e);
-         }
+         index();
       }
    }
 

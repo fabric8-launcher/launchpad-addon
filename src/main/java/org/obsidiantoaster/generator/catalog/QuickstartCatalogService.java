@@ -175,7 +175,6 @@ public class QuickstartCatalogService
                return FileVisitResult.CONTINUE;
             }
          });
-         // Sort each quickstart and store in the quickstarts field
          quickstarts.sort(Comparator.comparing(Quickstart::getName));
          this.quickstarts = Collections.unmodifiableList(quickstarts);
       }

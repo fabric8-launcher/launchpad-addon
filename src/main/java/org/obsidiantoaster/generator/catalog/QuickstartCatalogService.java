@@ -13,6 +13,7 @@ import static org.obsidiantoaster.generator.Files.removeFileExtension;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,12 +105,22 @@ public class QuickstartCatalogService
             Path moduleRoot = catalogPath.resolve("modules");
             if (Files.isDirectory(moduleRoot))
             {
-               for (File repository : moduleRoot.toFile().listFiles())
+               try (DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
                {
-                  try (Git git = Git.open(repository))
+                  for (Path repository : newDirectoryStream)
                   {
-                     logger.info("Pulling changes to" + repository);
-                     git.pull().setRebase(true).call();
+                     try
+                     {
+                        try (Git git = Git.open(repository.toFile()))
+                        {
+                           logger.info("Pulling changes to" + repository);
+                           git.pull().setRebase(true).call();
+                        }
+                     }
+                     catch (GitAPIException e)
+                     {
+                        logger.log(Level.SEVERE, "Error while performing Git operation", e);
+                     }
                   }
                }
             }
@@ -164,6 +175,7 @@ public class QuickstartCatalogService
                return FileVisitResult.CONTINUE;
             }
          });
+         // Sort each quickstart and store in the quickstarts field
          quickstarts.sort(Comparator.comparing(Quickstart::getName));
          this.quickstarts = Collections.unmodifiableList(quickstarts);
       }

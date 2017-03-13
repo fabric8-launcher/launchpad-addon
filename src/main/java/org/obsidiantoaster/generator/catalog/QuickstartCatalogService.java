@@ -53,8 +53,14 @@ import org.yaml.snakeyaml.Yaml;
 @Singleton
 public class QuickstartCatalogService
 {
-   private static final String GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
-   private static final String GIT_REF = "master";
+   private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "CATALOG_INDEX_PERIOD";
+   private static final String CATALOG_GIT_REF_PROPERTY_NAME = "CATALOG_GIT_REF";
+   private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "CATALOG_GIT_REPOSITORY";
+
+   private static final String DEFAULT_INDEX_PERIOD = "30";
+   private static final String DEFAULT_GIT_REF = "master";
+   private static final String DEFAULT_GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
+
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
@@ -81,8 +87,8 @@ public class QuickstartCatalogService
             logger.info("Created " + catalogPath);
             // Clone repository
             Git.cloneRepository()
-                     .setURI(getEnvVarOrSysProp("CATALOG_GIT_REPOSITORY", GIT_REPOSITORY))
-                     .setBranch(getEnvVarOrSysProp("CATALOG_GIT_REF", GIT_REF))
+                     .setURI(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY))
+                     .setBranch(getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF))
                      .setDirectory(catalogPath.toFile())
                      .call().close();
          }
@@ -170,7 +176,7 @@ public class QuickstartCatalogService
    @PostConstruct
    void init()
    {
-      long indexPeriod = Long.parseLong(getEnvVarOrSysProp("CATALOG_INDEX_PERIOD", "30"));
+      long indexPeriod = Long.parseLong(getEnvVarOrSysProp(CATALOG_INDEX_PERIOD_PROPERTY_NAME, DEFAULT_INDEX_PERIOD));
       if (indexPeriod > 0L)
       {
          executorService = Executors.newScheduledThreadPool(1);

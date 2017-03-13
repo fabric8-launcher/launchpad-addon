@@ -7,16 +7,9 @@
 
 package org.obsidiantoaster.generator.catalog;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.resource.DirectoryResource;
-import org.obsidiantoaster.generator.CopyFileVisitor;
-import org.yaml.snakeyaml.Yaml;
+import static org.obsidiantoaster.generator.Files.deleteRecursively;
+import static org.obsidiantoaster.generator.Files.removeFileExtension;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +18,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +33,16 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.obsidiantoaster.generator.Files.deleteRecursively;
-import static org.obsidiantoaster.generator.Files.removeFileExtension;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jboss.forge.addon.projects.Project;
+import org.jboss.forge.addon.resource.DirectoryResource;
+import org.obsidiantoaster.generator.CopyFileVisitor;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * This service reads from the Quickstart catalog Github repository in
@@ -166,31 +171,31 @@ public class QuickstartCatalogService
    void init()
    {
       long indexPeriod = Long.parseLong(getEnvVarOrSysProp("CATALOG_INDEX_PERIOD", "30"));
-      if (indexPeriod > 0L) 
+      if (indexPeriod > 0L)
       {
          executorService = Executors.newScheduledThreadPool(1);
          logger.info("Indexing every " + indexPeriod + " minutes");
          executorService.scheduleAtFixedRate(() -> {
             try
             {
-               index();  
+               index();
             }
             catch (IOException e)
             {
-               logger.log(Level.SEVERE, "Error while indexing",e);
+               logger.log(Level.SEVERE, "Error while indexing", e);
             }
          }, 0, indexPeriod, TimeUnit.MINUTES);
-      } 
-      else 
+      }
+      else
       {
          try
          {
-            index();  
+            index();
          }
          catch (IOException e)
          {
-            logger.log(Level.SEVERE, "Error while indexing",e);
-         }         
+            logger.log(Level.SEVERE, "Error while indexing", e);
+         }
       }
    }
 
@@ -206,12 +211,12 @@ public class QuickstartCatalogService
          logger.info("Removing " + catalogPath);
          try
          {
-         // Remove all the YAML files
+            // Remove all the YAML files
             deleteRecursively(catalogPath);
          }
          catch (IOException e)
          {
-            logger.log(Level.FINEST, "Error while deleting catalog path",e);
+            logger.log(Level.FINEST, "Error while deleting catalog path", e);
          }
       }
    }
@@ -240,8 +245,17 @@ public class QuickstartCatalogService
     */
    public Path copy(Quickstart quickstart, Project project, Predicate<Path> filter) throws IOException
    {
-      Path modulePath = catalogPath.resolve("modules/" + quickstart.getId());
-      Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
-      return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
+      Lock readLock = reentrantLock.readLock();
+      try
+      {
+         readLock.lock();
+         Path modulePath = catalogPath.resolve("modules/" + quickstart.getId());
+         Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
+         return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
+      }
+      finally
+      {
+         readLock.unlock();
+      }
    }
 }

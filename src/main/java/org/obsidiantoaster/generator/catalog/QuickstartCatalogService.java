@@ -106,9 +106,9 @@ public class QuickstartCatalogService
             Path moduleRoot = catalogPath.resolve("modules");
             if (Files.isDirectory(moduleRoot))
             {
-               try (DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
+               try (DirectoryStream<Path> repositories = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
                {
-                  for (Path repository : newDirectoryStream)
+                  for (Path repository : repositories)
                   {
                      try
                      {

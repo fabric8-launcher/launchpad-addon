@@ -180,6 +180,17 @@ public class QuickstartCatalogService
                logger.log(Level.SEVERE, "Error while indexing",e);
             }
          }, 0, indexPeriod, TimeUnit.MINUTES);
+      } 
+      else 
+      {
+         try
+         {
+            index();  
+         }
+         catch (IOException e)
+         {
+            logger.log(Level.SEVERE, "Error while indexing",e);
+         }         
       }
    }
 

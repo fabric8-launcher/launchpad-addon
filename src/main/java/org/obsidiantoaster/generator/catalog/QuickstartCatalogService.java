@@ -66,7 +66,7 @@ public class QuickstartCatalogService
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    private Path catalogPath;
-   private volatile List<Quickstart> quickstarts;
+   private volatile List<Quickstart> quickstarts = Collections.emptyList();
 
    private ScheduledExecutorService executorService;
 
@@ -123,9 +123,10 @@ public class QuickstartCatalogService
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
             {
-               if (file.toString().endsWith(".yaml") || file.toString().endsWith(".yml"))
+               File ioFile = file.toFile();
+               if (ioFile.getName().endsWith(".yaml") || ioFile.getName().endsWith(".yml"))
                {
-                  String id = removeFileExtension(file.toFile().getName());
+                  String id = removeFileExtension(ioFile.getName());
                   logger.info("Indexing " + file + " ...");
                   Path moduleDir = catalogPath.resolve("modules/" + id);
                   try (BufferedReader reader = Files.newBufferedReader(file))

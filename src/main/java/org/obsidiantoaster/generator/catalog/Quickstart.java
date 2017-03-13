@@ -26,7 +26,6 @@ public class Quickstart
 
    private Map<String, Object> metadata = Collections.emptyMap();
 
-
    public String getName()
    {
       return Objects.toString(getMetadata().get("name"), getId());
@@ -116,5 +115,66 @@ public class Quickstart
    public void setMetadata(Map<String, Object> metadata)
    {
       this.metadata = metadata;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((gitRef == null) ? 0 : gitRef.hashCode());
+      result = prime * result + ((githubRepo == null) ? 0 : githubRepo.hashCode());
+      result = prime * result + ((id == null) ? 0 : id.hashCode());
+      result = prime * result + ((obsidianDescriptorPath == null) ? 0 : obsidianDescriptorPath.hashCode());
+      return result;
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      Quickstart other = (Quickstart) obj;
+      if (gitRef == null)
+      {
+         if (other.gitRef != null)
+            return false;
+      }
+      else if (!gitRef.equals(other.gitRef))
+         return false;
+      if (githubRepo == null)
+      {
+         if (other.githubRepo != null)
+            return false;
+      }
+      else if (!githubRepo.equals(other.githubRepo))
+         return false;
+      if (id == null)
+      {
+         if (other.id != null)
+            return false;
+      }
+      else if (!id.equals(other.id))
+         return false;
+      if (obsidianDescriptorPath == null)
+      {
+         if (other.obsidianDescriptorPath != null)
+            return false;
+      }
+      else if (!obsidianDescriptorPath.equals(other.obsidianDescriptorPath))
+         return false;
+      return true;
+   }
+
+   @Override
+   public String toString()
+   {
+      return "Quickstart [githubRepo=" + githubRepo + ", gitRef=" + gitRef + ", obsidianDescriptorPath="
+               + obsidianDescriptorPath + ", metadata=" + metadata + ", getName()=" + getName() + ", getDescription()="
+               + getDescription() + "]";
    }
 }

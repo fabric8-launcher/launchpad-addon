@@ -80,12 +80,12 @@ public class QuickstartCatalogService
       try
       {
          lock.lock();
-         logger.info("Indexing contents ...");
+         logger.info(() -> "Indexing contents ...");
          if (catalogPath == null)
          {
             catalogPath = Files.createTempDirectory("quickstart-catalog");
 
-            logger.info("Created " + catalogPath);
+            logger.info(() -> "Created " + catalogPath);
             // Clone repository
             Git.cloneRepository()
                      .setURI(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY))
@@ -95,7 +95,7 @@ public class QuickstartCatalogService
          }
          else
          {
-            logger.info("Pulling changes to" + catalogPath);
+            logger.info(() -> "Pulling changes to" + catalogPath);
             // Perform a git pull
             try (Git git = Git.open(catalogPath.toFile()))
             {
@@ -113,7 +113,7 @@ public class QuickstartCatalogService
                      {
                         try (Git git = Git.open(repository.toFile()))
                         {
-                           logger.info("Pulling changes to" + repository);
+                           logger.info(() -> "Pulling changes to" + repository);
                            git.pull().setRebase(true).call();
                         }
                      }
@@ -138,7 +138,7 @@ public class QuickstartCatalogService
                if (ioFile.getName().endsWith(".yaml") || ioFile.getName().endsWith(".yml"))
                {
                   String id = removeFileExtension(ioFile.getName());
-                  logger.info("Indexing " + file + " ...");
+                  logger.info(() -> "Indexing " + file + " ...");
                   Path moduleDir = catalogPath.resolve("modules/" + id);
                   try (BufferedReader reader = Files.newBufferedReader(file))
                   {
@@ -188,7 +188,7 @@ public class QuickstartCatalogService
       }
       finally
       {
-         logger.info("Finished content indexing");
+         logger.info(() -> "Finished content indexing");
          lock.unlock();
       }
    }
@@ -200,7 +200,7 @@ public class QuickstartCatalogService
       if (indexPeriod > 0L)
       {
          executorService = Executors.newScheduledThreadPool(1);
-         logger.info("Indexing every " + indexPeriod + " minutes");
+         logger.info(() -> "Indexing every " + indexPeriod + " minutes");
          executorService.scheduleAtFixedRate(this::index, 0, indexPeriod, TimeUnit.MINUTES);
       }
       else
@@ -218,7 +218,7 @@ public class QuickstartCatalogService
       }
       if (catalogPath != null)
       {
-         logger.info("Removing " + catalogPath);
+         logger.info(() -> "Removing " + catalogPath);
          try
          {
             // Remove all the YAML files

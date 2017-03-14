@@ -55,6 +55,7 @@ import org.yaml.snakeyaml.Yaml;
 @Singleton
 public class QuickstartCatalogService
 {
+   private static final String MODULES_DIR = "modules";
    private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "CATALOG_INDEX_PERIOD";
    private static final String CATALOG_GIT_REF_PROPERTY_NAME = "CATALOG_GIT_REF";
    private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "CATALOG_GIT_REPOSITORY";
@@ -103,7 +104,7 @@ public class QuickstartCatalogService
                git.pull().setRebase(true).call();
             }
             // Git pull on the existing repositories
-            Path moduleRoot = catalogPath.resolve("modules");
+            Path moduleRoot = catalogPath.resolve(MODULES_DIR);
             if (Files.isDirectory(moduleRoot))
             {
                try (DirectoryStream<Path> repositories = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
@@ -137,8 +138,18 @@ public class QuickstartCatalogService
                if (ioFile.getName().endsWith(".yaml") || ioFile.getName().endsWith(".yml"))
                {
                   String id = removeFileExtension(ioFile.getName());
-                  Path modulePath = catalogPath.resolve("modules/" + id);
+                  Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + id);
                   indexQuickstart(id, file, modulePath).ifPresent(quickstarts::add);
+               }
+               return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+            {
+               if (dir.toString().contains(MODULES_DIR))
+               {
+                  return FileVisitResult.SKIP_SIBLINGS;
                }
                return FileVisitResult.CONTINUE;
             }
@@ -273,7 +284,7 @@ public class QuickstartCatalogService
       try
       {
          readLock.lock();
-         Path modulePath = catalogPath.resolve("modules/" + quickstart.getId());
+         Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + quickstart.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
       }

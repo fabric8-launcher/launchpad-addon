@@ -127,6 +127,7 @@ public class QuickstartCatalogService
                }
             }
          }
+         final Path moduleRoot = catalogPath.resolve(MODULES_DIR);
          final List<Quickstart> quickstarts = new ArrayList<>();
          // Read the YAML files
          Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
@@ -147,7 +148,7 @@ public class QuickstartCatalogService
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
             {
-               if (dir.toString().contains(MODULES_DIR))
+               if (dir.startsWith(moduleRoot))
                {
                   return FileVisitResult.SKIP_SIBLINGS;
                }

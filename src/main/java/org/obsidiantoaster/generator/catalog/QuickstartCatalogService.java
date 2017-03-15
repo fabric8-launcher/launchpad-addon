@@ -55,6 +55,7 @@ import org.yaml.snakeyaml.Yaml;
 @Singleton
 public class QuickstartCatalogService
 {
+   private static final String GITHUB_URL = "https://github.com/";
    private static final String MODULES_DIR = "modules";
    private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "CATALOG_INDEX_PERIOD";
    private static final String CATALOG_GIT_REF_PROPERTY_NAME = "CATALOG_GIT_REF";
@@ -62,7 +63,7 @@ public class QuickstartCatalogService
 
    private static final String DEFAULT_INDEX_PERIOD = "30";
    private static final String DEFAULT_GIT_REF = "master";
-   private static final String DEFAULT_GIT_REPOSITORY = "https://github.com/obsidian-toaster/quickstart-catalog.git";
+   private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/obsidian-toaster/quickstart-catalog.git";
 
    private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
 
@@ -90,7 +91,7 @@ public class QuickstartCatalogService
             logger.info(() -> "Created " + catalogPath);
             // Clone repository
             Git.cloneRepository()
-                     .setURI(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY))
+                     .setURI(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL))
                      .setBranch(getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF))
                      .setDirectory(catalogPath.toFile())
                      .call().close();
@@ -148,11 +149,7 @@ public class QuickstartCatalogService
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
             {
-               if (dir.startsWith(moduleRoot))
-               {
-                  return FileVisitResult.SKIP_SIBLINGS;
-               }
-               return FileVisitResult.CONTINUE;
+               return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SIBLINGS : FileVisitResult.CONTINUE;
             }
          });
          quickstarts.sort(Comparator.comparing(Quickstart::getName));
@@ -197,7 +194,7 @@ public class QuickstartCatalogService
          {
             Git.cloneRepository()
                      .setDirectory(moduleDir.toFile())
-                     .setURI("https://github.com/" + quickstart.getGithubRepo())
+                     .setURI(GITHUB_URL + quickstart.getGithubRepo())
                      .setBranch(quickstart.getGitRef())
                      .call().close();
          }

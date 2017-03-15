@@ -149,7 +149,7 @@ public class QuickstartCatalogService
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
             {
-               return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SIBLINGS : FileVisitResult.CONTINUE;
+               return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
             }
          });
          quickstarts.sort(Comparator.comparing(Quickstart::getName));

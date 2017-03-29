@@ -16,6 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.Predicate;
 
 /**
+ * A {@link SimpleFileVisitor} implementation used to copy files from a directory {@link Path} to another directory.
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
@@ -57,8 +58,8 @@ public class CopyFileVisitor extends SimpleFileVisitor<Path>
    {
       if (filter.test(file))
       {
-         java.nio.file.Files.copy(file, targetPath.resolve(sourcePath.relativize(file)),
-                  StandardCopyOption.REPLACE_EXISTING);
+         Path target = targetPath.resolve(sourcePath.relativize(file));
+         java.nio.file.Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
       }
       return FileVisitResult.CONTINUE;
    }

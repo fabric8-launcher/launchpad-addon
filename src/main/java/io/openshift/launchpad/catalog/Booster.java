@@ -17,12 +17,12 @@ import java.util.Objects;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class Quickstart
+public class Booster
 {
    private String id;
    private String githubRepo;
    private String gitRef;
-   private String obsidianDescriptorPath = ".obsidian/obsidian.yaml";
+   private String boosterDescriptorPath = ".openshiftio/booster.yaml";
 
    private Map<String, Object> metadata = Collections.emptyMap();
 
@@ -61,12 +61,12 @@ public class Quickstart
    }
 
    /**
-    * @return the obsidianDescriptorPath
+    * @return the boosterDescriptorPath
     */
    @Transient
-   public String getObsidianDescriptorPath()
+   public String getBoosterDescriptorPath()
    {
-      return obsidianDescriptorPath;
+      return boosterDescriptorPath;
    }
 
    /**
@@ -94,11 +94,11 @@ public class Quickstart
    }
 
    /**
-    * @param obsidianDescriptorPath the obsidianDescriptorPath to set
+    * @param boosterDescriptorPath the obsidianDescriptorPath to set
     */
-   public void setObsidianDescriptorPath(String obsidianDescriptorPath)
+   public void setBoosterDescriptorPath(String boosterDescriptorPath)
    {
-      this.obsidianDescriptorPath = obsidianDescriptorPath;
+      this.boosterDescriptorPath = boosterDescriptorPath;
    }
 
    /**
@@ -125,7 +125,7 @@ public class Quickstart
       result = prime * result + ((gitRef == null) ? 0 : gitRef.hashCode());
       result = prime * result + ((githubRepo == null) ? 0 : githubRepo.hashCode());
       result = prime * result + ((id == null) ? 0 : id.hashCode());
-      result = prime * result + ((obsidianDescriptorPath == null) ? 0 : obsidianDescriptorPath.hashCode());
+      result = prime * result + ((boosterDescriptorPath == null) ? 0 : boosterDescriptorPath.hashCode());
       return result;
    }
 
@@ -138,7 +138,7 @@ public class Quickstart
          return false;
       if (getClass() != obj.getClass())
          return false;
-      Quickstart other = (Quickstart) obj;
+      Booster other = (Booster) obj;
       if (gitRef == null)
       {
          if (other.gitRef != null)
@@ -160,12 +160,12 @@ public class Quickstart
       }
       else if (!id.equals(other.id))
          return false;
-      if (obsidianDescriptorPath == null)
+      if (boosterDescriptorPath == null)
       {
-         if (other.obsidianDescriptorPath != null)
+         if (other.boosterDescriptorPath != null)
             return false;
       }
-      else if (!obsidianDescriptorPath.equals(other.obsidianDescriptorPath))
+      else if (!boosterDescriptorPath.equals(other.boosterDescriptorPath))
          return false;
       return true;
    }
@@ -173,8 +173,8 @@ public class Quickstart
    @Override
    public String toString()
    {
-      return "Quickstart [githubRepo=" + githubRepo + ", gitRef=" + gitRef + ", obsidianDescriptorPath="
-               + obsidianDescriptorPath + ", metadata=" + metadata + ", getName()=" + getName() + ", getDescription()="
+      return "Booster [githubRepo=" + githubRepo + ", gitRef=" + gitRef + ", obsidianDescriptorPath="
+               + boosterDescriptorPath + ", metadata=" + metadata + ", getName()=" + getName() + ", getDescription()="
                + getDescription() + "]";
    }
 }

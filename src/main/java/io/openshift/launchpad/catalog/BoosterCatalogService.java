@@ -48,13 +48,13 @@ import org.yaml.snakeyaml.Yaml;
 import io.openshift.launchpad.CopyFileVisitor;
 
 /**
- * This service reads from the Quickstart catalog Github repository in
- * https://github.com/obsidian-toaster/quickstart-catalog and marshalls into {@link Quickstart} objects.
+ * This service reads from the Booster catalog Github repository in
+ * https://github.com/obsidian-toaster/quickstart-catalog and marshalls into {@link Booster} objects.
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 @Singleton
-public class QuickstartCatalogService
+public class BoosterCatalogService
 {
    private static final String GITHUB_URL = "https://github.com/";
    private static final String MODULES_DIR = "modules";
@@ -64,14 +64,14 @@ public class QuickstartCatalogService
 
    private static final String DEFAULT_INDEX_PERIOD = "30";
    private static final String DEFAULT_GIT_REF = "master";
-   private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/obsidian-toaster/quickstart-catalog.git";
+   private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
 
-   private static final Logger logger = Logger.getLogger(QuickstartCatalogService.class.getName());
+   private static final Logger logger = Logger.getLogger(BoosterCatalogService.class.getName());
 
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    private Path catalogPath;
-   private volatile List<Quickstart> quickstarts = Collections.emptyList();
+   private volatile List<Booster> boosters = Collections.emptyList();
 
    private ScheduledExecutorService executorService;
 
@@ -87,7 +87,7 @@ public class QuickstartCatalogService
          logger.info(() -> "Indexing contents ...");
          if (catalogPath == null)
          {
-            catalogPath = Files.createTempDirectory("quickstart-catalog");
+            catalogPath = Files.createTempDirectory("booster-catalog");
 
             logger.info(() -> "Created " + catalogPath);
             // Clone repository
@@ -130,7 +130,7 @@ public class QuickstartCatalogService
             }
          }
          final Path moduleRoot = catalogPath.resolve(MODULES_DIR);
-         final List<Quickstart> quickstarts = new ArrayList<>();
+         final List<Booster> quickstarts = new ArrayList<>();
          // Read the YAML files
          Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
          {
@@ -142,7 +142,7 @@ public class QuickstartCatalogService
                {
                   String id = removeFileExtension(ioFile.getName());
                   Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + id);
-                  indexQuickstart(id, file, modulePath).ifPresent(quickstarts::add);
+                  indexBooster(id, file, modulePath).ifPresent(quickstarts::add);
                }
                return FileVisitResult.CONTINUE;
             }
@@ -153,8 +153,8 @@ public class QuickstartCatalogService
                return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
             }
          });
-         quickstarts.sort(Comparator.comparing(Quickstart::getName));
-         this.quickstarts = Collections.unmodifiableList(quickstarts);
+         quickstarts.sort(Comparator.comparing(Booster::getName));
+         this.boosters = Collections.unmodifiableList(quickstarts);
       }
       catch (GitAPIException e)
       {
@@ -175,20 +175,20 @@ public class QuickstartCatalogService
     * Takes a YAML file from the repository and indexes it
     * 
     * @param file A YAML file from the quickstart-catalog repository
-    * @return an {@link Optional} containing a {@link Quickstart}
+    * @return an {@link Optional} containing a {@link Booster}
     */
    @SuppressWarnings("unchecked")
-   private Optional<Quickstart> indexQuickstart(String id, Path file, Path moduleDir)
+   private Optional<Booster> indexBooster(String id, Path file, Path moduleDir)
    {
       final Yaml yaml = new Yaml();
       logger.info(() -> "Indexing " + file + " ...");
 
-      Quickstart quickstart = null;
+      Booster quickstart = null;
       try (BufferedReader reader = Files.newBufferedReader(file))
       {
          // Read YAML entry
-         quickstart = yaml.loadAs(reader, Quickstart.class);
-         // Quickstart ID = filename without extension
+         quickstart = yaml.loadAs(reader, Booster.class);
+         // Booster ID = filename without extension
          quickstart.setId(id);
          // Module does not exist. Clone it
          if (Files.notExists(moduleDir))
@@ -199,7 +199,7 @@ public class QuickstartCatalogService
                      .setBranch(quickstart.getGitRef())
                      .call().close();
          }
-         Path metadataPath = moduleDir.resolve(quickstart.getObsidianDescriptorPath());
+         Path metadataPath = moduleDir.resolve(quickstart.getBoosterDescriptorPath());
          try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
          {
             Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
@@ -260,13 +260,13 @@ public class QuickstartCatalogService
       return System.getProperty(name, System.getenv().getOrDefault(name, defaultValue));
    }
 
-   public List<Quickstart> getQuickstarts()
+   public List<Booster> getBoosters()
    {
       Lock readLock = reentrantLock.readLock();
       try
       {
          readLock.lock();
-         return quickstarts;
+         return boosters;
       }
       finally
       {
@@ -275,15 +275,15 @@ public class QuickstartCatalogService
    }
 
    /**
-    * Copies the {@link Quickstart} contents to the specified {@link Project}
+    * Copies the {@link Booster} contents to the specified {@link Project}
     */
-   public Path copy(Quickstart quickstart, Project project, Predicate<Path> filter) throws IOException
+   public Path copy(Booster booster, Project project, Predicate<Path> filter) throws IOException
    {
       Lock readLock = reentrantLock.readLock();
       try
       {
          readLock.lock();
-         Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + quickstart.getId());
+         Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
       }

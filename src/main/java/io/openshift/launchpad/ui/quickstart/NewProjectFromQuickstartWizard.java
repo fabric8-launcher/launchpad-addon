@@ -43,8 +43,8 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
 
-import io.openshift.launchpad.catalog.Quickstart;
-import io.openshift.launchpad.catalog.QuickstartCatalogService;
+import io.openshift.launchpad.catalog.Booster;
+import io.openshift.launchpad.catalog.BoosterCatalogService;
 import io.openshift.launchpad.ui.input.ProjectName;
 import io.openshift.launchpad.ui.input.TopLevelPackage;
 import io.openshift.launchpad.ui.input.Version;
@@ -62,8 +62,8 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store");
 
    @Inject
-   @WithAttributes(label = "Project type", required = true)
-   private UISelectOne<Quickstart> type;
+   @WithAttributes(label = "Booster", required = true)
+   private UISelectOne<Booster> type;
 
    @Inject
    private ProjectName named;
@@ -75,7 +75,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    private Version version;
 
    @Inject
-   private QuickstartCatalogService catalogService;
+   private BoosterCatalogService catalogService;
 
    @Inject
    private ProjectFactory projectFactory;
@@ -90,13 +90,13 @@ public class NewProjectFromQuickstartWizard implements UIWizard
 
       if (uiContext.getProvider().isGUI())
       {
-         type.setItemLabelConverter(Quickstart::getName);
+         type.setItemLabelConverter(Booster::getName);
       }
       else
       {
-         type.setItemLabelConverter(Quickstart::getId);
+         type.setItemLabelConverter(Booster::getId);
       }
-      List<Quickstart> quickstarts = catalogService.getQuickstarts();
+      List<Booster> quickstarts = catalogService.getBoosters();
       type.setValueChoices(quickstarts);
       if (!quickstarts.isEmpty())
       {
@@ -110,8 +110,8 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Launchpad: New Quickstart")
-               .description("Generate your project from a quickstart")
+      return Metadata.forCommand(getClass()).name("Launchpad: New Booster")
+               .description("Generate your project from a booster")
                .category(Categories.create("Openshift.io"));
    }
 
@@ -127,7 +127,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Quickstart qs = type.getValue();
+      Booster qs = type.getValue();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
       // Using ProjectFactory to invoke bound listeners

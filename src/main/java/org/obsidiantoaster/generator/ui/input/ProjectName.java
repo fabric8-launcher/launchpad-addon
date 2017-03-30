@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
 import org.jboss.forge.addon.ui.input.AbstractUIInputDecorator;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -26,6 +28,8 @@ public class ProjectName extends AbstractUIInputDecorator<String>
 
    @Inject
    @WithAttributes(label = "Project name", required = true, defaultValue = "demo", note = "Downloadable project zip and application jar are based on the project name")
+   @UnwrapValidatedValue
+   @Length(min = 1, max = 24)
    private UIInput<String> named;
 
    @Override

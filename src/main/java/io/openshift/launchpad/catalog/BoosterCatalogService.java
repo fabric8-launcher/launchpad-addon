@@ -183,27 +183,34 @@ public class BoosterCatalogService
       final Yaml yaml = new Yaml();
       logger.info(() -> "Indexing " + file + " ...");
 
-      Booster quickstart = null;
+      Booster booster = null;
       try (BufferedReader reader = Files.newBufferedReader(file))
       {
          // Read YAML entry
-         quickstart = yaml.loadAs(reader, Booster.class);
+         booster = yaml.loadAs(reader, Booster.class);
          // Booster ID = filename without extension
-         quickstart.setId(id);
+         booster.setId(id);
          // Module does not exist. Clone it
          if (Files.notExists(moduleDir))
          {
             Git.cloneRepository()
                      .setDirectory(moduleDir.toFile())
-                     .setURI(GITHUB_URL + quickstart.getGithubRepo())
-                     .setBranch(quickstart.getGitRef())
+                     .setURI(GITHUB_URL + booster.getGithubRepo())
+                     .setBranch(booster.getGitRef())
                      .call().close();
          }
-         Path metadataPath = moduleDir.resolve(quickstart.getBoosterDescriptorPath());
+         Path metadataPath = moduleDir.resolve(booster.getBoosterDescriptorPath());
          try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
          {
             Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
-            quickstart.setMetadata(metadata);
+            booster.setMetadata(metadata);
+         }
+
+         Path descriptionPath = moduleDir.resolve(booster.getBoosterDescriptionPath());
+         if (Files.exists(descriptionPath))
+         {
+            byte[] descriptionContent = Files.readAllBytes(descriptionPath);
+            booster.setDescription(new String(descriptionContent));
          }
       }
       catch (GitAPIException gitException)
@@ -214,7 +221,7 @@ public class BoosterCatalogService
       {
          logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
       }
-      return Optional.ofNullable(quickstart);
+      return Optional.ofNullable(booster);
    }
 
    @PostConstruct

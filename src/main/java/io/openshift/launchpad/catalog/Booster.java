@@ -22,6 +22,7 @@ public class Booster
    private String id;
    private String githubRepo;
    private String gitRef;
+   private String description = "No description available";
    private String boosterDescriptorPath = ".openshiftio/booster.yaml";
 
    private Map<String, Object> metadata = Collections.emptyMap();
@@ -33,7 +34,15 @@ public class Booster
 
    public String getDescription()
    {
-      return Objects.toString(getMetadata().get("description"), "No description available");
+      return description;
+   }
+
+   /**
+    * @return the boosterDescriptionPath
+    */
+   public String getBoosterDescriptionPath()
+   {
+      return Objects.toString(getMetadata().get("descriptionPath"), ".openshiftio/description.adoc");
    }
 
    /**
@@ -99,6 +108,14 @@ public class Booster
    public void setBoosterDescriptorPath(String boosterDescriptorPath)
    {
       this.boosterDescriptorPath = boosterDescriptorPath;
+   }
+
+   /**
+    * @param description the description to set
+    */
+   public void setDescription(String description)
+   {
+      this.description = description;
    }
 
    /**

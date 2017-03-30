@@ -15,7 +15,6 @@
  */
 package io.openshift.launchpad.ui.quickstart;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -56,12 +55,6 @@ import io.openshift.launchpad.ui.input.Version;
  */
 public class NewProjectWizard implements UIWizard
 {
-   /**
-    * Files to be deleted after project creation (if exists)
-    */
-   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store",
-            ".openshiftio", ".obsidian");
-
    @Inject
    @WithAttributes(label = "Booster", required = true)
    private UISelectOne<Booster> type;
@@ -139,7 +132,7 @@ public class NewProjectWizard implements UIWizard
       // Delete existing pom
       modelResource.delete();
       // Copy contents (including pom.xml if exists)
-      catalogService.copy(qs, project, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase()));
+      catalogService.copy(qs, project);
       // Perform model changes
       if (modelResource.exists())
       {

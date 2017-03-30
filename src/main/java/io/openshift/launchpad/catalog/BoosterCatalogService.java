@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -31,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,6 +65,11 @@ public class BoosterCatalogService
    private static final String DEFAULT_INDEX_PERIOD = "30";
    private static final String DEFAULT_GIT_REF = "master";
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
+   /**
+    * Files to be deleted after project creation (if exists)
+    */
+   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store",
+            ".openshiftio", ".obsidian", ".gitmodules");
 
    private static final Logger logger = Logger.getLogger(BoosterCatalogService.class.getName());
 
@@ -284,7 +289,7 @@ public class BoosterCatalogService
    /**
     * Copies the {@link Booster} contents to the specified {@link Project}
     */
-   public Path copy(Booster booster, Project project, Predicate<Path> filter) throws IOException
+   public Path copy(Booster booster, Project project) throws IOException
    {
       Lock readLock = reentrantLock.readLock();
       try
@@ -292,7 +297,8 @@ public class BoosterCatalogService
          readLock.lock();
          Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
-         return Files.walkFileTree(modulePath, new CopyFileVisitor(to, filter));
+         return Files.walkFileTree(modulePath,
+                  new CopyFileVisitor(to, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase())));
       }
       finally
       {

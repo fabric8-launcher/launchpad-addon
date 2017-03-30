@@ -110,9 +110,9 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Obsidian: New Quickstart")
+      return Metadata.forCommand(getClass()).name("Launchpad: New Quickstart")
                .description("Generate your project from a quickstart")
-               .category(Categories.create("Obsidian"));
+               .category(Categories.create("Openshift.io"));
    }
 
    @Override

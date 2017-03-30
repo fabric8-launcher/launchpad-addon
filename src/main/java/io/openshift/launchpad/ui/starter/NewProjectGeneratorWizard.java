@@ -99,9 +99,9 @@ public class NewProjectGeneratorWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Obsidian: New Project")
+      return Metadata.forCommand(getClass()).name("Launchpad: New Project")
                .description("Generate your project")
-               .category(Categories.create("Obsidian"));
+               .category(Categories.create("Openshift.io"));
    }
 
    @Override

@@ -54,7 +54,7 @@ import io.openshift.launchpad.ui.input.Version;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class NewProjectFromQuickstartWizard implements UIWizard
+public class NewProjectWizard implements UIWizard
 {
    /**
     * Files to be deleted after project creation (if exists)
@@ -110,7 +110,7 @@ public class NewProjectFromQuickstartWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Launchpad: New Booster")
+      return Metadata.forCommand(getClass()).name("Launchpad: New Project")
                .description("Generate your project from a booster")
                .category(Categories.create("Openshift.io"));
    }

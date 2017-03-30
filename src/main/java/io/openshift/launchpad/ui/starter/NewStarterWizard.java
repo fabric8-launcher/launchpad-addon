@@ -53,7 +53,7 @@ import io.openshift.launchpad.ui.input.Version;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class NewProjectGeneratorWizard implements UIWizard
+public class NewStarterWizard implements UIWizard
 {
    @Inject
    @WithAttributes(label = "Project type", required = true)
@@ -99,8 +99,8 @@ public class NewProjectGeneratorWizard implements UIWizard
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Launchpad: New Project")
-               .description("Generate your project")
+      return Metadata.forCommand(getClass()).name("Launchpad: New Starter Project")
+               .description("Generate your project using a standard starter")
                .category(Categories.create("Openshift.io"));
    }
 

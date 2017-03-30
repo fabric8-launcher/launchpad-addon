@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.ui.starter;
+package io.openshift.launchpad.ui.starter;
 
 import java.io.StringReader;
 import java.net.URL;

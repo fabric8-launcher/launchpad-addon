@@ -5,10 +5,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.catalog;
+package io.openshift.launchpad.catalog;
 
-import static org.obsidiantoaster.generator.Files.deleteRecursively;
-import static org.obsidiantoaster.generator.Files.removeFileExtension;
+import static io.openshift.launchpad.Files.deleteRecursively;
+import static io.openshift.launchpad.Files.removeFileExtension;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,8 +43,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.resource.DirectoryResource;
-import org.obsidiantoaster.generator.CopyFileVisitor;
 import org.yaml.snakeyaml.Yaml;
+
+import io.openshift.launchpad.CopyFileVisitor;
 
 /**
  * This service reads from the Quickstart catalog Github repository in

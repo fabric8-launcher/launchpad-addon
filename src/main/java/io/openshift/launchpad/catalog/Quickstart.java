@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.catalog;
+package io.openshift.launchpad.catalog;
 
 import java.beans.Transient;
 import java.util.Collections;

@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.ui.quickstart;
+package io.openshift.launchpad.ui.quickstart;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,14 +42,15 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.obsidiantoaster.generator.catalog.Quickstart;
-import org.obsidiantoaster.generator.catalog.QuickstartCatalogService;
-import org.obsidiantoaster.generator.ui.input.ProjectName;
-import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
-import org.obsidiantoaster.generator.ui.input.Version;
+
+import io.openshift.launchpad.catalog.Quickstart;
+import io.openshift.launchpad.catalog.QuickstartCatalogService;
+import io.openshift.launchpad.ui.input.ProjectName;
+import io.openshift.launchpad.ui.input.TopLevelPackage;
+import io.openshift.launchpad.ui.input.Version;
 
 /**
- * The project type for
+ * Creates a new project
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */

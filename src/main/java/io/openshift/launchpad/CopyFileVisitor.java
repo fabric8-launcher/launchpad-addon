@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator;
+package io.openshift.launchpad;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

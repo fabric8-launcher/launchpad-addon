@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.obsidiantoaster.generator.ui.starter.PerformExtraTasksStep;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import io.openshift.launchpad.ui.starter.PerformExtraTasksStep;
 
 /**
  *

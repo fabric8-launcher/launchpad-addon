@@ -6,8 +6,8 @@
       <artifactId>jboss-parent</artifactId>
       <version>22</version>
    </parent>
-   <groupId>org.obsidiantoaster.forge</groupId>
-   <artifactId>obsidian-generator</artifactId>
+   <groupId>io.openshift.launchpad</groupId>
+   <artifactId>launchpad-addon</artifactId>
    <version>1.0.0-SNAPSHOT</version>
    <properties>
       <version.furnace>2.25.2.Final</version.furnace>
@@ -22,9 +22,9 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
       <!-- SCM Properties -->
-      <obs.scm.git.connection>scm:git:git://github.com/obsidian-toaster/obsidian-addon.git</obs.scm.git.connection>
-      <obs.scm.dev.connection>scm:git:git@github.com:obsidian-toaster/obsidian-addon.git</obs.scm.dev.connection>
-      <obs.scm.url>http://github.com/obsidian-toaster/obsidian-addon</obs.scm.url>
+      <obs.scm.git.connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</obs.scm.git.connection>
+      <obs.scm.dev.connection>scm:git:git@github.com:openshiftio/launchpad-addon.git</obs.scm.dev.connection>
+      <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
       <obs.scm.tag>HEAD</obs.scm.tag>
 
       <!-- Nexus Staging Repo -->
@@ -33,7 +33,7 @@
       <skipStaging>false</skipStaging>
    </properties>
    <build>
-      <finalName>obsidian-generator</finalName>
+      <finalName>launchpad-generator</finalName>
       <resources>
          <resource>
             <directory>src/main/resources</directory>

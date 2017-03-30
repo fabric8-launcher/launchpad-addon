@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.ui.starter;
+package io.openshift.launchpad.ui.starter;
 
 import java.util.List;
 import java.util.Map;
@@ -43,9 +43,10 @@ import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
-import org.obsidiantoaster.generator.ui.input.ProjectName;
-import org.obsidiantoaster.generator.ui.input.TopLevelPackage;
-import org.obsidiantoaster.generator.ui.input.Version;
+
+import io.openshift.launchpad.ui.input.ProjectName;
+import io.openshift.launchpad.ui.input.TopLevelPackage;
+import io.openshift.launchpad.ui.input.Version;
 
 /**
  * The project type for

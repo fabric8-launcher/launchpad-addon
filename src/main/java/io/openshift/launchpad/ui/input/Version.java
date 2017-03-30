@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.obsidiantoaster.generator.ui.input;
+package io.openshift.launchpad.ui.input;
 
 import javax.inject.Inject;
 

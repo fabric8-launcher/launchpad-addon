@@ -13,7 +13,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package org.obsidiantoaster.generator.ui;
+package io.openshift.launchpad.ui;
 
 import java.util.Arrays;
 import java.util.List;

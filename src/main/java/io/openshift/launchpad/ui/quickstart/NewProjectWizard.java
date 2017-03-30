@@ -59,7 +59,8 @@ public class NewProjectWizard implements UIWizard
    /**
     * Files to be deleted after project creation (if exists)
     */
-   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store");
+   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store",
+            ".openshiftio");
 
    @Inject
    @WithAttributes(label = "Booster", required = true)

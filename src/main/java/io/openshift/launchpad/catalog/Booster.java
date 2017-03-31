@@ -34,7 +34,7 @@ public class Booster
 
    public String getDescription()
    {
-      return description;
+      return Objects.toString(getMetadata().get("description"), description);
    }
 
    /**

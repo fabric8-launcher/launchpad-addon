@@ -62,7 +62,7 @@ public class BoosterCatalogService
    private static final String CATALOG_GIT_REF_PROPERTY_NAME = "CATALOG_GIT_REF";
    private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "CATALOG_GIT_REPOSITORY";
 
-   private static final String DEFAULT_INDEX_PERIOD = "30";
+   private static final String DEFAULT_INDEX_PERIOD = "0";
    private static final String DEFAULT_GIT_REF = "master";
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
    /**

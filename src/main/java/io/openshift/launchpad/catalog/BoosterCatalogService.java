@@ -90,7 +90,11 @@ public class BoosterCatalogService
       try
       {
          lock.lock();
-         logger.info(() -> "Indexing contents ...");
+         String catalogRepositoryURI = getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME,
+                  DEFAULT_GIT_REPOSITORY_URL);
+         String catalogRef = getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF);
+         logger.log(Level.INFO, "Indexing contents from {0} using {1} ref",
+                  new Object[] { catalogRepositoryURI, catalogRef });
          if (catalogPath == null)
          {
             catalogPath = Files.createTempDirectory("booster-catalog");
@@ -98,8 +102,8 @@ public class BoosterCatalogService
             logger.info(() -> "Created " + catalogPath);
             // Clone repository
             Git.cloneRepository()
-                     .setURI(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL))
-                     .setBranch(getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF))
+                     .setURI(catalogRepositoryURI)
+                     .setBranch(catalogRef)
                      .setDirectory(catalogPath.toFile())
                      .call().close();
          }

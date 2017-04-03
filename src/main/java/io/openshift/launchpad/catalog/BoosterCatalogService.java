@@ -66,10 +66,11 @@ public class BoosterCatalogService
    private static final String DEFAULT_GIT_REF = "master";
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
    /**
-    * Files to be deleted after project creation (if exists)
+    * Files to be excluded from project creation
     */
-   private static final List<String> FILES_TO_BE_DELETED = Arrays.asList(".git", ".travis", ".travis.yml", ".ds_store",
-            ".openshiftio", ".obsidian", ".gitmodules");
+   private static final List<String> EXCLUDED_PROJECT_FILES = Arrays.asList(".git", ".travis", ".travis.yml",
+            ".ds_store",
+            ".obsidian", ".gitmodules");
 
    private static final Logger logger = Logger.getLogger(BoosterCatalogService.class.getName());
 
@@ -298,7 +299,7 @@ public class BoosterCatalogService
          Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath,
-                  new CopyFileVisitor(to, (p) -> !FILES_TO_BE_DELETED.contains(p.toFile().getName().toLowerCase())));
+                  new CopyFileVisitor(to, (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
       }
       finally
       {

@@ -58,9 +58,9 @@ public class BoosterCatalogService
 {
    private static final String GITHUB_URL = "https://github.com/";
    private static final String MODULES_DIR = "modules";
-   private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "CATALOG_INDEX_PERIOD";
-   private static final String CATALOG_GIT_REF_PROPERTY_NAME = "CATALOG_GIT_REF";
-   private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "CATALOG_GIT_REPOSITORY";
+   private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_INDEX_PERIOD";
+   private static final String CATALOG_GIT_REF_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REF";
+   private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REPOSITORY";
 
    private static final String DEFAULT_INDEX_PERIOD = "0";
    private static final String DEFAULT_GIT_REF = "master";
@@ -303,7 +303,8 @@ public class BoosterCatalogService
          Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath,
-                  new CopyFileVisitor(to, (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
+                  new CopyFileVisitor(to,
+                           (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
       }
       finally
       {

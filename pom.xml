@@ -10,8 +10,8 @@
    <artifactId>launchpad-addon</artifactId>
    <version>1.0.0-SNAPSHOT</version>
    <properties>
-      <version.furnace>2.25.2.Final</version.furnace>
-      <version.forge>3.6.0.Final</version.forge>
+      <version.furnace>2.25.4.Final</version.furnace>
+      <version.forge>3.6.1.Final</version.forge>
       <version.wildfly-swarm>2017.3.3</version.wildfly-swarm>
       <version.springboot-addon>1.0.0.Alpha3</version.springboot-addon>
       <version.vertx-addon>1.2.2</version.vertx-addon>

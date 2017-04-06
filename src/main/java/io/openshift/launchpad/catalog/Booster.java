@@ -24,6 +24,8 @@ public class Booster
    private String gitRef;
    private String description = "No description available";
    private String boosterDescriptorPath = ".openshiftio/booster.yaml";
+   private String mission;
+   private String runtime;
 
    private Map<String, Object> metadata = Collections.emptyMap();
 
@@ -116,6 +118,38 @@ public class Booster
    public void setDescription(String description)
    {
       this.description = description;
+   }
+
+   /**
+    * @return the mission
+    */
+   public String getMission()
+   {
+      return mission;
+   }
+
+   /**
+    * @param mission the mission to set
+    */
+   public void setMission(String mission)
+   {
+      this.mission = mission;
+   }
+
+   /**
+    * @return the runtime
+    */
+   public String getRuntime()
+   {
+      return runtime;
+   }
+
+   /**
+    * @param runtime the runtime to set
+    */
+   public void setRuntime(String runtime)
+   {
+      this.runtime = runtime;
    }
 
    /**

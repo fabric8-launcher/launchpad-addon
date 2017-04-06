@@ -57,7 +57,6 @@ import io.openshift.launchpad.CopyFileVisitor;
 public class BoosterCatalogService
 {
    private static final String GITHUB_URL = "https://github.com/";
-   private static final String MODULES_DIR = "modules";
    private static final String CATALOG_INDEX_PERIOD_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_INDEX_PERIOD";
    private static final String CATALOG_GIT_REF_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REF";
    private static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REPOSITORY";
@@ -65,6 +64,10 @@ public class BoosterCatalogService
    private static final String DEFAULT_INDEX_PERIOD = "0";
    private static final String DEFAULT_GIT_REF = "master";
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
+
+   private static final String CLONED_BOOSTERS_DIR = ".boosters";
+
+   private static final Yaml yaml = new Yaml();
    /**
     * Files to be excluded from project creation
     */
@@ -77,6 +80,7 @@ public class BoosterCatalogService
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
    private Path catalogPath;
+
    private volatile List<Booster> boosters = Collections.emptyList();
 
    private ScheduledExecutorService executorService;
@@ -104,6 +108,7 @@ public class BoosterCatalogService
             Git.cloneRepository()
                      .setURI(catalogRepositoryURI)
                      .setBranch(catalogRef)
+                     .setCloneSubmodules(true)
                      .setDirectory(catalogPath.toFile())
                      .call().close();
          }
@@ -116,7 +121,7 @@ public class BoosterCatalogService
                git.pull().setRebase(true).call();
             }
             // Git pull on the existing repositories
-            Path moduleRoot = catalogPath.resolve(MODULES_DIR);
+            Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
             if (Files.isDirectory(moduleRoot))
             {
                try (DirectoryStream<Path> repositories = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
@@ -139,32 +144,7 @@ public class BoosterCatalogService
                }
             }
          }
-         final Path moduleRoot = catalogPath.resolve(MODULES_DIR);
-         final List<Booster> quickstarts = new ArrayList<>();
-         // Read the YAML files
-         Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
-         {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-            {
-               File ioFile = file.toFile();
-               if (ioFile.getName().endsWith(".yaml") || ioFile.getName().endsWith(".yml"))
-               {
-                  String id = removeFileExtension(ioFile.getName());
-                  Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + id);
-                  indexBooster(id, file, modulePath).ifPresent(quickstarts::add);
-               }
-               return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
-            {
-               return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
-            }
-         });
-         quickstarts.sort(Comparator.comparing(Booster::getName));
-         this.boosters = Collections.unmodifiableList(quickstarts);
+         this.boosters = indexBoosters();
       }
       catch (GitAPIException e)
       {
@@ -182,6 +162,35 @@ public class BoosterCatalogService
    }
 
    /**
+    * @param moduleRoot
+    * @return
+    * @throws IOException
+    */
+   private List<Booster> indexBoosters() throws IOException
+   {
+      Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
+      List<Booster> boosters = new ArrayList<>();
+      Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
+      {
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+         {
+            File ioFile = file.toFile();
+            String fileName = ioFile.getName().toLowerCase();
+            if (fileName.endsWith(".yaml") || fileName.endsWith(".yml"))
+            {
+               String id = removeFileExtension(fileName);
+               Path modulePath = moduleRoot.resolve(id);
+               indexBooster(id, file, modulePath).ifPresent(boosters::add);
+            }
+            return FileVisitResult.CONTINUE;
+         }
+      });
+      boosters.sort(Comparator.comparing(Booster::getName));
+      return Collections.unmodifiableList(boosters);
+   }
+
+   /**
     * Takes a YAML file from the repository and indexes it
     * 
     * @param file A YAML file from the quickstart-catalog repository
@@ -190,7 +199,6 @@ public class BoosterCatalogService
    @SuppressWarnings("unchecked")
    private Optional<Booster> indexBooster(String id, Path file, Path moduleDir)
    {
-      final Yaml yaml = new Yaml();
       logger.info(() -> "Indexing " + file + " ...");
 
       Booster booster = null;
@@ -200,6 +208,8 @@ public class BoosterCatalogService
          booster = yaml.loadAs(reader, Booster.class);
          // Booster ID = filename without extension
          booster.setId(id);
+         booster.setRuntime(file.getParent().toFile().getName());
+         booster.setMission(file.getParent().getParent().toFile().getName());
          // Module does not exist. Clone it
          if (Files.notExists(moduleDir))
          {
@@ -278,20 +288,6 @@ public class BoosterCatalogService
       return System.getProperty(name, System.getenv().getOrDefault(name, defaultValue));
    }
 
-   public List<Booster> getBoosters()
-   {
-      Lock readLock = reentrantLock.readLock();
-      try
-      {
-         readLock.lock();
-         return boosters;
-      }
-      finally
-      {
-         readLock.unlock();
-      }
-   }
-
    /**
     * Copies the {@link Booster} contents to the specified {@link Project}
     */
@@ -301,11 +297,25 @@ public class BoosterCatalogService
       try
       {
          readLock.lock();
-         Path modulePath = catalogPath.resolve(MODULES_DIR + File.separator + booster.getId());
+         Path modulePath = catalogPath.resolve(CLONED_BOOSTERS_DIR + booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath,
                   new CopyFileVisitor(to,
                            (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
+      }
+      finally
+      {
+         readLock.unlock();
+      }
+   }
+
+   public List<Booster> getBoosters()
+   {
+      Lock readLock = reentrantLock.readLock();
+      try
+      {
+         readLock.lock();
+         return boosters;
       }
       finally
       {

@@ -121,7 +121,7 @@ public class NewProjectWizard implements UIWizard
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Booster qs = type.getValue();
+      Booster booster = type.getValue();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
       // Using ProjectFactory to invoke bound listeners
@@ -132,7 +132,7 @@ public class NewProjectWizard implements UIWizard
       // Delete existing pom
       modelResource.delete();
       // Copy contents (including pom.xml if exists)
-      catalogService.copy(qs, project);
+      catalogService.copy(booster, project);
       // Perform model changes
       if (modelResource.exists())
       {

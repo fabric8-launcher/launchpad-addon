@@ -206,6 +206,7 @@ public class BoosterCatalogService
             Git.cloneRepository()
                      .setDirectory(moduleDir.toFile())
                      .setURI(GITHUB_URL + booster.getGithubRepo())
+                     .setCloneSubmodules(true)
                      .setBranch(booster.getGitRef())
                      .call().close();
          }

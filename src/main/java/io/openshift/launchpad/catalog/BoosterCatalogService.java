@@ -297,7 +297,7 @@ public class BoosterCatalogService
       try
       {
          readLock.lock();
-         Path modulePath = catalogPath.resolve(CLONED_BOOSTERS_DIR + booster.getId());
+         Path modulePath = catalogPath.resolve(CLONED_BOOSTERS_DIR).resolve(booster.getId());
          Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
          return Files.walkFileTree(modulePath,
                   new CopyFileVisitor(to,

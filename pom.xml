@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -26,11 +27,6 @@
       <obs.scm.dev.connection>scm:git:git@github.com:openshiftio/launchpad-addon.git</obs.scm.dev.connection>
       <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
       <obs.scm.tag>HEAD</obs.scm.tag>
-
-      <!-- Nexus Staging Repo -->
-      <serverId>jboss-releases-repository</serverId>
-      <nexusUrl>https://repository.jboss.org/nexus/</nexusUrl>
-      <skipStaging>false</skipStaging>
    </properties>
    <build>
       <finalName>launchpad-generator</finalName>
@@ -75,9 +71,8 @@
             <extensions>true</extensions>
             <configuration>
                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-               <serverId>${serverId}</serverId>
-               <nexusUrl>${nexusUrl}</nexusUrl>
-               <skipStaging>${skipStaging}</skipStaging>
+               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+               <serverId>ossrh</serverId>
             </configuration>
          </plugin>
          <plugin>
@@ -169,7 +164,7 @@
          <artifactId>projects</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
-      
+
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
          <artifactId>maven</artifactId>

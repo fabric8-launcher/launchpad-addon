@@ -47,7 +47,7 @@ import io.openshift.launchpad.CopyFileVisitor;
 
 /**
  * This service reads from the Booster catalog Github repository in
- * https://github.com/obsidian-toaster/quickstart-catalog and marshalls into {@link Booster} objects.
+ * https://github.com/openshiftio/booster-catalog and marshalls into {@link Booster} objects.
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */

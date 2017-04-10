@@ -8,6 +8,7 @@
 package io.openshift.launchpad.catalog;
 
 import java.beans.Transient;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -26,6 +27,8 @@ public class Booster
    private String boosterDescriptorPath = ".openshiftio/booster.yaml";
    private String mission;
    private String runtime;
+
+   private Path contentPath;
 
    private Map<String, Object> metadata = Collections.emptyMap();
 
@@ -150,6 +153,23 @@ public class Booster
    public void setRuntime(String runtime)
    {
       this.runtime = runtime;
+   }
+
+   /**
+    * @return the contentPath
+    */
+   @Transient
+   public Path getContentPath()
+   {
+      return contentPath;
+   }
+
+   /**
+    * @param contentPath the contentPath to set
+    */
+   public void setContentPath(Path contentPath)
+   {
+      this.contentPath = contentPath;
    }
 
    /**

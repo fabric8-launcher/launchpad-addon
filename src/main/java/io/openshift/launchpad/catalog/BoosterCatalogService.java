@@ -7,13 +7,11 @@
 
 package io.openshift.launchpad.catalog;
 
-import static io.openshift.launchpad.Files.deleteRecursively;
 import static io.openshift.launchpad.Files.removeFileExtension;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,8 +77,6 @@ public class BoosterCatalogService
 
    private final ReentrantReadWriteLock reentrantLock = new ReentrantReadWriteLock();
 
-   private Path catalogPath;
-
    private volatile List<Booster> boosters = Collections.emptyList();
 
    private ScheduledExecutorService executorService;
@@ -99,52 +95,18 @@ public class BoosterCatalogService
          String catalogRef = getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF);
          logger.log(Level.INFO, "Indexing contents from {0} using {1} ref",
                   new Object[] { catalogRepositoryURI, catalogRef });
-         if (catalogPath == null)
-         {
-            catalogPath = Files.createTempDirectory("booster-catalog");
-
-            logger.info(() -> "Created " + catalogPath);
-            // Clone repository
-            Git.cloneRepository()
-                     .setURI(catalogRepositoryURI)
-                     .setBranch(catalogRef)
-                     .setCloneSubmodules(true)
-                     .setDirectory(catalogPath.toFile())
-                     .call().close();
-         }
-         else
-         {
-            logger.info(() -> "Pulling changes to" + catalogPath);
-            // Perform a git pull
-            try (Git git = Git.open(catalogPath.toFile()))
-            {
-               git.pull().setRebase(true).call();
-            }
-            // Git pull on the existing repositories
-            Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
-            if (Files.isDirectory(moduleRoot))
-            {
-               try (DirectoryStream<Path> repositories = Files.newDirectoryStream(moduleRoot, Files::isDirectory))
-               {
-                  for (Path repository : repositories)
-                  {
-                     try
-                     {
-                        try (Git git = Git.open(repository.toFile()))
-                        {
-                           logger.info(() -> "Pulling changes to" + repository);
-                           git.pull().setRebase(true).call();
-                        }
-                     }
-                     catch (GitAPIException e)
-                     {
-                        logger.log(Level.SEVERE, "Error while performing Git operation", e);
-                     }
-                  }
-               }
-            }
-         }
-         this.boosters = indexBoosters();
+         Path catalogPath = Files.createTempDirectory("booster-catalog");
+         // Remove this directory on JVM termination
+         catalogPath.toFile().deleteOnExit();
+         logger.info(() -> "Created " + catalogPath);
+         // Clone repository
+         Git.cloneRepository()
+                  .setURI(catalogRepositoryURI)
+                  .setBranch(catalogRef)
+                  .setCloneSubmodules(true)
+                  .setDirectory(catalogPath.toFile())
+                  .call().close();
+         this.boosters = indexBoosters(catalogPath);
       }
       catch (GitAPIException e)
       {
@@ -166,7 +128,7 @@ public class BoosterCatalogService
     * @return
     * @throws IOException
     */
-   private List<Booster> indexBoosters() throws IOException
+   private List<Booster> indexBoosters(Path catalogPath) throws IOException
    {
       Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
       List<Booster> boosters = new ArrayList<>();
@@ -185,6 +147,12 @@ public class BoosterCatalogService
             }
             return FileVisitResult.CONTINUE;
          }
+
+         @Override
+         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+         {
+            return dir.startsWith(moduleRoot) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
+         }
       });
       boosters.sort(Comparator.comparing(Booster::getName));
       return Collections.unmodifiableList(boosters);
@@ -193,7 +161,7 @@ public class BoosterCatalogService
    /**
     * Takes a YAML file from the repository and indexes it
     * 
-    * @param file A YAML file from the quickstart-catalog repository
+    * @param file A YAML file from the booster-catalog repository
     * @return an {@link Optional} containing a {@link Booster}
     */
    @SuppressWarnings("unchecked")
@@ -206,41 +174,59 @@ public class BoosterCatalogService
       {
          // Read YAML entry
          booster = yaml.loadAs(reader, Booster.class);
-         // Booster ID = filename without extension
-         booster.setId(id);
-         booster.setRuntime(file.getParent().toFile().getName());
-         booster.setMission(file.getParent().getParent().toFile().getName());
-         // Module does not exist. Clone it
-         if (Files.notExists(moduleDir))
+      }
+      catch (IOException e)
+      {
+         logger.log(Level.SEVERE, "Error while reading " + file, e);
+      }
+      if (booster != null)
+      {
+         try
          {
-            Git.cloneRepository()
-                     .setDirectory(moduleDir.toFile())
-                     .setURI(GITHUB_URL + booster.getGithubRepo())
-                     .setCloneSubmodules(true)
-                     .setBranch(booster.getGitRef())
-                     .call().close();
-         }
-         Path metadataPath = moduleDir.resolve(booster.getBoosterDescriptorPath());
-         try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
-         {
-            Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
-            booster.setMetadata(metadata);
-         }
+            // Booster ID = filename without extension
+            booster.setId(id);
+            booster.setRuntime(file.getParent().toFile().getName());
+            booster.setMission(file.getParent().getParent().toFile().getName());
+            booster.setContentPath(moduleDir);
+            // Module does not exist. Clone it
+            if (Files.notExists(moduleDir))
+            {
+               try (Git git = Git.cloneRepository()
+                        .setDirectory(moduleDir.toFile())
+                        .setURI(GITHUB_URL + booster.getGithubRepo())
+                        .setCloneSubmodules(true)
+                        .setBranch(booster.getGitRef())
+                        .call())
+               {
+                  // Checkout on specified start point
+                  git.checkout()
+                           .setName(booster.getGitRef())
+                           .setStartPoint(booster.getGitRef())
+                           .call();
+               }
+            }
+            Path metadataPath = moduleDir.resolve(booster.getBoosterDescriptorPath());
+            try (BufferedReader metadataReader = Files.newBufferedReader(metadataPath))
+            {
+               Map<String, Object> metadata = yaml.loadAs(metadataReader, Map.class);
+               booster.setMetadata(metadata);
+            }
 
-         Path descriptionPath = moduleDir.resolve(booster.getBoosterDescriptionPath());
-         if (Files.exists(descriptionPath))
-         {
-            byte[] descriptionContent = Files.readAllBytes(descriptionPath);
-            booster.setDescription(new String(descriptionContent));
+            Path descriptionPath = moduleDir.resolve(booster.getBoosterDescriptionPath());
+            if (Files.exists(descriptionPath))
+            {
+               byte[] descriptionContent = Files.readAllBytes(descriptionPath);
+               booster.setDescription(new String(descriptionContent));
+            }
          }
-      }
-      catch (GitAPIException gitException)
-      {
-         logger.log(Level.SEVERE, "Error while reading git repository", gitException);
-      }
-      catch (Exception e)
-      {
-         logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
+         catch (GitAPIException gitException)
+         {
+            logger.log(Level.SEVERE, "Error while reading git repository", gitException);
+         }
+         catch (Exception e)
+         {
+            logger.log(Level.SEVERE, "Error while reading metadata from " + file, e);
+         }
       }
       return Optional.ofNullable(booster);
    }
@@ -268,19 +254,6 @@ public class BoosterCatalogService
       {
          executorService.shutdown();
       }
-      if (catalogPath != null)
-      {
-         logger.info(() -> "Removing " + catalogPath);
-         try
-         {
-            // Remove all the YAML files
-            deleteRecursively(catalogPath);
-         }
-         catch (IOException e)
-         {
-            logger.log(Level.FINEST, "Error while deleting catalog path", e);
-         }
-      }
    }
 
    private static String getEnvVarOrSysProp(String name, String defaultValue)
@@ -293,20 +266,11 @@ public class BoosterCatalogService
     */
    public Path copy(Booster booster, Project project) throws IOException
    {
-      Lock readLock = reentrantLock.readLock();
-      try
-      {
-         readLock.lock();
-         Path modulePath = catalogPath.resolve(CLONED_BOOSTERS_DIR).resolve(booster.getId());
-         Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
-         return Files.walkFileTree(modulePath,
-                  new CopyFileVisitor(to,
-                           (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
-      }
-      finally
-      {
-         readLock.unlock();
-      }
+      Path modulePath = booster.getContentPath();
+      Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
+      return Files.walkFileTree(modulePath,
+               new CopyFileVisitor(to,
+                        (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
    }
 
    public List<Booster> getBoosters()

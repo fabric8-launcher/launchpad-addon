@@ -28,6 +28,24 @@
       <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
       <obs.scm.tag>HEAD</obs.scm.tag>
    </properties>
+
+   <developers>
+      <developer>
+         <id>gastaldi</id>
+         <name>George Gastaldi</name>
+         <email>ggastald[AT]redhat[DOT]com</email>
+         <url>https://github.com/gastaldi</url>
+      </developer>
+   </developers>
+
+   <licenses>
+      <license>
+         <name>Apache License, Version 2.0</name>
+         <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+         <distribution>repo</distribution>
+         <comments>A business-friendly OSS license</comments>
+      </license>
+   </licenses>
    <build>
       <finalName>launchpad-generator</finalName>
       <resources>

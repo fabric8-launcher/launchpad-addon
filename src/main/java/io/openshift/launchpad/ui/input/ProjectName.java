@@ -24,7 +24,7 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
  */
 public class ProjectName extends AbstractUIInputDecorator<String>
 {
-   private static final Pattern SPECIAL_CHARS = Pattern.compile(".*[^-_.a-zA-Z0-9].*");
+   private static final Pattern SPECIAL_CHARS = Pattern.compile("[-a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9]");
 
    @Inject
    @WithAttributes(label = "Project name", required = true, defaultValue = "demo", note = "Downloadable project zip and application jar are based on the project name")
@@ -36,10 +36,11 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    protected UIInput<String> createDelegate()
    {
       named.addValidator(context -> {
-         if (named.getValue() != null && SPECIAL_CHARS.matcher(named.getValue()).matches())
+         if (named.getValue() != null
+                 && !SPECIAL_CHARS.matcher(named.getValue()).matches())
             context.addValidationError(named,
                      "Project name must not contain spaces or special characters.");
-      }).setDescription("The following characters are accepted: -_.a-zA-Z0-9");
+      }).setDescription("The following characters are accepted: -a-z0-9 and the name cannot start or end with a dash");
       return named;
    }
 

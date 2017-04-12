@@ -15,9 +15,9 @@
  */
 package io.openshift.launchpad.ui.quickstart;
 
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -32,6 +32,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -56,8 +57,12 @@ import io.openshift.launchpad.ui.input.Version;
 public class NewProjectWizard implements UIWizard
 {
    @Inject
-   @WithAttributes(label = "Booster", required = true)
-   private UISelectOne<Booster> type;
+   @WithAttributes(label = "Mission", required = true)
+   private UISelectOne<String> mission;
+
+   @Inject
+   @WithAttributes(label = "Runtime", required = true)
+   private UISelectOne<String> runtime;
 
    @Inject
    private ProjectName named;
@@ -80,25 +85,32 @@ public class NewProjectWizard implements UIWizard
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
-      UIContext uiContext = builder.getUIContext();
+      mission.setValueChoices(catalogService.getMissions());
+      mission.setDefaultValue(() -> {
+         Iterator<String> iterator = mission.getValueChoices().iterator();
+         if (iterator.hasNext())
+         {
+            return iterator.next();
+         }
+         else
+         {
+            return null;
+         }
+      });
 
-      if (uiContext.getProvider().isGUI())
-      {
-         type.setItemLabelConverter(Booster::getName);
-      }
-      else
-      {
-         type.setItemLabelConverter(Booster::getId);
-      }
-      List<Booster> quickstarts = catalogService.getBoosters();
-      type.setValueChoices(quickstarts);
-      if (!quickstarts.isEmpty())
-      {
-         type.setDefaultValue(quickstarts.get(0));
-      }
-      Callable<String> description = () -> type.getValue() != null ? type.getValue().getDescription() : null;
-      type.setDescription(description).setNote(description);
-      builder.add(type).add(named).add(topLevelPackage).add(version);
+      runtime.setValueChoices(() -> catalogService.getRuntimes(mission.getValue()));
+      runtime.setDefaultValue(() -> {
+         Iterator<String> iterator = runtime.getValueChoices().iterator();
+         if (iterator.hasNext())
+         {
+            return iterator.next();
+         }
+         else
+         {
+            return null;
+         }
+      });
+      builder.add(mission).add(runtime).add(named).add(topLevelPackage).add(version);
    }
 
    @Override
@@ -110,18 +122,33 @@ public class NewProjectWizard implements UIWizard
    }
 
    @Override
+   public void validate(UIValidationContext context)
+   {
+      Optional<Booster> booster = catalogService.getBooster(mission.getValue(), runtime.getValue());
+      if (!booster.isPresent())
+      {
+         context.addValidationError(mission,
+                  "No booster found for mission '" + mission.getValue() + "' and runtime '" + runtime.getValue() + "'");
+      }
+   }
+
+   @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       attributeMap.put("name", named.getValue());
-      attributeMap.put("type", type.getValue());
+      if (mission.hasValue() && runtime.hasValue())
+      {
+         catalogService.getBooster(mission.getValue(), runtime.getValue())
+                  .ifPresent(b -> attributeMap.put("booster", b));
+      }
       return null;
    }
 
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Booster booster = type.getValue();
+      Booster booster = catalogService.getBooster(mission.getValue(), runtime.getValue()).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
       // Using ProjectFactory to invoke bound listeners

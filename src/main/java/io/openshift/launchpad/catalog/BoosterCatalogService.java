@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -41,13 +44,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.resource.DirectoryResource;
+import org.jboss.forge.furnace.util.Strings;
 import org.yaml.snakeyaml.Yaml;
 
 import io.openshift.launchpad.CopyFileVisitor;
 
 /**
- * This service reads from the Booster catalog Github repository in
- * https://github.com/openshiftio/booster-catalog and marshalls into {@link Booster} objects.
+ * This service reads from the Booster catalog Github repository in https://github.com/openshiftio/booster-catalog and
+ * marshalls into {@link Booster} objects.
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
@@ -271,6 +275,35 @@ public class BoosterCatalogService
       return Files.walkFileTree(modulePath,
                new CopyFileVisitor(to,
                         (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
+   }
+
+   public Set<String> getMissions()
+   {
+      return boosters.stream()
+               .map(b -> b.getMission())
+               .sorted()
+               .collect(Collectors.toSet());
+   }
+
+   public Set<String> getRuntimes(String mission)
+   {
+      if (Strings.isNullOrEmpty(mission))
+         return Collections.emptySet();
+      return boosters.stream()
+               .filter(b -> mission.equals(b.getMission()))
+               .map(b -> b.getRuntime())
+               .sorted()
+               .collect(Collectors.toSet());
+   }
+
+   public Optional<Booster> getBooster(String mission, String runtime)
+   {
+      Objects.requireNonNull(mission, "Mission should not be null");
+      Objects.requireNonNull(runtime, "Runtime should not be null");
+      return boosters.stream()
+               .filter(b -> mission.equals(b.getMission()))
+               .filter(b -> runtime.equals(b.getRuntime()))
+               .findFirst();
    }
 
    public List<Booster> getBoosters()

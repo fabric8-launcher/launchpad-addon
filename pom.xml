@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -10,12 +11,7 @@
    <artifactId>launchpad-addon</artifactId>
    <version>2-SNAPSHOT</version>
    <properties>
-      <version.furnace>2.25.4.Final</version.furnace>
       <version.forge>3.6.1.Final</version.forge>
-      <version.wildfly-swarm>2017.4.0</version.wildfly-swarm>
-      <version.springboot-addon>1.0.0.Alpha3</version.springboot-addon>
-      <version.vertx-addon>1.2.2</version.vertx-addon>
-      <version.fabric8-maven-plugin>3.1.92</version.fabric8-maven-plugin>
 
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
@@ -141,28 +137,6 @@
    </build>
    <dependencies>
       <!-- 3rd Party addons -->
-      <!-- Spring Boot -->
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>spring-boot</artifactId>
-         <classifier>forge-addon</classifier>
-         <version>${version.springboot-addon}</version>
-      </dependency>
-      <!-- Vert.x -->
-      <dependency>
-         <groupId>me.escoffier.forge</groupId>
-         <artifactId>vertx-forge-addon</artifactId>
-         <classifier>forge-addon</classifier>
-         <version>${version.vertx-addon}</version>
-      </dependency>
-      <!-- WildFly Swarm -->
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>wildfly-swarm</artifactId>
-         <classifier>forge-addon</classifier>
-         <version>${version.wildfly-swarm}</version>
-      </dependency>
-
       <dependency>
          <groupId>org.jboss.forge.furnace.container</groupId>
          <artifactId>cdi</artifactId>
@@ -187,10 +161,16 @@
          <artifactId>maven</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
+      
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>bean-validation</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
 
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>templates</artifactId>
+         <artifactId>parser-java</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
 
@@ -228,33 +208,6 @@
          </dependency>
       </dependencies>
    </dependencyManagement>
-   <profiles>
-      <profile>
-         <id>release</id>
-         <activation />
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.jboss.forge.furnace</groupId>
-                  <artifactId>furnace-maven-plugin</artifactId>
-                  <version>${version.furnace}</version>
-                  <executions>
-                     <execution>
-                        <id>generate-dot</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                           <goal>generate-dot</goal>
-                        </goals>
-                        <configuration>
-                           <attach>true</attach>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
 
    <scm>
       <connection>${obs.scm.git.connection}</connection>

@@ -27,7 +27,7 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    private static final Pattern SPECIAL_CHARS = Pattern.compile("[-a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9]");
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo", note = "Downloadable project zip and application jar are based on the project name")
+   @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
    @UnwrapValidatedValue
    @Length(min = 1, max = 24)
    private UIInput<String> named;

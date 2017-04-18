@@ -21,10 +21,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,7 +48,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.resource.DirectoryResource;
-import org.jboss.forge.furnace.util.Strings;
 import org.yaml.snakeyaml.Yaml;
 
 import io.openshift.launchpad.CopyFileVisitor;
@@ -136,6 +139,8 @@ public class BoosterCatalogService
    {
       Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
       List<Booster> boosters = new ArrayList<>();
+      Map<String, Mission> missions = new HashMap<>();
+      Map<String, Runtime> runtimes = new HashMap<>();
       Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
       {
          @Override
@@ -147,7 +152,7 @@ public class BoosterCatalogService
             {
                String id = removeFileExtension(fileName);
                Path modulePath = moduleRoot.resolve(id);
-               indexBooster(id, file, modulePath).ifPresent(boosters::add);
+               indexBooster(id, file, modulePath, missions, runtimes).ifPresent(boosters::add);
             }
             return FileVisitResult.CONTINUE;
          }
@@ -169,7 +174,8 @@ public class BoosterCatalogService
     * @return an {@link Optional} containing a {@link Booster}
     */
    @SuppressWarnings("unchecked")
-   private Optional<Booster> indexBooster(String id, Path file, Path moduleDir)
+   private Optional<Booster> indexBooster(String id, Path file, Path moduleDir, Map<String, Mission> missions,
+            Map<String, Runtime> runtimes)
    {
       logger.info(() -> "Indexing " + file + " ...");
 
@@ -189,8 +195,40 @@ public class BoosterCatalogService
          {
             // Booster ID = filename without extension
             booster.setId(id);
-            booster.setRuntime(file.getParent().toFile().getName());
-            booster.setMission(file.getParent().getParent().toFile().getName());
+
+            String runtimeId = file.getParent().toFile().getName();
+            String missionId = file.getParent().getParent().toFile().getName();
+
+            booster.setMission(missions.computeIfAbsent(missionId, (key) -> {
+               ResourceBundle bundle = ResourceBundle.getBundle("missions", Locale.getDefault(),
+                        getClass().getClassLoader());
+               String name;
+               try
+               {
+                  name = bundle.getString(key);
+               }
+               catch (MissingResourceException mre)
+               {
+                  name = key;
+               }
+               return new Mission(key, name);
+            }));
+
+            booster.setRuntime(runtimes.computeIfAbsent(runtimeId, (key) -> {
+               ResourceBundle bundle = ResourceBundle.getBundle("runtimes", Locale.getDefault(),
+                        getClass().getClassLoader());
+               String name;
+               try
+               {
+                  name = bundle.getString(key);
+               }
+               catch (MissingResourceException mre)
+               {
+                  name = key;
+               }
+               return new Runtime(key, name);
+            }));
+
             booster.setContentPath(moduleDir);
             // Module does not exist. Clone it
             if (Files.notExists(moduleDir))
@@ -277,26 +315,28 @@ public class BoosterCatalogService
                         (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
    }
 
-   public Set<String> getMissions()
+   public Set<Mission> getMissions()
    {
       return boosters.stream()
-               .map(b -> b.getMission())
+               .map(Booster::getMission)
                .sorted()
                .collect(Collectors.toSet());
    }
 
-   public Set<String> getRuntimes(String mission)
+   public Set<Runtime> getRuntimes(Mission mission)
    {
-      if (Strings.isNullOrEmpty(mission))
+      if (mission == null)
+      {
          return Collections.emptySet();
+      }
       return boosters.stream()
                .filter(b -> mission.equals(b.getMission()))
-               .map(b -> b.getRuntime())
+               .map(Booster::getRuntime)
                .sorted()
                .collect(Collectors.toSet());
    }
 
-   public Optional<Booster> getBooster(String mission, String runtime)
+   public Optional<Booster> getBooster(Mission mission, Runtime runtime)
    {
       Objects.requireNonNull(mission, "Mission should not be null");
       Objects.requireNonNull(runtime, "Runtime should not be null");

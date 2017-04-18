@@ -45,6 +45,8 @@ import org.jboss.forge.addon.ui.wizard.UIWizard;
 
 import io.openshift.launchpad.catalog.Booster;
 import io.openshift.launchpad.catalog.BoosterCatalogService;
+import io.openshift.launchpad.catalog.Mission;
+import io.openshift.launchpad.catalog.Runtime;
 import io.openshift.launchpad.ui.input.ProjectName;
 import io.openshift.launchpad.ui.input.TopLevelPackage;
 import io.openshift.launchpad.ui.input.Version;
@@ -58,11 +60,11 @@ public class NewProjectWizard implements UIWizard
 {
    @Inject
    @WithAttributes(label = "Mission", required = true)
-   private UISelectOne<String> mission;
+   private UISelectOne<Mission> mission;
 
    @Inject
    @WithAttributes(label = "Runtime", required = true)
-   private UISelectOne<String> runtime;
+   private UISelectOne<Runtime> runtime;
 
    @Inject
    private ProjectName named;
@@ -85,9 +87,19 @@ public class NewProjectWizard implements UIWizard
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
+      if (builder.getUIContext().getProvider().isGUI())
+      {
+         mission.setItemLabelConverter(Mission::getName);
+         runtime.setItemLabelConverter(Runtime::getName);
+      }
+      else
+      {
+         mission.setItemLabelConverter(Mission::getId);
+         runtime.setItemLabelConverter(Runtime::getId);
+      }
       mission.setValueChoices(catalogService.getMissions());
       mission.setDefaultValue(() -> {
-         Iterator<String> iterator = mission.getValueChoices().iterator();
+         Iterator<Mission> iterator = mission.getValueChoices().iterator();
          if (iterator.hasNext())
          {
             return iterator.next();
@@ -100,7 +112,7 @@ public class NewProjectWizard implements UIWizard
 
       runtime.setValueChoices(() -> catalogService.getRuntimes(mission.getValue()));
       runtime.setDefaultValue(() -> {
-         Iterator<String> iterator = runtime.getValueChoices().iterator();
+         Iterator<Runtime> iterator = runtime.getValueChoices().iterator();
          if (iterator.hasNext())
          {
             return iterator.next();

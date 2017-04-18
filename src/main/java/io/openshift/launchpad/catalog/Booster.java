@@ -25,8 +25,8 @@ public class Booster
    private String gitRef;
    private String description = "No description available";
    private String boosterDescriptorPath = ".openshiftio/booster.yaml";
-   private String mission;
-   private String runtime;
+   private Mission mission;
+   private Runtime runtime;
 
    private Path contentPath;
 
@@ -126,7 +126,7 @@ public class Booster
    /**
     * @return the mission
     */
-   public String getMission()
+   public Mission getMission()
    {
       return mission;
    }
@@ -134,7 +134,7 @@ public class Booster
    /**
     * @param mission the mission to set
     */
-   public void setMission(String mission)
+   public void setMission(Mission mission)
    {
       this.mission = mission;
    }
@@ -142,7 +142,7 @@ public class Booster
    /**
     * @return the runtime
     */
-   public String getRuntime()
+   public Runtime getRuntime()
    {
       return runtime;
    }
@@ -150,7 +150,7 @@ public class Booster
    /**
     * @param runtime the runtime to set
     */
-   public void setRuntime(String runtime)
+   public void setRuntime(Runtime runtime)
    {
       this.runtime = runtime;
    }

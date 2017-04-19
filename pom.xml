@@ -72,8 +72,8 @@
          <plugin>
             <artifactId>maven-release-plugin</artifactId>
             <configuration>
-               <releaseProfiles>gpg-sign,jboss-release,release</releaseProfiles>
-               <tagNameFormat>@{project.version}</tagNameFormat>
+               <releaseProfiles>gpg-sign,jboss-release</releaseProfiles>
+               <tagNameFormat>v@{project.version}</tagNameFormat>
             </configuration>
          </plugin>
          <plugin>

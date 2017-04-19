@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -319,8 +320,7 @@ public class BoosterCatalogService
    {
       return boosters.stream()
                .map(Booster::getMission)
-               .sorted()
-               .collect(Collectors.toSet());
+               .collect(Collectors.toCollection(TreeSet::new));
    }
 
    public Set<Runtime> getRuntimes(Mission mission)
@@ -332,8 +332,7 @@ public class BoosterCatalogService
       return boosters.stream()
                .filter(b -> mission.equals(b.getMission()))
                .map(Booster::getRuntime)
-               .sorted()
-               .collect(Collectors.toSet());
+               .collect(Collectors.toCollection(TreeSet::new));
    }
 
    public Optional<Booster> getBooster(Mission mission, Runtime runtime)

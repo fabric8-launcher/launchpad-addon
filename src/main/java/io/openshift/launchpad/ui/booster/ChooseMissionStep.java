@@ -8,7 +8,6 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -45,7 +44,8 @@ public class ChooseMissionStep implements UIWizardStep
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
-      if (builder.getUIContext().getProvider().isGUI())
+      UIContext context = builder.getUIContext();
+      if (context.getProvider().isGUI())
       {
          mission.setItemLabelConverter(Mission::getName);
       }
@@ -65,17 +65,16 @@ public class ChooseMissionStep implements UIWizardStep
             return null;
          }
       });
+      mission.addValueChangeListener((event) -> {
+         context.getAttributeMap().put(Mission.class, event.getNewValue());
+      });
+
       builder.add(mission);
    }
 
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
-      if (mission.getValue() != null)
-      {
-         Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-         attributeMap.put(Mission.class, mission.getValue());
-      }
       return Results.navigateTo(ChooseRuntimeStep.class);
    }
 

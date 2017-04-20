@@ -7,8 +7,6 @@
 
 package io.openshift.launchpad.ui.booster;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -39,18 +37,20 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
-      if (builder.getUIContext().getProvider().isGUI())
+      UIContext context = builder.getUIContext();
+      if (context.getProvider().isGUI())
       {
          deploymentType.setItemLabelConverter(DeploymentType::getDescription);
       }
+      deploymentType.addValueChangeListener((event) -> {
+         context.getAttributeMap().put(DeploymentType.class, event.getNewValue());
+      });
       builder.add(deploymentType);
    }
 
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
-      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-      attributeMap.put(DeploymentType.class, deploymentType.getValue());
       return Results.navigateTo(ChooseMissionStep.class);
    }
 

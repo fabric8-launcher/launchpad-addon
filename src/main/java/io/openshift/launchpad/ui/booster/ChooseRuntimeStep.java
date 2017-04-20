@@ -1,21 +1,12 @@
-/**
- * Copyright 2005-2015 Red Hat, Inc.
+/*
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
- * Red Hat licenses this file to you under the Apache License, version
- * 2.0 (the "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- * implied.  See the License for the specific language governing
- * permissions and limitations under the License.
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.openshift.launchpad.ui.quickstart;
 
-import java.util.Iterator;
+package io.openshift.launchpad.ui.booster;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,17 +22,15 @@ import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
-import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
-import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
-import org.jboss.forge.addon.ui.wizard.UIWizard;
+import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
 import io.openshift.launchpad.catalog.Booster;
 import io.openshift.launchpad.catalog.BoosterCatalogService;
@@ -52,16 +41,11 @@ import io.openshift.launchpad.ui.input.TopLevelPackage;
 import io.openshift.launchpad.ui.input.Version;
 
 /**
- * Creates a new project
- * 
+ *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class NewProjectWizard implements UIWizard
+public class ChooseRuntimeStep implements UIWizardStep
 {
-   @Inject
-   @WithAttributes(label = "Mission", required = true)
-   private UISelectOne<Mission> mission;
-
    @Inject
    @WithAttributes(label = "Runtime", required = true)
    private UISelectOne<Runtime> runtime;
@@ -87,80 +71,51 @@ public class NewProjectWizard implements UIWizard
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
-      if (builder.getUIContext().getProvider().isGUI())
+      UIContext context = builder.getUIContext();
+      if (context.getProvider().isGUI())
       {
-         mission.setItemLabelConverter(Mission::getName);
          runtime.setItemLabelConverter(Runtime::getName);
       }
       else
       {
-         mission.setItemLabelConverter(Mission::getId);
          runtime.setItemLabelConverter(Runtime::getId);
       }
-      mission.setValueChoices(catalogService.getMissions());
-      mission.setDefaultValue(() -> {
-         Iterator<Mission> iterator = mission.getValueChoices().iterator();
-         if (iterator.hasNext())
-         {
-            return iterator.next();
-         }
-         else
-         {
-            return null;
-         }
+      runtime.setValueChoices(() -> {
+         Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
+         return catalogService.getRuntimes(mission);
       });
-
-      runtime.setValueChoices(() -> catalogService.getRuntimes(mission.getValue()));
-      runtime.setDefaultValue(() -> {
-         Iterator<Runtime> iterator = runtime.getValueChoices().iterator();
-         if (iterator.hasNext())
-         {
-            return iterator.next();
-         }
-         else
-         {
-            return null;
-         }
-      });
-      builder.add(mission).add(runtime).add(named).add(topLevelPackage).add(version);
-   }
-
-   @Override
-   public UICommandMetadata getMetadata(UIContext context)
-   {
-      return Metadata.forCommand(getClass()).name("Launchpad: New Project")
-               .description("Generate your project from a booster")
-               .category(Categories.create("Openshift.io"));
+      builder.add(runtime).add(named).add(topLevelPackage).add(version);
    }
 
    @Override
    public void validate(UIValidationContext context)
    {
-      Optional<Booster> booster = catalogService.getBooster(mission.getValue(), runtime.getValue());
+      UIContext uiContext = context.getUIContext();
+      Mission mission = (Mission) uiContext.getAttributeMap().get(Mission.class);
+
+      Optional<Booster> booster = catalogService.getBooster(mission, runtime.getValue());
       if (!booster.isPresent())
       {
-         context.addValidationError(mission,
-                  "No booster found for mission '" + mission.getValue() + "' and runtime '" + runtime.getValue() + "'");
+         context.addValidationError(runtime,
+                  "No booster found for mission '" + mission + "' and runtime '" + runtime.getValue() + "'");
       }
    }
 
    @Override
-   public NavigationResult next(UINavigationContext context) throws Exception
+   public UICommandMetadata getMetadata(UIContext context)
    {
-      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-      attributeMap.put("name", named.getValue());
-      if (mission.hasValue() && runtime.hasValue())
-      {
-         catalogService.getBooster(mission.getValue(), runtime.getValue())
-                  .ifPresent(b -> attributeMap.put("booster", b));
-      }
-      return null;
+      return Metadata.forCommand(getClass()).name("Runtime")
+               .description("Choose the runtime for your mission")
+               .category(Categories.create("Openshift.io"));
    }
 
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Booster booster = catalogService.getBooster(mission.getValue(), runtime.getValue()).get();
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      Mission mission = (Mission) attributeMap.get(Mission.class);
+      Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
+      Booster booster = catalogService.getBooster(mission, runtime).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
       // Using ProjectFactory to invoke bound listeners
@@ -202,4 +157,5 @@ public class NewProjectWizard implements UIWizard
       context.getUIContext().setSelection(projectDirectory);
       return Results.success();
    }
+
 }

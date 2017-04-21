@@ -135,8 +135,8 @@ public class ChooseRuntimeStep implements UIWizardStep
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
-      Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
-      Booster booster = catalogService.getBooster(mission, runtime).get();
+      Runtime runtimeValue = runtime.getValue();
+      Booster booster = catalogService.getBooster(mission, runtimeValue).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
       // Using ProjectFactory to invoke bound listeners

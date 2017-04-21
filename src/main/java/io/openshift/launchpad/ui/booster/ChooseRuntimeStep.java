@@ -14,6 +14,8 @@ import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
 import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.projects.Project;
@@ -23,6 +25,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UIValidationContext;
+import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -37,8 +40,6 @@ import io.openshift.launchpad.catalog.BoosterCatalogService;
 import io.openshift.launchpad.catalog.Mission;
 import io.openshift.launchpad.catalog.Runtime;
 import io.openshift.launchpad.ui.input.ProjectName;
-import io.openshift.launchpad.ui.input.TopLevelPackage;
-import io.openshift.launchpad.ui.input.Version;
 
 /**
  *
@@ -47,19 +48,6 @@ import io.openshift.launchpad.ui.input.Version;
 public class ChooseRuntimeStep implements UIWizardStep
 {
    @Inject
-   @WithAttributes(label = "Runtime", required = true)
-   private UISelectOne<Runtime> runtime;
-
-   @Inject
-   private ProjectName named;
-
-   @Inject
-   private TopLevelPackage topLevelPackage;
-
-   @Inject
-   private Version version;
-
-   @Inject
    private BoosterCatalogService catalogService;
 
    @Inject
@@ -67,6 +55,34 @@ public class ChooseRuntimeStep implements UIWizardStep
 
    @Inject
    private MavenBuildSystem mavenBuildSystem;
+
+   @Inject
+   @WithAttributes(label = "Runtime", required = true)
+   private UISelectOne<Runtime> runtime;
+
+   @Inject
+   private ProjectName named;
+
+   /**
+    * Used in LaunchpadResource TODO: Check if it should be here?
+    */
+   @Inject
+   @WithAttributes(label = "GitHub Repository Name", note = "If empty, it will assume the project name")
+   private UIInput<String> gitHubRepositoryName;
+
+   @Inject
+   @WithAttributes(label = "Group Id", required = true, defaultValue = "com.example")
+   private UIInput<String> groupId;
+
+   @Inject
+   @WithAttributes(label = "Artifact Id", required = true)
+   @UnwrapValidatedValue
+   @Length(min = 1, max = 24)
+   private UIInput<String> artifactId;
+
+   @Inject
+   @WithAttributes(label = "Version", required = true, defaultValue = "1.0.0-SNAPSHOT")
+   private UIInput<String> version;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -84,7 +100,12 @@ public class ChooseRuntimeStep implements UIWizardStep
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
          return catalogService.getRuntimes(mission);
       });
-      builder.add(runtime).add(named).add(topLevelPackage).add(version);
+
+      artifactId.setDefaultValue(named::getValue);
+
+      builder.add(runtime).add(named)
+               .add(gitHubRepositoryName)
+               .add(groupId).add(artifactId).add(version);
    }
 
    @Override
@@ -131,8 +152,8 @@ public class ChooseRuntimeStep implements UIWizardStep
       if (modelResource.exists())
       {
          Model model = modelResource.getCurrentModel();
-         model.setGroupId(topLevelPackage.getValue());
-         model.setArtifactId(named.getValue());
+         model.setGroupId(groupId.getValue());
+         model.setArtifactId(artifactId.getValue());
          model.setVersion(version.getValue());
 
          // Change child modules

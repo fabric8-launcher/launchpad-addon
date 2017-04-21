@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -31,6 +32,7 @@ public class MissionControlValidator
    private static final String LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT = "LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT";
 
    private URI missionControlURI;
+   private Client client;
 
    public boolean gitHubRepositoryExists(UIContext context, String repository)
    {
@@ -38,26 +40,12 @@ public class MissionControlValidator
       Boolean result = (Boolean) attributeMap.get("validate_repo_" + repository);
       if (result == null)
       {
-         Client client = null;
-         try
-         {
-            client = ClientBuilder.newClient();
-            URI targetURI = UriBuilder.fromUri(missionControlURI).path("/repository/" + repository).build();
-            Response response = client.target(targetURI).request()
-                     .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
-                     .head();
-            result = response.getStatus() == Response.Status.OK.getStatusCode();
-            attributeMap.put("validate_repo_" + repository, result);
-         }
-         finally
-         {
-            if (result == null)
-               result = false;
-            if (client != null)
-            {
-               client.close();
-            }
-         }
+         URI targetURI = UriBuilder.fromUri(missionControlURI).path("/repository/" + repository).build();
+         Response response = client.target(targetURI).request()
+                  .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
+                  .head();
+         result = response.getStatus() == Response.Status.OK.getStatusCode();
+         attributeMap.put("validate_repo_" + repository, result);
       }
       return result;
    }
@@ -68,26 +56,12 @@ public class MissionControlValidator
       Boolean result = (Boolean) attributeMap.get("validate_project_" + project);
       if (result == null)
       {
-         Client client = null;
-         try
-         {
-            client = ClientBuilder.newClient();
-            URI targetURI = UriBuilder.fromUri(missionControlURI).path("/project/" + project).build();
-            Response response = client.target(targetURI).request()
-                     .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
-                     .head();
-            result = response.getStatus() == Response.Status.OK.getStatusCode();
-            attributeMap.put("validate_project_" + project, result);
-         }
-         finally
-         {
-            if (result == null)
-               result = false;
-            if (client != null)
-            {
-               client.close();
-            }
-         }
+         URI targetURI = UriBuilder.fromUri(missionControlURI).path("/project/" + project).build();
+         Response response = client.target(targetURI).request()
+                  .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
+                  .head();
+         result = response.getStatus() == Response.Status.OK.getStatusCode();
+         attributeMap.put("validate_project_" + project, result);
       }
       return result;
    }
@@ -105,6 +79,15 @@ public class MissionControlValidator
                System.getenv(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT));
       missionControlURI = UriBuilder.fromPath("/api/validate").host(host).scheme("http")
                .port(port != null ? Integer.parseInt(port) : 80).build();
+      client = ClientBuilder.newClient();
    }
-
+   
+   @PreDestroy
+   void destroy() 
+   {
+      if (client != null) 
+      {
+         client.close();
+      }
+   }
 }

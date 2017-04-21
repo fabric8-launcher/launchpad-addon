@@ -62,11 +62,11 @@ public class MetadataStep implements UIWizardStep
    private UIInput<String> gitHubRepositoryName;
 
    @Inject
-   @WithAttributes(label = "Group Id", defaultValue = "io.openshift.booster", required = false)
+   @WithAttributes(label = "Group Id", defaultValue = "io.openshift.booster", required = true)
    private UIInput<String> groupId;
 
    @Inject
-   @WithAttributes(label = "Artifact Id", required = false)
+   @WithAttributes(label = "Artifact Id", required = true)
    private UIInput<String> artifactId;
 
    @Inject

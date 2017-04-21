@@ -56,25 +56,15 @@ public class ChooseMissionStep implements UIWizardStep
       mission.setValueChoices(catalogService.getMissions());
       mission.setDefaultValue(() -> {
          Iterator<Mission> iterator = mission.getValueChoices().iterator();
-         if (iterator.hasNext())
-         {
-            return iterator.next();
-         }
-         else
-         {
-            return null;
-         }
+         return (iterator.hasNext()) ? iterator.next() : null;
       });
-      mission.addValueChangeListener((event) -> {
-         context.getAttributeMap().put(Mission.class, event.getNewValue());
-      });
-
       builder.add(mission);
    }
 
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
+      context.getUIContext().getAttributeMap().put(Mission.class, mission.getValue());
       return Results.navigateTo(ChooseRuntimeStep.class);
    }
 

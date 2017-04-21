@@ -27,7 +27,7 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    private static final Pattern SPECIAL_CHARS = Pattern.compile("[-a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9]");
 
    @Inject
-   @WithAttributes(label = "Project name", required = true, defaultValue = "demo")
+   @WithAttributes(label = "OpenShift Project name", required = true)
    @UnwrapValidatedValue
    @Length(min = 1, max = 24)
    private UIInput<String> named;
@@ -37,7 +37,7 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    {
       named.addValidator(context -> {
          if (named.getValue() != null
-                 && !SPECIAL_CHARS.matcher(named.getValue()).matches())
+                  && !SPECIAL_CHARS.matcher(named.getValue()).matches())
             context.addValidationError(named,
                      "Project name must not contain spaces or special characters.");
       }).setDescription("The following characters are accepted: -a-z0-9 and the name cannot start or end with a dash");

@@ -7,28 +7,20 @@
 
 package io.openshift.launchpad.ui.booster;
 
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Parent;
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
-import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
-import org.jboss.forge.addon.maven.resources.MavenModelResource;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.ProjectFactory;
-import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UINavigationContext;
 import org.jboss.forge.addon.ui.context.UIValidationContext;
-import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
@@ -39,7 +31,6 @@ import io.openshift.launchpad.catalog.Booster;
 import io.openshift.launchpad.catalog.BoosterCatalogService;
 import io.openshift.launchpad.catalog.Mission;
 import io.openshift.launchpad.catalog.Runtime;
-import io.openshift.launchpad.ui.input.ProjectName;
 
 /**
  *
@@ -51,38 +42,8 @@ public class ChooseRuntimeStep implements UIWizardStep
    private BoosterCatalogService catalogService;
 
    @Inject
-   private ProjectFactory projectFactory;
-
-   @Inject
-   private MavenBuildSystem mavenBuildSystem;
-
-   @Inject
    @WithAttributes(label = "Runtime", required = true)
    private UISelectOne<Runtime> runtime;
-
-   @Inject
-   private ProjectName named;
-
-   /**
-    * Used in LaunchpadResource TODO: Check if it should be here?
-    */
-   @Inject
-   @WithAttributes(label = "GitHub Repository Name", note = "If empty, it will assume the project name")
-   private UIInput<String> gitHubRepositoryName;
-
-   @Inject
-   @WithAttributes(label = "Group Id", required = true, defaultValue = "com.example")
-   private UIInput<String> groupId;
-
-   @Inject
-   @WithAttributes(label = "Artifact Id", required = true)
-   @UnwrapValidatedValue
-   @Length(min = 1, max = 24)
-   private UIInput<String> artifactId;
-
-   @Inject
-   @WithAttributes(label = "Version", required = true, defaultValue = "1.0.0-SNAPSHOT")
-   private UIInput<String> version;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -96,16 +57,18 @@ public class ChooseRuntimeStep implements UIWizardStep
       {
          runtime.setItemLabelConverter(Runtime::getId);
       }
+
       runtime.setValueChoices(() -> {
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
          return catalogService.getRuntimes(mission);
       });
 
-      artifactId.setDefaultValue(named::getValue);
+      runtime.setDefaultValue(() -> {
+         Iterator<Runtime> iterator = runtime.getValueChoices().iterator();
+         return (iterator.hasNext()) ? iterator.next() : null;
+      });
 
-      builder.add(runtime).add(named)
-               .add(gitHubRepositoryName)
-               .add(groupId).add(artifactId).add(version);
+      builder.add(runtime);
    }
 
    @Override
@@ -131,51 +94,15 @@ public class ChooseRuntimeStep implements UIWizardStep
    }
 
    @Override
+   public NavigationResult next(UINavigationContext context) throws Exception
+   {
+      context.getUIContext().getAttributeMap().put(Runtime.class, runtime.getValue());
+      return Results.navigateTo(MetadataStep.class);
+   }
+
+   @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-      Mission mission = (Mission) attributeMap.get(Mission.class);
-      Runtime runtimeValue = runtime.getValue();
-      Booster booster = catalogService.getBooster(mission, runtimeValue).get();
-      DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
-      // Using ProjectFactory to invoke bound listeners
-      Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);
-      // Do not cache anything
-      projectFactory.invalidateCaches();
-      MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
-      // Delete existing pom
-      modelResource.delete();
-      // Copy contents (including pom.xml if exists)
-      catalogService.copy(booster, project);
-      // Perform model changes
-      if (modelResource.exists())
-      {
-         Model model = modelResource.getCurrentModel();
-         model.setGroupId(groupId.getValue());
-         model.setArtifactId(artifactId.getValue());
-         model.setVersion(version.getValue());
-
-         // Change child modules
-         for (String module : model.getModules())
-         {
-            DirectoryResource moduleDirResource = projectDirectory.getChildDirectory(module);
-            MavenModelResource moduleModelResource = moduleDirResource.getChildOfType(MavenModelResource.class,
-                     "pom.xml");
-            Model moduleModel = moduleModelResource.getCurrentModel();
-            Parent parent = moduleModel.getParent();
-            if (parent != null)
-            {
-               parent.setGroupId(model.getGroupId());
-               parent.setArtifactId(model.getArtifactId());
-               parent.setVersion(model.getVersion());
-               moduleModelResource.setCurrentModel(moduleModel);
-            }
-         }
-         // TODO: Change package name
-         modelResource.setCurrentModel(model);
-      }
-      context.getUIContext().setSelection(projectDirectory);
       return Results.success();
    }
 

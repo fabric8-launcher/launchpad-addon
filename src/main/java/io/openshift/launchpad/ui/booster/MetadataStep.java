@@ -30,6 +30,7 @@ import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
+import org.jboss.forge.furnace.util.Strings;
 
 import io.openshift.launchpad.catalog.Booster;
 import io.openshift.launchpad.catalog.BoosterCatalogService;
@@ -91,8 +92,6 @@ public class MetadataStep implements UIWizardStep
          return "booster" + missionPrefix + runtimeSuffix;
       });
 
-      gitHubRepositoryName.setDefaultValue(named::getValue);
-
       builder.add(named).add(gitHubRepositoryName).add(groupId).add(artifactId).add(version);
    }
 
@@ -104,10 +103,15 @@ public class MetadataStep implements UIWizardStep
       {
          context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");
       }
-      if (missionControlValidator.gitHubRepositoryExists(uiContext, gitHubRepositoryName.getValue()))
+      String repository = gitHubRepositoryName.getValue();
+      if (Strings.isNullOrEmpty(repository))
+      {
+         repository = named.getValue();
+      }
+      if (missionControlValidator.gitHubRepositoryExists(uiContext, repository))
       {
          context.addValidationError(gitHubRepositoryName,
-                  "GitHub Repository '" + gitHubRepositoryName.getValue() + "' already exists");
+                  "GitHub Repository '" + repository + "' already exists");
       }
    }
 

@@ -2,18 +2,6 @@
 :idprefix: id_ 
 This addon *provides classes* for use in other addons. 
         
-=== Depends on
-[options="header"]
-|===
-|Addon |Exported |Optional
-|ui
-|yes
-|no
-|projects
-|yes
-|no
-|===
-
 == Setup
 
 This Addon needs to be installed in the local maven repository before used in the backend.

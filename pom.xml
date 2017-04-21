@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -160,7 +161,7 @@
          <artifactId>maven</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
-      
+
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
          <artifactId>bean-validation</artifactId>
@@ -182,6 +183,32 @@
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
          <artifactId>parser-yaml</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <!-- Needed to validate with MissionControl -->
+      <dependency>
+         <groupId>org.jboss.resteasy</groupId>
+         <artifactId>resteasy-client</artifactId>
+         <version>3.0.8.Final</version>
+         <exclusions>
+            <exclusion>
+               <groupId>javax.activation</groupId>
+               <artifactId>activation</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.spec.javax.annotation</groupId>
+               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.resteasy</groupId>
+               <artifactId>jaxrs-api</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>slf4j</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
 

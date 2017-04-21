@@ -21,6 +21,7 @@ import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -54,6 +55,9 @@ public class MetadataStep implements UIWizardStep
    @Inject
    private ProjectName named;
 
+   @Inject
+   private MissionControlValidator missionControlValidator;
+
    /**
     * Used in LaunchpadResource TODO: Check if it should be here?
     */
@@ -79,15 +83,32 @@ public class MetadataStep implements UIWizardStep
       UIContext context = builder.getUIContext();
       artifactId.setDefaultValue(() -> {
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
-         String missionPrefix = (mission == null) ? "" : "-" + mission.getId();
          Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
+
+         String missionPrefix = (mission == null) ? "" : "-" + mission.getId();
          String runtimeSuffix = (runtime == null) ? "" : "-" + runtime.getId().replaceAll("\\.", "");
+
          return "booster" + missionPrefix + runtimeSuffix;
       });
 
-      builder.add(named)
-               .add(gitHubRepositoryName)
-               .add(groupId).add(artifactId).add(version);
+      gitHubRepositoryName.setDefaultValue(named::getValue);
+
+      builder.add(named).add(gitHubRepositoryName).add(groupId).add(artifactId).add(version);
+   }
+
+   @Override
+   public void validate(UIValidationContext context)
+   {
+      UIContext uiContext = context.getUIContext();
+      if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
+      {
+         context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");
+      }
+      if (missionControlValidator.gitHubRepositoryExists(uiContext, gitHubRepositoryName.getValue()))
+      {
+         context.addValidationError(gitHubRepositoryName,
+                  "GitHub Repository '" + gitHubRepositoryName.getValue() + "' already exists");
+      }
    }
 
    @Override

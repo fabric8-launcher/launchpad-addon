@@ -98,20 +98,23 @@ public class MetadataStep implements UIWizardStep
    @Override
    public void validate(UIValidationContext context)
    {
-      UIContext uiContext = context.getUIContext();
-      if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
+      if (System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null) 
       {
-         context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");
-      }
-      String repository = gitHubRepositoryName.getValue();
-      if (Strings.isNullOrEmpty(repository))
-      {
-         repository = named.getValue();
-      }
-      if (missionControlValidator.gitHubRepositoryExists(uiContext, repository))
-      {
-         context.addValidationError(gitHubRepositoryName,
-                  "GitHub Repository '" + repository + "' already exists");
+         UIContext uiContext = context.getUIContext();
+         if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
+         {
+            context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");
+         }
+         String repository = gitHubRepositoryName.getValue();
+         if (Strings.isNullOrEmpty(repository))
+         {
+            repository = named.getValue();
+         }
+         if (missionControlValidator.gitHubRepositoryExists(uiContext, repository))
+         {
+            context.addValidationError(gitHubRepositoryName,
+                     "GitHub Repository '" + repository + "' already exists");
+         }
       }
    }
 

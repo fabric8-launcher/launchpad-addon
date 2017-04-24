@@ -143,7 +143,8 @@ public class MetadataStep implements UIWizardStep
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
       Booster booster = catalogService.getBooster(mission, runtime).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      String childDirectory = deploymentType == DeploymentType.ZIP ? artifactId.getValue() : named.getValue();
+      String childDirectory = deploymentType == DeploymentType.CONTINUOUS_DELIVERY ? named.getValue()
+               : artifactId.getValue();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
       // Using ProjectFactory to invoke bound listeners
       Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);

@@ -61,7 +61,7 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
    }
 
    @Override
-   public Result execute(UIExecutionContext arg0) throws Exception
+   public Result execute(UIExecutionContext context) throws Exception
    {
       return Results.success();
    }

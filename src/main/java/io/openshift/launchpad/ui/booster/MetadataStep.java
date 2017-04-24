@@ -104,7 +104,8 @@ public class MetadataStep implements UIWizardStep
    {
       DeploymentType deploymentType = (DeploymentType) context.getUIContext().getAttributeMap()
                .get(DeploymentType.class);
-      if (deploymentType != DeploymentType.ZIP && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
+      if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY
+               && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
          UIContext uiContext = context.getUIContext();
          if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))

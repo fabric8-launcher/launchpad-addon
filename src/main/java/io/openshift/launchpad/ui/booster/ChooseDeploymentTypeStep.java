@@ -42,15 +42,13 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
       {
          deploymentType.setItemLabelConverter(DeploymentType::getDescription);
       }
-      deploymentType.addValueChangeListener((event) -> {
-         context.getAttributeMap().put(DeploymentType.class, event.getNewValue());
-      });
       builder.add(deploymentType);
    }
 
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
+      context.getUIContext().getAttributeMap().put(DeploymentType.class, deploymentType.getValue());
       return Results.navigateTo(ChooseMissionStep.class);
    }
 

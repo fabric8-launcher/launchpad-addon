@@ -91,14 +91,20 @@ public class MetadataStep implements UIWizardStep
 
          return "booster" + missionPrefix + runtimeSuffix;
       });
-
-      builder.add(named).add(gitHubRepositoryName).add(groupId).add(artifactId).add(version);
+      DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
+      if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY)
+      {
+         builder.add(named).add(gitHubRepositoryName);
+      }
+      builder.add(groupId).add(artifactId).add(version);
    }
 
    @Override
    public void validate(UIValidationContext context)
    {
-      if (System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null) 
+      DeploymentType deploymentType = (DeploymentType) context.getUIContext().getAttributeMap()
+               .get(DeploymentType.class);
+      if (deploymentType != DeploymentType.ZIP && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
          UIContext uiContext = context.getUIContext();
          if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
@@ -129,12 +135,15 @@ public class MetadataStep implements UIWizardStep
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
+
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
+      DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
       Booster booster = catalogService.getBooster(mission, runtime).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      DirectoryResource projectDirectory = initialDir.getChildDirectory(named.getValue());
+      String childDirectory = deploymentType == DeploymentType.ZIP ? artifactId.getValue() : named.getValue();
+      DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
       // Using ProjectFactory to invoke bound listeners
       Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);
       // Do not cache anything

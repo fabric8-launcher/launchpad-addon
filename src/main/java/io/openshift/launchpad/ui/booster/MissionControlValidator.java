@@ -41,7 +41,7 @@ public class MissionControlValidator
       if (result == null)
       {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
-         String authHeader = authList.isEmpty() ? null : authList.get(0);
+         String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
          Client client = null;
          try
          {
@@ -73,7 +73,7 @@ public class MissionControlValidator
       if (result == null)
       {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
-         String authHeader = authList.isEmpty() ? null : authList.get(0);
+         String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
          Client client = null;
          try
          {

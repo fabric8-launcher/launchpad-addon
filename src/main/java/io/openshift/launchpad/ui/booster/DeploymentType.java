@@ -16,11 +16,11 @@ public enum DeploymentType
    /**
     * Deploy as a ZIP file
     */
-   ZIP("ZIP File"),
+   CONTINUOUS_DELIVERY("Continuous delivery"),
    /**
     * Deploy in Openshift
     */
-   CONTINUOUS_DELIVERY("Continuous delivery");
+   ZIP("ZIP File");
 
    private String description;
 

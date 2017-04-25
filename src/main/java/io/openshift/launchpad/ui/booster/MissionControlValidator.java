@@ -8,6 +8,7 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -24,6 +25,7 @@ import org.jboss.forge.addon.ui.context.UIContext;
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
+@SuppressWarnings("unchecked")
 @ApplicationScoped
 public class MissionControlValidator
 {
@@ -38,13 +40,15 @@ public class MissionControlValidator
       Boolean result = (Boolean) attributeMap.get("validate_repo_" + repository);
       if (result == null)
       {
+         List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
+         String authHeader = authList.isEmpty() ? null : authList.get(0);
          Client client = null;
          try
          {
             client = ClientBuilder.newClient();
             URI targetURI = UriBuilder.fromUri(missionControlURI).path("/repository/" + repository).build();
             Response response = client.target(targetURI).request()
-                     .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
+                     .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
             result = response.getStatus() == Response.Status.OK.getStatusCode();
             attributeMap.put("validate_repo_" + repository, result);
@@ -68,13 +72,15 @@ public class MissionControlValidator
       Boolean result = (Boolean) attributeMap.get("validate_project_" + project);
       if (result == null)
       {
+         List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
+         String authHeader = authList.isEmpty() ? null : authList.get(0);
          Client client = null;
          try
          {
             client = ClientBuilder.newClient();
             URI targetURI = UriBuilder.fromUri(missionControlURI).path("/project/" + project).build();
             Response response = client.target(targetURI).request()
-                     .header(HttpHeaders.AUTHORIZATION, attributeMap.get(HttpHeaders.AUTHORIZATION))
+                     .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
             result = response.getStatus() == Response.Status.OK.getStatusCode();
             attributeMap.put("validate_project_" + project, result);

@@ -14,11 +14,11 @@ package io.openshift.launchpad.ui.booster;
 public enum DeploymentType
 {
    /**
-    * Deploy as a ZIP file
+    * Deploy in Openshift
     */
    CONTINUOUS_DELIVERY("Continuous delivery"),
    /**
-    * Deploy in Openshift
+    * Deploy as a ZIP file
     */
    ZIP("ZIP File");
 

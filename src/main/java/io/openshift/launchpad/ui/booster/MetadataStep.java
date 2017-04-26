@@ -102,12 +102,17 @@ public class MetadataStep implements UIWizardStep
    @Override
    public void validate(UIValidationContext context)
    {
-      DeploymentType deploymentType = (DeploymentType) context.getUIContext().getAttributeMap()
+      UIContext uiContext = context.getUIContext();
+      if ("next".equals(uiContext.getAttributeMap().get("action")))
+      {
+         // Do not validate again if next() was called
+         return;
+      }
+      DeploymentType deploymentType = (DeploymentType) uiContext.getAttributeMap()
                .get(DeploymentType.class);
       if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY
                && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
-         UIContext uiContext = context.getUIContext();
          if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
          {
             context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");

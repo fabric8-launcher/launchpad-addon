@@ -8,6 +8,7 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -15,6 +16,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
@@ -25,8 +27,10 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
+import io.openshift.launchpad.catalog.Booster;
 import io.openshift.launchpad.catalog.BoosterCatalogService;
 import io.openshift.launchpad.catalog.Mission;
+import io.openshift.launchpad.catalog.Runtime;
 
 /**
  *
@@ -53,7 +57,10 @@ public class ChooseMissionStep implements UIWizardStep
       {
          mission.setItemLabelConverter(Mission::getId);
       }
-      mission.setValueChoices(catalogService.getMissions());
+      mission.setValueChoices(() -> {
+         Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
+         return catalogService.getMissions(runtime);
+      });
       mission.setDefaultValue(() -> {
          Iterator<Mission> iterator = mission.getValueChoices().iterator();
          return (iterator.hasNext()) ? iterator.next() : null;
@@ -62,10 +69,24 @@ public class ChooseMissionStep implements UIWizardStep
    }
 
    @Override
+   public void validate(UIValidationContext context)
+   {
+      UIContext uiContext = context.getUIContext();
+      Runtime runtime = (Runtime) uiContext.getAttributeMap().get(Runtime.class);
+
+      Optional<Booster> booster = catalogService.getBooster(mission.getValue(), runtime);
+      if (!booster.isPresent())
+      {
+         context.addValidationError(mission,
+                  "No booster found for mission '" + mission.getValue() + "' and runtime '" + runtime + "'");
+      }
+   }
+
+   @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
       context.getUIContext().getAttributeMap().put(Mission.class, mission.getValue());
-      return Results.navigateTo(ChooseRuntimeStep.class);
+      return Results.navigateTo(ChooseDeploymentTypeStep.class);
    }
 
    @Override

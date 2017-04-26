@@ -316,21 +316,21 @@ public class BoosterCatalogService
                         (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
    }
 
-   public Set<Mission> getMissions()
+   public Set<Mission> getMissions(Runtime runtime)
    {
-      return boosters.stream()
-               .map(Booster::getMission)
-               .collect(Collectors.toCollection(TreeSet::new));
-   }
-
-   public Set<Runtime> getRuntimes(Mission mission)
-   {
-      if (mission == null)
+      if (runtime == null)
       {
          return Collections.emptySet();
       }
       return boosters.stream()
-               .filter(b -> mission.equals(b.getMission()))
+               .filter(b -> runtime.equals(b.getRuntime()))
+               .map(Booster::getMission)
+               .collect(Collectors.toCollection(TreeSet::new));
+   }
+
+   public Set<Runtime> getRuntimes()
+   {
+      return boosters.stream()
                .map(Booster::getRuntime)
                .collect(Collectors.toCollection(TreeSet::new));
    }

@@ -34,13 +34,15 @@ public class MissionControlValidator
    private static final String LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST = "LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST";
    private static final String LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT = "LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT";
 
+   private static final String VALIDATION_MESSAGE_OK = "OK";
+
    private URI missionControlURI;
 
    public void validateGitHubRepositoryExists(UIValidationContext context, String repository)
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-      Boolean result = (Boolean) attributeMap.get("validate_repo_" + repository);
-      if (result == null)
+      String validationMessage = (String) attributeMap.get("validate_repo_" + repository);
+      if (validationMessage == null)
       {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
          String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
@@ -52,11 +54,13 @@ public class MissionControlValidator
             Response response = client.target(targetURI).request()
                      .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
-            result = response.getStatus() == Response.Status.OK.getStatusCode();
-            if (result)
+            if (response.getStatus() == Response.Status.OK.getStatusCode())
             {
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "GitHub Repository '" + repository + "' already exists");
+               validationMessage = "GitHub Repository '" + repository + "' already exists";
+            }
+            else
+            {
+               validationMessage = VALIDATION_MESSAGE_OK;
             }
          }
          catch (Exception e)
@@ -69,8 +73,7 @@ public class MissionControlValidator
             }
             if (root instanceof UnknownHostException || root instanceof ConnectException)
             {
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "Mission Control is offline and cannot validate the GitHub Repository Name");
+               validationMessage = "Mission Control is offline and cannot validate the GitHub Repository Name";
             }
             else
             {
@@ -78,15 +81,14 @@ public class MissionControlValidator
                {
                   message = root.getMessage();
                }
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "Error while validating GitHub Repository Name: " + message);
+               validationMessage = "Error while validating GitHub Repository Name: " + message;
             }
          }
          finally
          {
-            if (result != null)
+            if (validationMessage != null)
             {
-               attributeMap.put("validate_repo_" + repository, result);
+               attributeMap.put("validate_repo_" + repository, validationMessage);
             }
             if (client != null)
             {
@@ -94,13 +96,17 @@ public class MissionControlValidator
             }
          }
       }
+      if (validationMessage != null && !VALIDATION_MESSAGE_OK.equals(validationMessage))
+      {
+         context.addValidationError(context.getCurrentInputComponent(), validationMessage);
+      }
    }
 
    public void validateOpenShiftProjectExists(UIValidationContext context, String project)
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
-      Boolean result = (Boolean) attributeMap.get("validate_project_" + project);
-      if (result == null)
+      String validationMessage = (String) attributeMap.get("validate_project_" + project);
+      if (validationMessage == null)
       {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
          String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
@@ -112,11 +118,13 @@ public class MissionControlValidator
             Response response = client.target(targetURI).request()
                      .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
-            result = response.getStatus() == Response.Status.OK.getStatusCode();
-            if (result)
+            if (response.getStatus() == Response.Status.OK.getStatusCode())
             {
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "OpenShift Project '" + project + "' already exists");
+               validationMessage = "OpenShift Project '" + project + "' already exists";
+            }
+            else
+            {
+               validationMessage = VALIDATION_MESSAGE_OK;
             }
          }
          catch (Exception e)
@@ -130,9 +138,7 @@ public class MissionControlValidator
             }
             if (root instanceof UnknownHostException || root instanceof ConnectException)
             {
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "Mission Control is offline and cannot validate the OpenShift Project Name");
-               result = false;
+               validationMessage = "Mission Control is offline and cannot validate the OpenShift Project Name";
             }
             else
             {
@@ -140,15 +146,14 @@ public class MissionControlValidator
                {
                   message = root.getMessage();
                }
-               context.addValidationError(context.getCurrentInputComponent(),
-                        "Error while validating OpenShift Project Name: " + message);
+               validationMessage = "Error while validating OpenShift Project Name: " + message;
             }
          }
          finally
          {
-            if (result != null)
+            if (validationMessage != null)
             {
-               attributeMap.put("validate_project_" + project, result);
+               attributeMap.put("validate_project_" + project, validationMessage);
             }
             if (client != null)
             {
@@ -156,7 +161,10 @@ public class MissionControlValidator
             }
          }
       }
-
+      if (validationMessage != null && !VALIDATION_MESSAGE_OK.equals(validationMessage))
+      {
+         context.addValidationError(context.getCurrentInputComponent(), validationMessage);
+      }
    }
 
    @PostConstruct

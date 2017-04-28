@@ -42,7 +42,7 @@ import io.openshift.launchpad.ui.input.ProjectName;
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class MetadataStep implements UIWizardStep
+public class ProjectInfoStep implements UIWizardStep
 {
    @Inject
    private BoosterCatalogService catalogService;
@@ -126,8 +126,8 @@ public class MetadataStep implements UIWizardStep
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
-      return Metadata.forCommand(getClass()).name("Metadata")
-               .description("Enter the metadata for the project")
+      return Metadata.forCommand(getClass()).name("Project Info")
+               .description("Project Information")
                .category(Categories.create("Openshift.io"));
    }
 

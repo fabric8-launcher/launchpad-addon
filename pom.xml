@@ -8,7 +8,7 @@
    </parent>
    <groupId>io.openshift.launchpad</groupId>
    <artifactId>launchpad-addon</artifactId>
-   <version>5-SNAPSHOT</version>
+   <version>5</version>
    <properties>
       <version.forge>3.6.1.Final</version.forge>
 
@@ -238,7 +238,7 @@
       <connection>${obs.scm.git.connection}</connection>
       <developerConnection>${obs.scm.dev.connection}</developerConnection>
       <url>${obs.scm.url}</url>
-      <tag>${obs.scm.tag}</tag>
+      <tag>v5</tag>
    </scm>
 
 </project>

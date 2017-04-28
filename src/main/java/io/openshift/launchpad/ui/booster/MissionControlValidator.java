@@ -7,7 +7,9 @@
 
 package io.openshift.launchpad.ui.booster;
 
+import java.net.ConnectException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
-import org.jboss.forge.addon.ui.context.UIContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 
 /**
  *
@@ -34,9 +36,9 @@ public class MissionControlValidator
 
    private URI missionControlURI;
 
-   public boolean gitHubRepositoryExists(UIContext context, String repository)
+   public void validateGitHubRepositoryExists(UIValidationContext context, String repository)
    {
-      Map<Object, Object> attributeMap = context.getAttributeMap();
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Boolean result = (Boolean) attributeMap.get("validate_repo_" + repository);
       if (result == null)
       {
@@ -51,24 +53,52 @@ public class MissionControlValidator
                      .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
             result = response.getStatus() == Response.Status.OK.getStatusCode();
-            attributeMap.put("validate_repo_" + repository, result);
+            if (result)
+            {
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "GitHub Repository '" + repository + "' already exists");
+            }
+         }
+         catch (Exception e)
+         {
+            String message = e.getMessage();
+            Throwable root = e;
+            while (root.getCause() != null)
+            {
+               root = root.getCause();
+            }
+            if (root instanceof UnknownHostException || root instanceof ConnectException)
+            {
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "Mission Control is offline and cannot validate the GitHub Repository Name");
+            }
+            else
+            {
+               if (root.getMessage() != null)
+               {
+                  message = root.getMessage();
+               }
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "Error while validating GitHub Repository Name: " + message);
+            }
          }
          finally
          {
-            if (result == null)
-               result = false;
+            if (result != null)
+            {
+               attributeMap.put("validate_repo_" + repository, result);
+            }
             if (client != null)
             {
                client.close();
             }
          }
       }
-      return result;
    }
 
-   public boolean openShiftProjectExists(UIContext context, String project)
+   public void validateOpenShiftProjectExists(UIValidationContext context, String project)
    {
-      Map<Object, Object> attributeMap = context.getAttributeMap();
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Boolean result = (Boolean) attributeMap.get("validate_project_" + project);
       if (result == null)
       {
@@ -83,19 +113,50 @@ public class MissionControlValidator
                      .header(HttpHeaders.AUTHORIZATION, authHeader)
                      .head();
             result = response.getStatus() == Response.Status.OK.getStatusCode();
-            attributeMap.put("validate_project_" + project, result);
+            if (result)
+            {
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "OpenShift Project '" + project + "' already exists");
+            }
+         }
+         catch (Exception e)
+         {
+
+            String message = e.getMessage();
+            Throwable root = e;
+            while (root.getCause() != null)
+            {
+               root = root.getCause();
+            }
+            if (root instanceof UnknownHostException || root instanceof ConnectException)
+            {
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "Mission Control is offline and cannot validate the OpenShift Project Name");
+               result = false;
+            }
+            else
+            {
+               if (root.getMessage() != null)
+               {
+                  message = root.getMessage();
+               }
+               context.addValidationError(context.getCurrentInputComponent(),
+                        "Error while validating OpenShift Project Name: " + message);
+            }
          }
          finally
          {
-            if (result == null)
-               result = false;
+            if (result != null)
+            {
+               attributeMap.put("validate_project_" + project, result);
+            }
             if (client != null)
             {
                client.close();
             }
          }
       }
-      return result;
+
    }
 
    @PostConstruct

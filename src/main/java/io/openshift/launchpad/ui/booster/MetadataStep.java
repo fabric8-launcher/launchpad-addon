@@ -113,20 +113,13 @@ public class MetadataStep implements UIWizardStep
       if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY
                && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
-         if (missionControlValidator.openShiftProjectExists(uiContext, named.getValue()))
-         {
-            context.addValidationError(named, "OpenShift Project '" + named.getValue() + "' already exists");
-         }
+         missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
          String repository = gitHubRepositoryName.getValue();
          if (Strings.isNullOrEmpty(repository))
          {
             repository = named.getValue();
          }
-         if (missionControlValidator.gitHubRepositoryExists(uiContext, repository))
-         {
-            context.addValidationError(gitHubRepositoryName,
-                     "GitHub Repository '" + repository + "' already exists");
-         }
+         missionControlValidator.validateGitHubRepositoryExists(context, repository);
       }
    }
 

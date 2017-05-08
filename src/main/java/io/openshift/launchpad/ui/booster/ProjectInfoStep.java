@@ -113,13 +113,19 @@ public class ProjectInfoStep implements UIWizardStep
       if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY
                && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
-         missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
+         if (missionControlValidator.validateOpenShiftTokenExists(context))
+         {
+            missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
+         }
          String repository = gitHubRepositoryName.getValue();
          if (Strings.isNullOrEmpty(repository))
          {
             repository = named.getValue();
          }
-         missionControlValidator.validateGitHubRepositoryExists(context, repository);
+         if (missionControlValidator.validateGitHubTokenExists(context))
+         {
+            missionControlValidator.validateGitHubRepositoryExists(context, repository);
+         }
       }
    }
 

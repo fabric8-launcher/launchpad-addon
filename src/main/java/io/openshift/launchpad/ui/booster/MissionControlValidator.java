@@ -38,6 +38,139 @@ public class MissionControlValidator
 
    private URI missionControlURI;
 
+   public boolean validateGitHubTokenExists(UIValidationContext context)
+   {
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      String validationMessage = (String) attributeMap.get("token_github_exists");
+      if (validationMessage == null)
+      {
+         List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
+         String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
+         Client client = null;
+         try
+         {
+            client = ClientBuilder.newClient();
+            URI targetURI = UriBuilder.fromUri(missionControlURI).path("/token/github").build();
+            Response response = client.target(targetURI).request()
+                     .header(HttpHeaders.AUTHORIZATION, authHeader)
+                     .head();
+            if (response.getStatus() == Response.Status.OK.getStatusCode())
+            {
+               validationMessage = VALIDATION_MESSAGE_OK;
+            }
+            else
+            {
+               validationMessage = "GitHub Token does not exist";
+            }
+         }
+         catch (Exception e)
+         {
+            String message = e.getMessage();
+            Throwable root = e;
+            while (root.getCause() != null)
+            {
+               root = root.getCause();
+            }
+            if (root instanceof UnknownHostException || root instanceof ConnectException)
+            {
+               validationMessage = "Mission Control is offline and cannot validate if the GitHub token exists";
+            }
+            else
+            {
+               if (root.getMessage() != null)
+               {
+                  message = root.getMessage();
+               }
+               validationMessage = "Error while validating if the GitHub Token exists: " + message;
+            }
+         }
+         finally
+         {
+            if (validationMessage != null)
+            {
+               attributeMap.put("token_github_exists", validationMessage);
+            }
+            if (client != null)
+            {
+               client.close();
+            }
+         }
+      }
+      if (validationMessage != null && !VALIDATION_MESSAGE_OK.equals(validationMessage))
+      {
+         context.addValidationError(context.getCurrentInputComponent(), validationMessage);
+         return false;
+      }
+      return true;
+   }
+
+   public boolean validateOpenShiftTokenExists(UIValidationContext context)
+   {
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      String validationMessage = (String) attributeMap.get("token_openshift_exists");
+      if (validationMessage == null)
+      {
+         List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
+         String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
+         Client client = null;
+         try
+         {
+            client = ClientBuilder.newClient();
+            URI targetURI = UriBuilder.fromUri(missionControlURI).path("/token/openshift").build();
+            Response response = client.target(targetURI).request()
+                     .header(HttpHeaders.AUTHORIZATION, authHeader)
+                     .head();
+            if (response.getStatus() == Response.Status.OK.getStatusCode())
+            {
+               validationMessage = VALIDATION_MESSAGE_OK;
+            }
+            else
+            {
+               validationMessage = "OpenShift Token does not exist";
+            }
+         }
+         catch (Exception e)
+         {
+            String message = e.getMessage();
+            Throwable root = e;
+            while (root.getCause() != null)
+            {
+               root = root.getCause();
+            }
+            if (root instanceof UnknownHostException || root instanceof ConnectException)
+            {
+               validationMessage = "Mission Control is offline and cannot validate if the OpenShift token exists";
+            }
+            else
+            {
+               if (root.getMessage() != null)
+               {
+                  message = root.getMessage();
+               }
+               validationMessage = "Error while validating if the OpenShift Token exists: " + message;
+            }
+         }
+         finally
+         {
+            if (validationMessage != null)
+            {
+               attributeMap.put("token_openshift_exists", validationMessage);
+            }
+            if (client != null)
+            {
+               client.close();
+            }
+         }
+      }
+      if (validationMessage != null && !VALIDATION_MESSAGE_OK.equals(validationMessage))
+      {
+         context.addValidationError(context.getCurrentInputComponent(), validationMessage);
+         return false;
+      }
+      return true;
+
+   }
+
    public void validateGitHubRepositoryExists(UIValidationContext context, String repository)
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();

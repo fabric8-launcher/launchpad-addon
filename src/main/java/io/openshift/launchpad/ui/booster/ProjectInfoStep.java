@@ -117,13 +117,13 @@ public class ProjectInfoStep implements UIWizardStep
          {
             missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
          }
-         String repository = gitHubRepositoryName.getValue();
-         if (Strings.isNullOrEmpty(repository))
-         {
-            repository = named.getValue();
-         }
          if (missionControlValidator.validateGitHubTokenExists(context))
          {
+            String repository = gitHubRepositoryName.getValue();
+            if (Strings.isNullOrEmpty(repository))
+            {
+               repository = named.getValue();
+            }
             missionControlValidator.validateGitHubRepositoryExists(context, repository);
          }
       }

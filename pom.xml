@@ -210,7 +210,12 @@
          <artifactId>slf4j</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
-
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>assertj</artifactId>
+         <scope>test</scope>
+         <classifier>forge-addon</classifier>
+      </dependency>
       <dependency>
          <groupId>org.jboss.forge.furnace.test</groupId>
          <artifactId>furnace-test-harness</artifactId>

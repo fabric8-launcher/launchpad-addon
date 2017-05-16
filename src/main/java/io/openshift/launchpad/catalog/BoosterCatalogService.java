@@ -23,12 +23,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executors;
@@ -44,6 +41,9 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -72,6 +72,7 @@ public class BoosterCatalogService
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
 
    private static final String CLONED_BOOSTERS_DIR = ".boosters";
+   private static final String METADATA_FILE = "metadata.json";
 
    private static final Yaml yaml = new Yaml();
    /**
@@ -139,9 +140,14 @@ public class BoosterCatalogService
    private List<Booster> indexBoosters(Path catalogPath) throws IOException
    {
       Path moduleRoot = catalogPath.resolve(CLONED_BOOSTERS_DIR);
+      Path metadataFile = catalogPath.resolve(METADATA_FILE);
       List<Booster> boosters = new ArrayList<>();
       Map<String, Mission> missions = new HashMap<>();
       Map<String, Runtime> runtimes = new HashMap<>();
+      if (Files.exists(metadataFile))
+      {
+         processMetadata(metadataFile, missions, runtimes);
+      }
       Files.walkFileTree(catalogPath, new SimpleFileVisitor<Path>()
       {
          @Override
@@ -149,7 +155,8 @@ public class BoosterCatalogService
          {
             File ioFile = file.toFile();
             String fileName = ioFile.getName().toLowerCase();
-            if (fileName.endsWith(".yaml") || fileName.endsWith(".yml"))
+            // Skip any file that starts with .
+            if (!fileName.startsWith(".") && (fileName.endsWith(".yaml") || fileName.endsWith(".yml")))
             {
                String id = removeFileExtension(fileName);
                Path modulePath = moduleRoot.resolve(id);
@@ -166,6 +173,39 @@ public class BoosterCatalogService
       });
       boosters.sort(Comparator.comparing(Booster::getName));
       return Collections.unmodifiableList(boosters);
+   }
+
+   /**
+    * Process the metadataFile and adds to the specified missions and runtimes maps
+    * 
+    * @param metadataFile
+    * @param missions
+    * @param runtimes
+    */
+   void processMetadata(Path metadataFile, Map<String, Mission> missions, Map<String, Runtime> runtimes)
+   {
+      logger.info(() -> "Reading metadata at " + metadataFile + " ...");
+
+      try (BufferedReader reader = Files.newBufferedReader(metadataFile);
+               JsonReader jsonReader = Json.createReader(reader))
+      {
+         JsonObject index = jsonReader.readObject();
+         index.getJsonArray("missions")
+                  .stream()
+                  .map(JsonObject.class::cast)
+                  .map(e -> new Mission(e.getString("id"), e.getString("name")))
+                  .forEach(m -> missions.put(m.getId(), m));
+
+         index.getJsonArray("runtimes")
+                  .stream()
+                  .map(JsonObject.class::cast)
+                  .map(e -> new Runtime(e.getString("id"), e.getString("name")))
+                  .forEach(r -> runtimes.put(r.getId(), r));
+      }
+      catch (IOException e)
+      {
+         logger.log(Level.SEVERE, "Error while processing metadata " + metadataFile, e);
+      }
    }
 
    /**
@@ -200,35 +240,8 @@ public class BoosterCatalogService
             String runtimeId = file.getParent().toFile().getName();
             String missionId = file.getParent().getParent().toFile().getName();
 
-            booster.setMission(missions.computeIfAbsent(missionId, (key) -> {
-               ResourceBundle bundle = ResourceBundle.getBundle("missions", Locale.getDefault(),
-                        getClass().getClassLoader());
-               String name;
-               try
-               {
-                  name = bundle.getString(key);
-               }
-               catch (MissingResourceException mre)
-               {
-                  name = key;
-               }
-               return new Mission(key, name);
-            }));
-
-            booster.setRuntime(runtimes.computeIfAbsent(runtimeId, (key) -> {
-               ResourceBundle bundle = ResourceBundle.getBundle("runtimes", Locale.getDefault(),
-                        getClass().getClassLoader());
-               String name;
-               try
-               {
-                  name = bundle.getString(key);
-               }
-               catch (MissingResourceException mre)
-               {
-                  name = key;
-               }
-               return new Runtime(key, name);
-            }));
+            booster.setMission(missions.computeIfAbsent(missionId, Mission::new));
+            booster.setRuntime(runtimes.computeIfAbsent(runtimeId, Runtime::new));
 
             booster.setContentPath(moduleDir);
             // Module does not exist. Clone it

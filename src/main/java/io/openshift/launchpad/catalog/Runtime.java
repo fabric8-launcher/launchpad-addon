@@ -16,6 +16,12 @@ public class Runtime implements Comparable<Runtime>
    private final String id;
    private final String name;
 
+   public Runtime(String id)
+   {
+      this.id = id;
+      this.name = id;
+   }
+
    public Runtime(String id, String name)
    {
       this.id = id;

@@ -16,6 +16,12 @@ public class Mission implements Comparable<Mission>
    private final String id;
    private final String name;
 
+   public Mission(String id)
+   {
+      this.id = id;
+      this.name = id;
+   }
+
    public Mission(String id, String name)
    {
       this.id = id;

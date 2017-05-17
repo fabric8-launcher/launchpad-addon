@@ -155,6 +155,8 @@ public class ProjectInfoStep implements UIWizardStep
       // Do not cache anything
       projectFactory.invalidateCaches();
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
+      // Remove src folder
+      projectDirectory.getChildDirectory("src").delete(true);
       // Delete existing pom
       modelResource.delete();
       // Copy contents (including pom.xml if exists)
@@ -183,7 +185,6 @@ public class ProjectInfoStep implements UIWizardStep
                moduleModelResource.setCurrentModel(moduleModel);
             }
          }
-         // TODO: Change package name
          modelResource.setCurrentModel(model);
       }
       context.getUIContext().setSelection(projectDirectory);

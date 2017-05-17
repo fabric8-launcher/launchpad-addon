@@ -13,10 +13,7 @@ import javax.inject.Inject;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
-import org.jboss.forge.addon.maven.projects.MavenBuildSystem;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
@@ -46,12 +43,6 @@ public class ProjectInfoStep implements UIWizardStep
 {
    @Inject
    private BoosterCatalogService catalogService;
-
-   @Inject
-   private ProjectFactory projectFactory;
-
-   @Inject
-   private MavenBuildSystem mavenBuildSystem;
 
    @Inject
    private ProjectName named;
@@ -140,7 +131,6 @@ public class ProjectInfoStep implements UIWizardStep
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
@@ -150,17 +140,11 @@ public class ProjectInfoStep implements UIWizardStep
       String childDirectory = deploymentType == DeploymentType.CONTINUOUS_DELIVERY ? named.getValue()
                : artifactId.getValue();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
-      // Using ProjectFactory to invoke bound listeners
-      Project project = projectFactory.createProject(projectDirectory, mavenBuildSystem);
-      // Do not cache anything
-      projectFactory.invalidateCaches();
+      projectDirectory.mkdirs();
+      // Copy contents
+      catalogService.copy(booster, projectDirectory.getUnderlyingResourceObject().toPath());
+      // Is it a maven project?
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
-      // Remove src folder
-      projectDirectory.getChildDirectory("src").delete(true);
-      // Delete existing pom
-      modelResource.delete();
-      // Copy contents (including pom.xml if exists)
-      catalogService.copy(booster, project);
       // Perform model changes
       if (modelResource.exists())
       {

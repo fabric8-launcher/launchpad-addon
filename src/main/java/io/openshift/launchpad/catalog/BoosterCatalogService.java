@@ -47,8 +47,6 @@ import javax.json.JsonReader;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.jboss.forge.addon.projects.Project;
-import org.jboss.forge.addon.resource.DirectoryResource;
 import org.yaml.snakeyaml.Yaml;
 
 import io.openshift.launchpad.CopyFileVisitor;
@@ -318,14 +316,13 @@ public class BoosterCatalogService
    }
 
    /**
-    * Copies the {@link Booster} contents to the specified {@link Project}
+    * Copies the {@link Booster} contents to the specified {@link Path}
     */
-   public Path copy(Booster booster, Project project) throws IOException
+   public Path copy(Booster booster, Path projectRoot) throws IOException
    {
       Path modulePath = booster.getContentPath();
-      Path to = project.getRoot().as(DirectoryResource.class).getUnderlyingResourceObject().toPath();
       return Files.walkFileTree(modulePath,
-               new CopyFileVisitor(to,
+               new CopyFileVisitor(projectRoot,
                         (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
    }
 

@@ -7,6 +7,7 @@
 
 package io.openshift.launchpad.ui.booster;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -141,8 +142,9 @@ public class ProjectInfoStep implements UIWizardStep
                : artifactId.getValue();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
       projectDirectory.mkdirs();
+      Path projectDirectoryPath = projectDirectory.getUnderlyingResourceObject().toPath();
       // Copy contents
-      catalogService.copy(booster, projectDirectory.getUnderlyingResourceObject().toPath());
+      catalogService.copy(booster, projectDirectoryPath);
       // Is it a maven project?
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
       // Perform model changes

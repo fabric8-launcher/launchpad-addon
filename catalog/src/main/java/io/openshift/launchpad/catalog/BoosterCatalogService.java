@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -56,7 +56,7 @@ import org.yaml.snakeyaml.Yaml;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-@Singleton
+@ApplicationScoped
 public class BoosterCatalogService
 {
    private static final String GITHUB_URL = "https://github.com/";

@@ -1,243 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <parent>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-parent</artifactId>
-      <version>22</version>
-   </parent>
-   <groupId>io.openshift.launchpad</groupId>
-   <artifactId>launchpad-addon</artifactId>
-   <version>7-SNAPSHOT</version>
-   <properties>
-      <version.forge>3.7.1.Final</version.forge>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>20</version>
+  </parent>
+  <groupId>io.openshift.launchpad</groupId>
+  <artifactId>launchpad-addon-parent</artifactId>
+  <version>7-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-      <maven.compiler.source>1.8</maven.compiler.source>
-      <maven.compiler.target>1.8</maven.compiler.target>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <modules>
+    <module>base</module>
+    <module>catalog</module>
+  </modules>
 
-      <!-- SCM Properties -->
-      <obs.scm.git.connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</obs.scm.git.connection>
-      <obs.scm.dev.connection>scm:git:git@github.com:openshiftio/launchpad-addon.git</obs.scm.dev.connection>
-      <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
-      <obs.scm.tag>HEAD</obs.scm.tag>
-   </properties>
+  <properties>
+    <version.forge>3.7.1.Final</version.forge>
 
-   <developers>
-      <developer>
-         <id>gastaldi</id>
-         <name>George Gastaldi</name>
-         <email>ggastald[AT]redhat[DOT]com</email>
-         <url>https://github.com/gastaldi</url>
-      </developer>
-   </developers>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-   <licenses>
-      <license>
-         <name>Apache License, Version 2.0</name>
-         <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-         <distribution>repo</distribution>
-         <comments>A business-friendly OSS license</comments>
-      </license>
-   </licenses>
-   <build>
-      <finalName>launchpad-generator</finalName>
-      <resources>
-         <resource>
-            <directory>src/main/resources</directory>
-            <filtering>false</filtering>
-         </resource>
-         <resource>
-            <directory>src/main/resources-filtered</directory>
-            <filtering>true</filtering>
-         </resource>
-      </resources>
+    <!-- SCM Properties -->
+    <obs.scm.git.connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</obs.scm.git.connection>
+    <obs.scm.dev.connection>scm:git:git@github.com:openshiftio/launchpad-addon.git</obs.scm.dev.connection>
+    <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
+    <obs.scm.tag>HEAD</obs.scm.tag>
+  </properties>
 
-      <plugins>
-         <!-- Create jandex index for faster performance -->
-         <plugin>
-            <groupId>org.jboss.jandex</groupId>
-            <artifactId>jandex-maven-plugin</artifactId>
-            <version>1.0.5</version>
-            <executions>
-               <execution>
-                  <id>make-index</id>
-                  <goals>
-                     <goal>jandex</goal>
-                  </goals>
-                  <inherited>true</inherited>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <configuration>
-               <releaseProfiles>gpg-sign,jboss-release</releaseProfiles>
-               <tagNameFormat>v@{project.version}</tagNameFormat>
-            </configuration>
-         </plugin>
-         <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.8</version>
-            <extensions>true</extensions>
-            <configuration>
-               <autoReleaseAfterClose>true</autoReleaseAfterClose>
-               <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-               <serverId>ossrh</serverId>
-            </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>create-forge-addon</id>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>jar</goal>
-                  </goals>
-                  <configuration>
-                     <classifier>forge-addon</classifier>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-      <pluginManagement>
-         <plugins>
-            <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven 
-               build itself. -->
-            <plugin>
-               <groupId>org.eclipse.m2e</groupId>
-               <artifactId>lifecycle-mapping</artifactId>
-               <version>1.0.0</version>
-               <configuration>
-                  <lifecycleMappingMetadata>
-                     <pluginExecutions>
-                        <pluginExecution>
-                           <pluginExecutionFilter>
-                              <groupId>org.jboss.jandex</groupId>
-                              <artifactId>jandex-maven-plugin</artifactId>
-                              <versionRange>[1.0.5,)</versionRange>
-                              <goals>
-                                 <goal>jandex</goal>
-                              </goals>
-                           </pluginExecutionFilter>
-                           <action>
-                              <ignore />
-                           </action>
-                        </pluginExecution>
-                     </pluginExecutions>
-                  </lifecycleMappingMetadata>
-               </configuration>
-            </plugin>
-         </plugins>
-      </pluginManagement>
-   </build>
-   <dependencies>
-      <!-- 3rd Party addons -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- Project dependencies -->
       <dependency>
-         <groupId>org.jboss.forge.furnace.container</groupId>
-         <artifactId>cdi</artifactId>
-         <classifier>forge-addon</classifier>
-         <scope>provided</scope>
+        <groupId>io.openshift.launchpad</groupId>
+        <artifactId>launchpad-addon-catalog</artifactId>
+        <version>${project.version}</version>
       </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>ui</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
+  <developers>
+    <developer>
+      <id>gastaldi</id>
+      <name>George Gastaldi</name>
+      <email>ggastald[AT]redhat[DOT]com</email>
+      <url>https://github.com/gastaldi</url>
+    </developer>
+  </developers>
 
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>maven</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>A business-friendly OSS license</comments>
+    </license>
+  </licenses>
 
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>bean-validation</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>parser-java</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>git</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>parser-yaml</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-
-      <!-- Needed to validate with MissionControl -->
-      <dependency>
-         <groupId>org.jboss.resteasy</groupId>
-         <artifactId>resteasy-client</artifactId>
-         <version>3.0.8.Final</version>
-         <exclusions>
-            <exclusion>
-               <groupId>javax.activation</groupId>
-               <artifactId>activation</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.jboss.resteasy</groupId>
-               <artifactId>jaxrs-api</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>slf4j</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>assertj</artifactId>
-         <scope>test</scope>
-         <classifier>forge-addon</classifier>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.forge.furnace.test</groupId>
-         <artifactId>furnace-test-harness</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.forge.furnace.test</groupId>
-         <artifactId>arquillian-furnace-classpath</artifactId>
-         <scope>test</scope>
-      </dependency>
-   </dependencies>
-   <dependencyManagement>
-      <dependencies>
-         <dependency>
-            <groupId>org.jboss.forge</groupId>
-            <artifactId>forge-bom</artifactId>
-            <version>${version.forge}</version>
-            <type>pom</type>
-            <scope>import</scope>
-         </dependency>
-      </dependencies>
-   </dependencyManagement>
-
-   <scm>
-      <connection>${obs.scm.git.connection}</connection>
-      <developerConnection>${obs.scm.dev.connection}</developerConnection>
-      <url>${obs.scm.url}</url>
-      <tag>${obs.scm.tag}</tag>
-   </scm>
+  <scm>
+    <connection>${obs.scm.git.connection}</connection>
+    <developerConnection>${obs.scm.dev.connection}</developerConnection>
+    <url>${obs.scm.url}</url>
+    <tag>${obs.scm.tag}</tag>
+  </scm>
 
 </project>

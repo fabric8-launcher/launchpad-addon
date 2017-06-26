@@ -7,7 +7,7 @@
 
 package io.openshift.launchpad.catalog;
 
-import static io.openshift.launchpad.Files.removeFileExtension;
+import static io.openshift.launchpad.catalog.util.Files.removeFileExtension;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,11 +45,10 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
+import io.openshift.launchpad.catalog.util.CopyFileVisitor;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.yaml.snakeyaml.Yaml;
-
-import io.openshift.launchpad.CopyFileVisitor;
 
 /**
  * This service reads from the Booster catalog Github repository in https://github.com/openshiftio/booster-catalog and
@@ -323,7 +322,7 @@ public class BoosterCatalogService
       Path modulePath = booster.getContentPath();
       return Files.walkFileTree(modulePath,
                new CopyFileVisitor(projectRoot,
-                        (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
+                                   (p) -> !EXCLUDED_PROJECT_FILES.contains(p.toFile().getName().toLowerCase())));
    }
 
    public Set<Mission> getMissions()

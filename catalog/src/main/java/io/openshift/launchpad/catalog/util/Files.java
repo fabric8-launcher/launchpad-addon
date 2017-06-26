@@ -5,7 +5,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package io.openshift.launchpad;
+package io.openshift.launchpad.catalog.util;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

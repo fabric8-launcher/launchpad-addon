@@ -25,7 +25,7 @@ public class BoosterCatalogServiceTest
 
    /**
     * Test method for
-    * {@link io.openshift.launchpad.catalog.BoosterCatalogService#processIndex(java.nio.file.Path, java.util.Map, java.util.Map)}.
+    * {@link io.openshift.launchpad.catalog.BoosterCatalogService#processMetadata(Path, Map, Map)}.
     */
    @Test
    public void testProcessIndex() throws Exception

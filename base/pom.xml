@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+    <groupId>io.openshift.launchpad</groupId>
+    <artifactId>launchpad-addon-parent</artifactId>
+    <version>7-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+   </parent>
+   <artifactId>launchpad-addon-base</artifactId>
+   <build>
+      <finalName>launchpad-generator</finalName>
+      <resources>
+         <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+         </resource>
+         <resource>
+            <directory>src/main/resources-filtered</directory>
+            <filtering>true</filtering>
+         </resource>
+      </resources>
+   </build>
+   <dependencies>
+      <dependency>
+         <groupId>io.openshift.launchpad</groupId>
+         <artifactId>launchpad-addon-catalog</artifactId>
+      </dependency>
+      <!-- 3rd Party addons -->
+      <dependency>
+         <groupId>org.jboss.forge.furnace.container</groupId>
+         <artifactId>cdi</artifactId>
+         <classifier>forge-addon</classifier>
+         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>ui</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>maven</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>bean-validation</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>parser-java</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>git</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>parser-yaml</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+
+      <!-- Needed to validate with MissionControl -->
+      <dependency>
+         <groupId>org.jboss.resteasy</groupId>
+         <artifactId>resteasy-client</artifactId>
+         <version>3.0.8.Final</version>
+         <exclusions>
+            <exclusion>
+               <groupId>javax.activation</groupId>
+               <artifactId>activation</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.spec.javax.annotation</groupId>
+               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jboss.resteasy</groupId>
+               <artifactId>jaxrs-api</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>slf4j</artifactId>
+         <classifier>forge-addon</classifier>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>assertj</artifactId>
+         <scope>test</scope>
+         <classifier>forge-addon</classifier>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.forge.furnace.test</groupId>
+         <artifactId>furnace-test-harness</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.forge.furnace.test</groupId>
+         <artifactId>arquillian-furnace-classpath</artifactId>
+         <scope>test</scope>
+      </dependency>
+   </dependencies>
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.jboss.forge</groupId>
+            <artifactId>forge-bom</artifactId>
+            <version>${version.forge}</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+</project>

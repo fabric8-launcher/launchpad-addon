@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -135,6 +136,26 @@
       </pluginManagement>
    </build>
    <dependencies>
+      <dependency>
+         <groupId>io.openshift</groupId>
+         <artifactId>booster-catalog-service</artifactId>
+         <version>1</version>
+         <exclusions>
+            <exclusion>
+               <groupId>org.yaml</groupId>
+               <artifactId>snakeyaml</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.glassfish</groupId>
+               <artifactId>javax.json</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.eclipse.jgit</groupId>
+               <artifactId>org.eclipse.jgit</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
       <!-- 3rd Party addons -->
       <dependency>
          <groupId>org.jboss.forge.furnace.container</groupId>

@@ -27,10 +27,10 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
-import io.openshift.launchpad.catalog.Booster;
-import io.openshift.launchpad.catalog.BoosterCatalogService;
-import io.openshift.launchpad.catalog.Mission;
-import io.openshift.launchpad.catalog.Runtime;
+import io.openshift.booster.catalog.Booster;
+import io.openshift.booster.catalog.BoosterCatalogService;
+import io.openshift.booster.catalog.Mission;
+import io.openshift.booster.catalog.Runtime;
 
 /**
  *

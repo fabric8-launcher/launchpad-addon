@@ -8,7 +8,11 @@
 package io.openshift.launchpad;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
+
+import org.jboss.forge.furnace.container.cdi.events.Local;
+import org.jboss.forge.furnace.event.PostStartup;
 
 import io.openshift.booster.catalog.BoosterCatalogService;
 
@@ -17,6 +21,7 @@ import io.openshift.booster.catalog.BoosterCatalogService;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
+@ApplicationScoped
 public class BoosterCatalogServiceProducer
 {
    private static final String CATALOG_GIT_REF_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REF";
@@ -25,15 +30,21 @@ public class BoosterCatalogServiceProducer
    private static final String DEFAULT_GIT_REF = "master";
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
 
-   @Produces
-   @ApplicationScoped
-   public BoosterCatalogService produceBoosterCatalogService()
+   private BoosterCatalogService boosterCatalog;
+
+   public void init(@Observes @Local PostStartup event)
    {
-      BoosterCatalogService boosterCatalog = new BoosterCatalogService.Builder()
+      this.boosterCatalog = new BoosterCatalogService.Builder()
                .catalogRepository(getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL))
                .catalogRef(getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF))
                .build();
       boosterCatalog.index();
+   }
+
+   @Produces
+   @ApplicationScoped
+   public BoosterCatalogService produceBoosterCatalogService()
+   {
       return boosterCatalog;
    }
 

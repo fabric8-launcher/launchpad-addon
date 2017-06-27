@@ -202,23 +202,9 @@
 
       <!-- Needed to validate with MissionControl -->
       <dependency>
-         <groupId>org.jboss.resteasy</groupId>
-         <artifactId>resteasy-client</artifactId>
-         <version>3.0.8.Final</version>
-         <exclusions>
-            <exclusion>
-               <groupId>javax.activation</groupId>
-               <artifactId>activation</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.jboss.spec.javax.annotation</groupId>
-               <artifactId>jboss-annotations-api_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.jboss.resteasy</groupId>
-               <artifactId>jaxrs-api</artifactId>
-            </exclusion>
-         </exclusions>
+         <groupId>org.jboss.forge.addon</groupId>
+         <artifactId>rest-client</artifactId>
+         <classifier>forge-addon</classifier>
       </dependency>
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>

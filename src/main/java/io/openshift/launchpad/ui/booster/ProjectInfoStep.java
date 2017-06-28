@@ -7,15 +7,24 @@
 
 package io.openshift.launchpad.ui.booster;
 
+import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.resource.DirectoryResource;
+import org.jboss.forge.addon.resource.FileResource;
+import org.jboss.forge.addon.resource.ResourceFactory;
+import org.jboss.forge.addon.resource.URLResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -42,6 +51,8 @@ import io.openshift.launchpad.ui.input.ProjectName;
  */
 public class ProjectInfoStep implements UIWizardStep
 {
+   private static final Logger logger = Logger.getLogger(ProjectInfoStep.class.getName());
+
    @Inject
    private BoosterCatalogService catalogService;
 
@@ -69,6 +80,9 @@ public class ProjectInfoStep implements UIWizardStep
    @Inject
    @WithAttributes(label = "Version", required = true, defaultValue = "1.0.0-SNAPSHOT")
    private UIInput<String> version;
+
+   @Inject
+   private ResourceFactory resourceFactory;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -129,6 +143,7 @@ public class ProjectInfoStep implements UIWizardStep
                .category(Categories.create("Openshift.io"));
    }
 
+   @SuppressWarnings("unchecked")
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
@@ -173,6 +188,31 @@ public class ProjectInfoStep implements UIWizardStep
          }
          modelResource.setCurrentModel(model);
       }
+
+      // Create README.adoc file
+      FileResource<?> readmeAdoc = projectDirectory.getChildOfType(FileResource.class, "README.adoc");
+      String templateUrl = String.format(
+               "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/%s-README.adoc",
+               mission.getId());
+      URLResource templateResource = resourceFactory.create(URLResource.class, new URL(templateUrl));
+      Map<String, String> values = new HashMap<>();
+      values.put("missionId", mission.getId());
+      values.put("mission", mission.getName());
+      values.put("runtimeId", runtime.getId());
+      values.put("runtime", runtime.getName());
+      values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
+      try
+      {
+         String readmeOutput = new StrSubstitutor(values).replace(templateResource.getContents());
+         readmeAdoc.setContents(readmeOutput);
+         // Delete README.md
+         projectDirectory.getChildOfType(FileResource.class, "README.md").delete();
+      }
+      catch (Exception e)
+      {
+         logger.log(Level.SEVERE, "Error while creating README.adoc", e);
+      }
+
       context.getUIContext().setSelection(projectDirectory);
       return Results.success();
    }

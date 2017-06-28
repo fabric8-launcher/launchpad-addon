@@ -52,10 +52,10 @@ public class ProjectInfoStep implements UIWizardStep
    private MissionControlValidator missionControlValidator;
 
    /**
-    * Used in LaunchpadResource TODO: Check if it should be here?
+    * Used in LaunchpadResource
     */
    @Inject
-   @WithAttributes(label = "GitHub Repository Name", note = "If empty, it will assume the project name")
+   @WithAttributes(label = "GitHub Repository", note = "If empty, it will assume the project name")
    private UIInput<String> gitHubRepositoryName;
 
    @Inject

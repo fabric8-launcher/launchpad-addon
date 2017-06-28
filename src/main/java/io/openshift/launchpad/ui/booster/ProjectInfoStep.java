@@ -136,6 +136,11 @@ public class ProjectInfoStep implements UIWizardStep
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
+
+      // Adding mission and runtime IDs to attribute map to be consumed in LaunchResource
+      attributeMap.put("missionId", mission.getId());
+      attributeMap.put("runtimeId", runtime.getId());
+
       Booster booster = catalogService.getBooster(mission, runtime).get();
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       String childDirectory = deploymentType == DeploymentType.CONTINUOUS_DELIVERY ? named.getValue()

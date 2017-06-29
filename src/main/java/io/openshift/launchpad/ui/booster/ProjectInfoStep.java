@@ -201,6 +201,10 @@ public class ProjectInfoStep implements UIWizardStep
       values.put("mission", mission.getName());
       values.put("runtimeId", runtime.getId());
       values.put("runtime", runtime.getName());
+      values.put("openShiftProject", named.getValue());
+      values.put("groupId", groupId.getValue());
+      values.put("artifactId", artifactId.getValue());
+      values.put("version", version.getValue());
       values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
       try
       {

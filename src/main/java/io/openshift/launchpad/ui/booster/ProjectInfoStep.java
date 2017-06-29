@@ -7,6 +7,7 @@
 
 package io.openshift.launchpad.ui.booster;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -210,7 +211,14 @@ public class ProjectInfoStep implements UIWizardStep
       }
       catch (Exception e)
       {
-         logger.log(Level.SEVERE, "Error while creating README.adoc", e);
+         if (e instanceof FileNotFoundException)
+         {
+            logger.log(Level.WARNING, "No README.adoc template found for " + mission.getId());
+         }
+         else
+         {
+            logger.log(Level.SEVERE, "Error while creating README.adoc", e);
+         }
       }
 
       context.getUIContext().setSelection(projectDirectory);

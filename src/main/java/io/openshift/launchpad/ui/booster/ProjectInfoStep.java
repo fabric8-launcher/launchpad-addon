@@ -85,6 +85,9 @@ public class ProjectInfoStep implements UIWizardStep
    @Inject
    private ResourceFactory resourceFactory;
 
+   private static final String TEMPLATE_URL = System.getenv().getOrDefault("LAUNCHPAD_BACKEND_README_TEMPLATE_URL",
+            "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/%s-README.adoc");
+
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
    {
@@ -192,10 +195,8 @@ public class ProjectInfoStep implements UIWizardStep
 
       // Create README.adoc file
       FileResource<?> readmeAdoc = projectDirectory.getChildOfType(FileResource.class, "README.adoc");
-      String templateUrl = String.format(
-               "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/%s-README.adoc",
-               mission.getId());
-      URLResource templateResource = resourceFactory.create(URLResource.class, new URL(templateUrl));
+      String formattedTemplateUrl = String.format(TEMPLATE_URL, mission.getId());
+      URLResource templateResource = resourceFactory.create(URLResource.class, new URL(formattedTemplateUrl));
       Map<String, String> values = new HashMap<>();
       values.put("missionId", mission.getId());
       values.put("mission", mission.getName());

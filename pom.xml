@@ -169,7 +169,7 @@
       <dependency>
          <groupId>io.openshift</groupId>
          <artifactId>booster-catalog-service</artifactId>
-         <version>2</version>
+         <version>3</version>
          <exclusions>
             <exclusion>
                <groupId>org.yaml</groupId>

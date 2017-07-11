@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.input.UIInput;
+import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
@@ -45,6 +47,7 @@ import io.openshift.booster.catalog.Booster;
 import io.openshift.booster.catalog.BoosterCatalogService;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
+import io.openshift.booster.catalog.Version;
 import io.openshift.launchpad.ReadmeProcessor;
 import io.openshift.launchpad.ui.input.ProjectName;
 
@@ -58,6 +61,10 @@ public class ProjectInfoStep implements UIWizardStep
 
    @Inject
    private BoosterCatalogService catalogService;
+
+   @Inject
+   @WithAttributes(label = "Runtime Version")
+   private UISelectOne<Version> runtimeVersion;
 
    @Inject
    private ProjectName named;
@@ -91,9 +98,9 @@ public class ProjectInfoStep implements UIWizardStep
    public void initializeUI(UIBuilder builder) throws Exception
    {
       UIContext context = builder.getUIContext();
+      Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
+      Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
       artifactId.setDefaultValue(() -> {
-         Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
-         Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
 
          String missionPrefix = (mission == null) ? "" : "-" + mission.getId();
          String runtimeSuffix = (runtime == null) ? "" : "-" + runtime.getId().replaceAll("\\.", "");
@@ -103,9 +110,17 @@ public class ProjectInfoStep implements UIWizardStep
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
       if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY)
       {
+         if (mission != null && runtime != null) {
+            Set<Version> versions = catalogService.getVersions(mission, runtime);
+            if (versions != null && !versions.isEmpty()) {
+               runtimeVersion.setValueChoices(versions);
+               runtimeVersion.setItemLabelConverter(Version::getName);
+               runtimeVersion.setDefaultValue(versions.iterator().next());
+               builder.add(runtimeVersion);
+            }
+         }
          builder.add(named).add(gitHubRepositoryName);
       }
-      Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version
@@ -165,7 +180,12 @@ public class ProjectInfoStep implements UIWizardStep
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
-      Booster booster = catalogService.getBooster(mission, runtime).get();
+      Booster booster;
+      if (runtimeVersion.getValue() != null) {
+          booster = catalogService.getBooster(mission, runtime, runtimeVersion.getValue()).get();
+      } else {
+          booster = catalogService.getBooster(mission, runtime).get();
+      }
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       String childDirectory = deploymentType == DeploymentType.CONTINUOUS_DELIVERY ? named.getValue()
                : artifactId.getValue();
@@ -237,6 +257,9 @@ public class ProjectInfoStep implements UIWizardStep
             values.put("mission", mission.getName());
             values.put("runtimeId", runtime.getId());
             values.put("runtime", runtime.getName());
+            if (runtimeVersion.getValue() != null) {
+                values.put("runtimeVersion", runtimeVersion.getValue().getKey());
+            }
             values.put("openShiftProject", named.getValue());
             values.put("groupId", groupId.getValue());
             values.put("artifactId", artifactId.getValue());

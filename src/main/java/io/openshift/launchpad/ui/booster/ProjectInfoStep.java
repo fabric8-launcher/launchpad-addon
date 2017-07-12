@@ -12,16 +12,21 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
+import org.jboss.forge.addon.parser.json.resource.JsonResource;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
 import org.jboss.forge.addon.resource.ResourceFactory;
@@ -106,7 +111,18 @@ public class ProjectInfoStep implements UIWizardStep
       {
          builder.add(named).add(gitHubRepositoryName);
       }
-      builder.add(groupId).add(artifactId).add(version);
+      Runtime runtime = (Runtime) context.getAttributeMap().get(Runtime.class);
+      if (isNodeJS(runtime))
+      {
+         // NodeJS only requires the name and version
+         artifactId.setLabel("Name");
+         version.setDefaultValue("1.0.0");
+         builder.add(artifactId).add(version);
+      }
+      else
+      {
+         builder.add(groupId).add(artifactId).add(version);
+      }
    }
 
    @Override
@@ -166,6 +182,7 @@ public class ProjectInfoStep implements UIWizardStep
       catalogService.copy(booster, projectDirectoryPath);
       // Is it a maven project?
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
+
       // Perform model changes
       if (modelResource.exists())
       {
@@ -193,6 +210,28 @@ public class ProjectInfoStep implements UIWizardStep
          modelResource.setCurrentModel(model);
       }
 
+      // If NodeJS, just change name and version
+      if (isNodeJS(runtime))
+      {
+         JsonResource packageJsonResource = projectDirectory.getChildOfType(JsonResource.class, "package.json");
+         if (packageJsonResource.exists())
+         {
+            JsonObjectBuilder job = Json.createObjectBuilder();
+            job.add("name", artifactId.getValue());
+            job.add("version", version.getValue());
+            for (Entry<String, JsonValue> entry : packageJsonResource.getJsonObject().entrySet())
+            {
+               String key = entry.getKey();
+               // Do not copy name or version
+               if (key.equals("name") || key.equals("version"))
+               {
+                  continue;
+               }
+               job.add(key, entry.getValue());
+            }
+            packageJsonResource.setContents(job.build());
+         }
+      }
       // Create README.adoc file
       FileResource<?> readmeAdoc = projectDirectory.getChildOfType(FileResource.class, "README.adoc");
       String formattedTemplateUrl = String.format(TEMPLATE_URL, mission.getId());
@@ -228,6 +267,11 @@ public class ProjectInfoStep implements UIWizardStep
 
       context.getUIContext().setSelection(projectDirectory);
       return Results.success();
+   }
+
+   private boolean isNodeJS(Runtime runtime)
+   {
+      return runtime != null && "nodejs".equals(runtime.getId());
    }
 
 }

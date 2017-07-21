@@ -9,6 +9,7 @@ package io.openshift.launchpad.ui.input;
 
 import java.util.regex.Pattern;
 
+import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 
 import org.hibernate.validator.constraints.Length;
@@ -22,6 +23,7 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
  * 
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
+@Typed(ProjectName.class)
 public class ProjectName extends AbstractUIInputDecorator<String>
 {
    private static final Pattern SPECIAL_CHARS = Pattern.compile("[-a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9]");

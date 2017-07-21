@@ -10,6 +10,7 @@ package io.openshift.launchpad;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
+import javax.inject.Singleton;
 
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
@@ -42,7 +43,7 @@ public class BoosterCatalogServiceProducer
    }
 
    @Produces
-   @ApplicationScoped
+   @Singleton
    public BoosterCatalogService produceBoosterCatalogService()
    {
       return boosterCatalog;

@@ -8,7 +8,6 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +21,12 @@ import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.parser.json.resource.JsonResource;
 import org.jboss.forge.addon.resource.DirectoryResource;
 import org.jboss.forge.addon.resource.FileResource;
-import org.jboss.forge.addon.resource.ResourceFactory;
-import org.jboss.forge.addon.resource.URLResource;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -49,6 +45,7 @@ import io.openshift.booster.catalog.Booster;
 import io.openshift.booster.catalog.BoosterCatalogService;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
+import io.openshift.launchpad.ReadmeProcessor;
 import io.openshift.launchpad.ui.input.ProjectName;
 
 /**
@@ -88,10 +85,7 @@ public class ProjectInfoStep implements UIWizardStep
    private UIInput<String> version;
 
    @Inject
-   private ResourceFactory resourceFactory;
-
-   private static final String TEMPLATE_URL = System.getenv().getOrDefault("LAUNCHPAD_BACKEND_README_TEMPLATE_URL",
-            "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/%s-README.adoc");
+   private ReadmeProcessor readmeProcessor;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -233,23 +227,22 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
       // Create README.adoc file
-      FileResource<?> readmeAdoc = projectDirectory.getChildOfType(FileResource.class, "README.adoc");
-      String formattedTemplateUrl = String.format(TEMPLATE_URL, mission.getId());
-      URLResource templateResource = resourceFactory.create(URLResource.class, new URL(formattedTemplateUrl));
-      Map<String, String> values = new HashMap<>();
-      values.put("missionId", mission.getId());
-      values.put("mission", mission.getName());
-      values.put("runtimeId", runtime.getId());
-      values.put("runtime", runtime.getName());
-      values.put("openShiftProject", named.getValue());
-      values.put("groupId", groupId.getValue());
-      values.put("artifactId", artifactId.getValue());
-      values.put("version", version.getValue());
-      values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
       try
       {
-         String readmeOutput = new StrSubstitutor(values).replace(templateResource.getContents());
-         readmeAdoc.setContents(readmeOutput);
+         String template = readmeProcessor.getReadmeTemplate(mission.getId());
+         Map<String, String> values = new HashMap<>();
+         values.put("missionId", mission.getId());
+         values.put("mission", mission.getName());
+         values.put("runtimeId", runtime.getId());
+         values.put("runtime", runtime.getName());
+         values.put("openShiftProject", named.getValue());
+         values.put("groupId", groupId.getValue());
+         values.put("artifactId", artifactId.getValue());
+         values.put("version", version.getValue());
+         values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
+         values.putAll(readmeProcessor.getRuntimeProperties(mission.getId(), runtime.getId()));
+         String readmeOutput = readmeProcessor.processTemplate(template, values);
+         projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
          // Delete README.md
          projectDirectory.getChildOfType(FileResource.class, "README.md").delete();
       }
@@ -273,5 +266,4 @@ public class ProjectInfoStep implements UIWizardStep
    {
       return runtime != null && "nodejs".equals(runtime.getId());
    }
-
 }

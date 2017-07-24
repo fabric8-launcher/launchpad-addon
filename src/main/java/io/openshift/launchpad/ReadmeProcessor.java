@@ -34,12 +34,12 @@ public class ReadmeProcessor
    private static final String README_TEMPLATE_URL = System.getProperty(README_TEMPLATE_URL_PROPERTY,
             System.getenv().getOrDefault(
                      README_TEMPLATE_URL_PROPERTY,
-                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/production/docs/topics/readme/%s-README.adoc"));
+                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/readme/%s-README.adoc"));
 
    private static final String README_PROPERTIES_URL = System.getProperty(README_PROPERTIES_URL_PROPERTY,
             System.getenv().getOrDefault(
                      README_PROPERTIES_URL_PROPERTY,
-                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/production/docs/topics/readme/%s-%s.properties"));
+                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/readme/%s-%s.properties"));
 
    URI getTemplateURI(String missionId)
    {

@@ -27,17 +27,17 @@ import org.apache.commons.lang3.text.StrSubstitutor;
 @Singleton
 public class ReadmeProcessor
 {
-   private static final String README_TEMPLATE_URL = "readme/%s-README.adoc";
-   private static final String README_PROPERTIES_URL = "readme/%s-%s.properties";
+   private static final String README_TEMPLATE_PATH = "readme/%s-README.adoc";
+   private static final String README_PROPERTIES_PATH = "readme/%s-%s.properties";
 
    URL getTemplateURL(String missionId)
    {
-      return getClass().getClassLoader().getResource(String.format(README_TEMPLATE_URL, missionId));
+      return getClass().getClassLoader().getResource(String.format(README_TEMPLATE_PATH, missionId));
    }
 
    URL getPropertiesURL(String missionId, String runtimeId)
    {
-      return getClass().getClassLoader().getResource(String.format(README_PROPERTIES_URL, missionId, runtimeId));
+      return getClass().getClassLoader().getResource(String.format(README_PROPERTIES_PATH, missionId, runtimeId));
    }
 
    public String getReadmeTemplate(String missionId) throws IOException
@@ -64,7 +64,9 @@ public class ReadmeProcessor
 
    public String processTemplate(String template, Map<String, String> values)
    {
-      return new StrSubstitutor(values).replace(template);
+      StrSubstitutor strSubstitutor = new StrSubstitutor(values);
+      strSubstitutor.setEnableSubstitutionInVariables(true);
+      return strSubstitutor.replace(template);
    }
 
    private String loadContents(URL url) throws IOException

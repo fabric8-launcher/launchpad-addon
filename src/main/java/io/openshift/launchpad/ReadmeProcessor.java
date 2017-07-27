@@ -11,7 +11,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -28,32 +27,22 @@ import org.apache.commons.lang3.text.StrSubstitutor;
 @Singleton
 public class ReadmeProcessor
 {
-   static final String README_PROPERTIES_URL_PROPERTY = "LAUNCHPAD_BACKEND_README_PROPERTIES_URL";
-   static final String README_TEMPLATE_URL_PROPERTY = "LAUNCHPAD_BACKEND_README_TEMPLATE_URL";
+   private static final String README_TEMPLATE_URL = "readme/%s-README.adoc";
+   private static final String README_PROPERTIES_URL = "readme/%s-%s.properties";
 
-   private static final String README_TEMPLATE_URL = System.getProperty(README_TEMPLATE_URL_PROPERTY,
-            System.getenv().getOrDefault(
-                     README_TEMPLATE_URL_PROPERTY,
-                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/readme/%s-README.adoc"));
-
-   private static final String README_PROPERTIES_URL = System.getProperty(README_PROPERTIES_URL_PROPERTY,
-            System.getenv().getOrDefault(
-                     README_PROPERTIES_URL_PROPERTY,
-                     "https://raw.githubusercontent.com/openshiftio/appdev-documentation/master/docs/topics/readme/%s-%s.properties"));
-
-   URI getTemplateURI(String missionId)
+   URL getTemplateURL(String missionId)
    {
-      return URI.create(String.format(README_TEMPLATE_URL, missionId));
+      return getClass().getClassLoader().getResource(String.format(README_TEMPLATE_URL, missionId));
    }
 
-   URI getPropertiesURI(String missionId, String runtimeId)
+   URL getPropertiesURL(String missionId, String runtimeId)
    {
-      return URI.create(String.format(README_PROPERTIES_URL, missionId, runtimeId));
+      return getClass().getClassLoader().getResource(String.format(README_PROPERTIES_URL, missionId, runtimeId));
    }
 
    public String getReadmeTemplate(String missionId) throws IOException
    {
-      URL url = getTemplateURI(missionId).toURL();
+      URL url = getTemplateURL(missionId);
       return loadContents(url);
    }
 
@@ -63,7 +52,7 @@ public class ReadmeProcessor
       Properties props = new Properties();
       try
       {
-         props.load(getPropertiesURI(mission, runtimeId).toURL().openStream());
+         props.load(getPropertiesURL(mission, runtimeId).openStream());
       }
       catch (IOException io)
       {

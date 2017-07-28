@@ -41,7 +41,6 @@
       </license>
    </licenses>
    <build>
-      <finalName>launchpad-generator</finalName>
       <resources>
          <resource>
             <directory>src/main/resources</directory>

@@ -230,21 +230,24 @@ public class ProjectInfoStep implements UIWizardStep
       try
       {
          String template = readmeProcessor.getReadmeTemplate(mission.getId());
-         Map<String, String> values = new HashMap<>();
-         values.put("missionId", mission.getId());
-         values.put("mission", mission.getName());
-         values.put("runtimeId", runtime.getId());
-         values.put("runtime", runtime.getName());
-         values.put("openShiftProject", named.getValue());
-         values.put("groupId", groupId.getValue());
-         values.put("artifactId", artifactId.getValue());
-         values.put("version", version.getValue());
-         values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
-         values.putAll(readmeProcessor.getRuntimeProperties(mission.getId(), runtime.getId()));
-         String readmeOutput = readmeProcessor.processTemplate(template, values);
-         projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
-         // Delete README.md
-         projectDirectory.getChildOfType(FileResource.class, "README.md").delete();
+         if (template != null)
+         {
+            Map<String, String> values = new HashMap<>();
+            values.put("missionId", mission.getId());
+            values.put("mission", mission.getName());
+            values.put("runtimeId", runtime.getId());
+            values.put("runtime", runtime.getName());
+            values.put("openShiftProject", named.getValue());
+            values.put("groupId", groupId.getValue());
+            values.put("artifactId", artifactId.getValue());
+            values.put("version", version.getValue());
+            values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
+            values.putAll(readmeProcessor.getRuntimeProperties(mission.getId(), runtime.getId()));
+            String readmeOutput = readmeProcessor.processTemplate(template, values);
+            projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
+            // Delete README.md
+            projectDirectory.getChildOfType(FileResource.class, "README.md").delete();
+         }
       }
       catch (Exception e)
       {

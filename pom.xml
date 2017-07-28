@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.jboss</groupId>
@@ -9,7 +8,7 @@
    </parent>
    <groupId>io.openshift.launchpad</groupId>
    <artifactId>launchpad-addon</artifactId>
-   <version>9-SNAPSHOT</version>
+   <version>9</version>
    <properties>
       <version.forge>3.7.2.Final</version.forge>
 
@@ -157,7 +156,7 @@
                               </goals>
                            </pluginExecutionFilter>
                            <action>
-                              <ignore></ignore>
+                              <ignore />
                            </action>
                         </pluginExecution>
                      </pluginExecutions>
@@ -282,7 +281,7 @@
       <connection>${obs.scm.git.connection}</connection>
       <developerConnection>${obs.scm.dev.connection}</developerConnection>
       <url>${obs.scm.url}</url>
-      <tag>${obs.scm.tag}</tag>
+      <tag>v9</tag>
    </scm>
 
 </project>

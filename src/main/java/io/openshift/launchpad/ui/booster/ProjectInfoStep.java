@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -204,6 +205,16 @@ public class ProjectInfoStep implements UIWizardStep
          model.setGroupId(groupId.getValue());
          model.setArtifactId(artifactId.getValue());
          model.setVersion(version.getValue());
+         
+         Properties props = model.getProperties();
+         props.setProperty("launch.mission", mission.getId());
+         props.setProperty("launch.runtime", runtime.getId());
+         if (runtimeVersion.getValue() != null) {
+             props.setProperty("launch.version", runtimeVersion.getValue().getId());
+         }
+         if (booster.getBuildProfile() != null) {
+             props.setProperty("launch.buildProfile", booster.getBuildProfile());
+         }
 
          // Change child modules
          for (String module : model.getModules())

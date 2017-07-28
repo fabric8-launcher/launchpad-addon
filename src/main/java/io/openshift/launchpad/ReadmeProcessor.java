@@ -43,7 +43,7 @@ public class ReadmeProcessor
    public String getReadmeTemplate(String missionId) throws IOException
    {
       URL url = getTemplateURL(missionId);
-      return loadContents(url);
+      return url == null ? null : loadContents(url);
    }
 
    @SuppressWarnings("all")
@@ -52,7 +52,9 @@ public class ReadmeProcessor
       Properties props = new Properties();
       try
       {
-         props.load(getPropertiesURL(mission, runtimeId).openStream());
+         URL url = getPropertiesURL(mission, runtimeId);
+         if (url != null)
+            props.load(url.openStream());
       }
       catch (IOException io)
       {

@@ -11,16 +11,11 @@
    <version>10-SNAPSHOT</version>
    <properties>
       <version.forge>3.7.2.Final</version.forge>
+      <version.booster-catalog-service>3</version.booster-catalog-service>
 
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-      <!-- SCM Properties -->
-      <obs.scm.git.connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</obs.scm.git.connection>
-      <obs.scm.dev.connection>scm:git:git@github.com:openshiftio/launchpad-addon.git</obs.scm.dev.connection>
-      <obs.scm.url>http://github.com/openshiftio/launchpad-addon</obs.scm.url>
-      <obs.scm.tag>HEAD</obs.scm.tag>
    </properties>
 
    <developers>
@@ -53,7 +48,6 @@
       </resources>
 
       <plugins>
-         <!-- Create jandex index for faster performance -->
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
@@ -73,6 +67,7 @@
                </arguments>
             </configuration>
          </plugin>
+         <!-- Create jandex index for faster performance -->
          <plugin>
             <groupId>org.jboss.jandex</groupId>
             <artifactId>jandex-maven-plugin</artifactId>
@@ -169,7 +164,7 @@
       <dependency>
          <groupId>io.openshift</groupId>
          <artifactId>booster-catalog-service</artifactId>
-         <version>3</version>
+         <version>${version.booster-catalog-service}</version>
          <exclusions>
             <exclusion>
                <groupId>org.yaml</groupId>
@@ -277,10 +272,9 @@
    </dependencyManagement>
 
    <scm>
-      <connection>${obs.scm.git.connection}</connection>
-      <developerConnection>${obs.scm.dev.connection}</developerConnection>
-      <url>${obs.scm.url}</url>
-      <tag>${obs.scm.tag}</tag>
+      <connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</connection>
+      <developerConnection>scm:git:git@github.com:openshiftio/launchpad-addon.git</developerConnection>
+      <url>http://github.com/openshiftio/launchpad-addon</url>
    </scm>
 
 </project>

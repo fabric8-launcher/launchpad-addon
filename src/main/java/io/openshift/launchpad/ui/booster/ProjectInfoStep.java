@@ -115,7 +115,10 @@ public class ProjectInfoStep implements UIWizardStep
             Set<Version> versions = catalogService.getVersions(mission, runtime);
             if (versions != null && !versions.isEmpty()) {
                runtimeVersion.setValueChoices(versions);
-               runtimeVersion.setItemLabelConverter(Version::getName);
+               runtimeVersion.setItemLabelConverter((v) -> {
+                   Booster booster = catalogService.getBooster(mission, runtime, v).get();
+                   return booster.runtimeVersionName(v.getKey());
+               });
                runtimeVersion.setDefaultValue(versions.iterator().next());
                builder.add(runtimeVersion);
             }

@@ -111,9 +111,11 @@ public class ProjectInfoStep implements UIWizardStep
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
       if (deploymentType == DeploymentType.CD)
       {
-         if (mission != null && runtime != null) {
+         if (mission != null && runtime != null)
+         {
             Set<Version> versions = catalogService.getVersions(mission, runtime);
-            if (versions != null && !versions.isEmpty()) {
+            if (versions != null && !versions.isEmpty())
+            {
                runtimeVersion.setValueChoices(versions);
                runtimeVersion.setItemLabelConverter(Version::getName);
                runtimeVersion.setDefaultValue(versions.iterator().next());
@@ -182,10 +184,13 @@ public class ProjectInfoStep implements UIWizardStep
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
       Booster booster;
-      if (runtimeVersion.getValue() != null) {
-          booster = catalogService.getBooster(mission, runtime, runtimeVersion.getValue()).get();
-      } else {
-          booster = catalogService.getBooster(mission, runtime).get();
+      if (runtimeVersion.getValue() != null)
+      {
+         booster = catalogService.getBooster(mission, runtime, runtimeVersion.getValue()).get();
+      }
+      else
+      {
+         booster = catalogService.getBooster(mission, runtime).get();
       }
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
       String childDirectory = deploymentType == DeploymentType.CD ? named.getValue()
@@ -205,15 +210,17 @@ public class ProjectInfoStep implements UIWizardStep
          model.setGroupId(groupId.getValue());
          model.setArtifactId(artifactId.getValue());
          model.setVersion(version.getValue());
-         
+
          Properties props = model.getProperties();
          props.setProperty("launch.mission", mission.getId());
          props.setProperty("launch.runtime", runtime.getId());
-         if (runtimeVersion.getValue() != null) {
-             props.setProperty("launch.version", runtimeVersion.getValue().getId());
+         if (runtimeVersion.getValue() != null)
+         {
+            props.setProperty("launch.version", runtimeVersion.getValue().getId());
          }
-         if (booster.getBuildProfile() != null) {
-             props.setProperty("launch.buildProfile", booster.getBuildProfile());
+         if (booster.getBuildProfile() != null)
+         {
+            props.setProperty("launch.buildProfile", booster.getBuildProfile());
          }
 
          // Change child modules
@@ -260,7 +267,7 @@ public class ProjectInfoStep implements UIWizardStep
       // Create README.adoc file
       try
       {
-         String template = readmeProcessor.getReadmeTemplate(mission.getId());
+         String template = readmeProcessor.getReadmeTemplate(mission);
          if (template != null)
          {
             Map<String, String> values = new HashMap<>();
@@ -268,15 +275,20 @@ public class ProjectInfoStep implements UIWizardStep
             values.put("mission", mission.getName());
             values.put("runtimeId", runtime.getId());
             values.put("runtime", runtime.getName());
-            if (runtimeVersion.getValue() != null) {
-                values.put("runtimeVersion", runtimeVersion.getValue().getKey());
+            if (runtimeVersion.getValue() != null)
+            {
+               values.put("runtimeVersion", runtimeVersion.getValue().getKey());
+            }
+            else
+            {
+               values.put("runtimeVersion", "");
             }
             values.put("openShiftProject", named.getValue());
             values.put("groupId", groupId.getValue());
             values.put("artifactId", artifactId.getValue());
             values.put("version", version.getValue());
             values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
-            values.putAll(readmeProcessor.getRuntimeProperties(mission.getId(), runtime.getId()));
+            values.putAll(readmeProcessor.getRuntimeProperties(deploymentType, mission, runtime));
             String readmeOutput = readmeProcessor.processTemplate(template, values);
             projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
             // Delete README.md

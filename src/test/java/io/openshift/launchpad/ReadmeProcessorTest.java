@@ -16,6 +16,10 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openshift.booster.catalog.Mission;
+import io.openshift.booster.catalog.Runtime;
+import io.openshift.launchpad.ui.booster.DeploymentType;
+
 /**
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
@@ -36,19 +40,37 @@ public class ReadmeProcessorTest
    public void testReadmeTemplate() throws IOException
    {
       ReadmeProcessor processor = new ReadmeProcessor();
-      String readmeTemplate = processor.getReadmeTemplate("crud");
+      String readmeTemplate = processor.getReadmeTemplate(new Mission("crud"));
       assertThat(readmeTemplate).contains("${mission} - ${runtime} Booster");
    }
 
    @Test
-   public void testReadmeWithPropertiesReplaced() throws IOException
+   public void testReadmeWithPropertiesReplacedCD() throws IOException
    {
       ReadmeProcessor processor = new ReadmeProcessor();
-      String template = processor.getReadmeTemplate("configmap");
+      String template = processor.getReadmeTemplate(new Mission("rest-http"));
       Map<String, String> values = new HashMap<>();
-      values.put("mission", "configmap");
+      values.put("mission", "rest-http");
       values.put("runtime", "spring-boot");
-      values.putAll(processor.getRuntimeProperties("configmap", "spring-boot"));
+      values.putAll(
+               processor.getRuntimeProperties(DeploymentType.CD, new Mission("rest-http"), new Runtime("spring-boot")));
+      String finalDoc = processor.processTemplate(template, values);
+      assertThat(finalDoc).doesNotContain("${mission} - ${runtime} Booster")
+               .doesNotContain("${localRunCMD}")
+               .contains(values.get("localRunCMD"));
+   }
+
+   @Test
+   public void testReadmeWithPropertiesReplacedZip() throws IOException
+   {
+      ReadmeProcessor processor = new ReadmeProcessor();
+      String template = processor.getReadmeTemplate(new Mission("rest-http"));
+      Map<String, String> values = new HashMap<>();
+      values.put("mission", "rest-http");
+      values.put("runtime", "spring-boot");
+      values.putAll(
+               processor.getRuntimeProperties(DeploymentType.ZIP, new Mission("rest-http"),
+                        new Runtime("spring-boot")));
       String finalDoc = processor.processTemplate(template, values);
       assertThat(finalDoc).doesNotContain("${mission} - ${runtime} Booster")
                .doesNotContain("${localRunCMD}")

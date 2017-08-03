@@ -19,6 +19,10 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
 
+import io.openshift.booster.catalog.Mission;
+import io.openshift.booster.catalog.Runtime;
+import io.openshift.launchpad.ui.booster.DeploymentType;
+
 /**
  * Reads the contents from the appdev-documentation repository
  *
@@ -28,31 +32,32 @@ import org.apache.commons.lang3.text.StrSubstitutor;
 public class ReadmeProcessor
 {
    private static final String README_TEMPLATE_PATH = "readme/%s-README.adoc";
-   private static final String README_PROPERTIES_PATH = "readme/%s-%s.properties";
+   private static final String README_PROPERTIES_PATH = "readme/%s-%s-%s.properties";
 
    URL getTemplateURL(String missionId)
    {
       return getClass().getClassLoader().getResource(String.format(README_TEMPLATE_PATH, missionId));
    }
 
-   URL getPropertiesURL(String missionId, String runtimeId)
+   URL getPropertiesURL(String deploymentType, String missionId, String runtimeId)
    {
-      return getClass().getClassLoader().getResource(String.format(README_PROPERTIES_PATH, missionId, runtimeId));
+      return getClass().getClassLoader().getResource(
+               String.format(README_PROPERTIES_PATH, deploymentType, missionId, runtimeId));
    }
 
-   public String getReadmeTemplate(String missionId) throws IOException
+   public String getReadmeTemplate(Mission mission) throws IOException
    {
-      URL url = getTemplateURL(missionId);
+      URL url = getTemplateURL(mission.getId());
       return url == null ? null : loadContents(url);
    }
 
    @SuppressWarnings("all")
-   public Map<String, String> getRuntimeProperties(String mission, String runtimeId)
+   public Map<String, String> getRuntimeProperties(DeploymentType deploymentType, Mission mission, Runtime runtime)
    {
       Properties props = new Properties();
       try
       {
-         URL url = getPropertiesURL(mission, runtimeId);
+         URL url = getPropertiesURL(deploymentType.name().toLowerCase(), mission.getId(), runtime.getId());
          if (url != null)
             props.load(url.openStream());
       }

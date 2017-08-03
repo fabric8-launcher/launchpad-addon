@@ -31,7 +31,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 public class ChooseDeploymentTypeStep implements UIWizardStep
 {
    @Inject
-   @WithAttributes(label = "Deployment type", type = InputType.RADIO, required = true, defaultValue = "CONTINUOUS_DELIVERY")
+   @WithAttributes(label = "Deployment type", type = InputType.RADIO, required = true, defaultValue = "CD")
    private UISelectOne<DeploymentType> deploymentType;
 
    @Override

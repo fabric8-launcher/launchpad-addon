@@ -109,7 +109,7 @@ public class ProjectInfoStep implements UIWizardStep
          return "booster" + missionPrefix + runtimeSuffix;
       });
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY)
+      if (deploymentType == DeploymentType.CD)
       {
          if (mission != null && runtime != null) {
             Set<Version> versions = catalogService.getVersions(mission, runtime);
@@ -146,7 +146,7 @@ public class ProjectInfoStep implements UIWizardStep
       }
       DeploymentType deploymentType = (DeploymentType) uiContext.getAttributeMap()
                .get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CONTINUOUS_DELIVERY
+      if (deploymentType == DeploymentType.CD
                && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
       {
          if (missionControlValidator.validateOpenShiftTokenExists(context))
@@ -188,7 +188,7 @@ public class ProjectInfoStep implements UIWizardStep
           booster = catalogService.getBooster(mission, runtime).get();
       }
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      String childDirectory = deploymentType == DeploymentType.CONTINUOUS_DELIVERY ? named.getValue()
+      String childDirectory = deploymentType == DeploymentType.CD ? named.getValue()
                : artifactId.getValue();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
       projectDirectory.mkdirs();

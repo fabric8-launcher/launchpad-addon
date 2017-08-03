@@ -16,7 +16,7 @@ public enum DeploymentType
    /**
     * Deploy in Openshift
     */
-   CONTINUOUS_DELIVERY("Continuous delivery"),
+   CD("Continuous delivery"),
    /**
     * Deploy as a ZIP file
     */

@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,8 +22,10 @@ import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 
+import org.apache.maven.model.Activation;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
+import org.apache.maven.model.Profile;
 import org.jboss.forge.addon.maven.resources.MavenModelResource;
 import org.jboss.forge.addon.parser.json.resource.JsonResource;
 import org.jboss.forge.addon.resource.DirectoryResource;
@@ -210,19 +211,27 @@ public class ProjectInfoStep implements UIWizardStep
          model.setGroupId(groupId.getValue());
          model.setArtifactId(artifactId.getValue());
          model.setVersion(version.getValue());
-
-         Properties props = model.getProperties();
-         props.setProperty("launch.mission", mission.getId());
-         props.setProperty("launch.runtime", runtime.getId());
-         if (runtimeVersion.getValue() != null)
-         {
-            props.setProperty("launch.version", runtimeVersion.getValue().getId());
+         
+         String profileId = null;
+         if (runtimeVersion.getValue() != null) {
+             profileId = runtimeVersion.getValue().getId();
          }
-         if (booster.getBuildProfile() != null)
-         {
-            props.setProperty("launch.buildProfile", booster.getBuildProfile());
+         if (booster.getBuildProfile() != null) {
+             profileId = booster.getBuildProfile();
          }
-
+         if (profileId != null) {
+             // Set the corresponding profile as active
+             for (Profile p : model.getProfiles()) {
+                 boolean isActive = profileId.equals(p.getId());
+                 Activation act = p.getActivation();
+                 if (act == null) {
+                     act = new Activation();
+                     p.setActivation(act);
+                 }
+                 act.setActiveByDefault(isActive);
+             }
+         }
+         
          // Change child modules
          for (String module : model.getModules())
          {

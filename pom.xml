@@ -8,7 +8,7 @@
    </parent>
    <groupId>io.openshift.launchpad</groupId>
    <artifactId>launchpad-addon</artifactId>
-   <version>10-SNAPSHOT</version>
+   <version>10</version>
    <properties>
       <version.forge>3.7.2.Final</version.forge>
       <version.booster-catalog-service>5</version.booster-catalog-service>
@@ -275,6 +275,7 @@
       <connection>scm:git:git://github.com/openshiftio/launchpad-addon.git</connection>
       <developerConnection>scm:git:git@github.com:openshiftio/launchpad-addon.git</developerConnection>
       <url>http://github.com/openshiftio/launchpad-addon</url>
-   </scm>
+     <tag>v10</tag>
+  </scm>
 
 </project>

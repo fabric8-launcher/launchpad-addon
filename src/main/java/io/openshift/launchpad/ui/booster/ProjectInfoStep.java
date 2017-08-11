@@ -109,20 +109,20 @@ public class ProjectInfoStep implements UIWizardStep
 
          return "booster" + missionPrefix + runtimeSuffix;
       });
+      if (mission != null && runtime != null)
+      {
+         Set<Version> versions = catalogService.getVersions(mission, runtime);
+         if (versions != null && !versions.isEmpty())
+         {
+            runtimeVersion.setValueChoices(versions);
+            runtimeVersion.setItemLabelConverter(Version::getName);
+            runtimeVersion.setDefaultValue(versions.iterator().next());
+            builder.add(runtimeVersion);
+         }
+      }
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
       if (deploymentType == DeploymentType.CD)
       {
-         if (mission != null && runtime != null)
-         {
-            Set<Version> versions = catalogService.getVersions(mission, runtime);
-            if (versions != null && !versions.isEmpty())
-            {
-               runtimeVersion.setValueChoices(versions);
-               runtimeVersion.setItemLabelConverter(Version::getName);
-               runtimeVersion.setDefaultValue(versions.iterator().next());
-               builder.add(runtimeVersion);
-            }
-         }
          builder.add(named).add(gitHubRepositoryName);
       }
       if (isNodeJS(runtime))

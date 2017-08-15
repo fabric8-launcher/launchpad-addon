@@ -44,7 +44,7 @@ public class NewProjectWizard implements UIWizard
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
-      return Results.navigateTo(ChooseDeploymentTypeStep.class);
+      return Results.navigateTo(ChooseMissionStep.class);
    }
 
    @Override

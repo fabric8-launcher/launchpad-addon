@@ -39,10 +39,10 @@ public class ReadmeProcessor
       return getClass().getClassLoader().getResource(String.format(README_TEMPLATE_PATH, missionId));
    }
 
-   URL getPropertiesURL(String deploymentType, String missionId, String runtimeId)
+   URL getPropertiesURL(String missionId, String runtimeId)
    {
       return getClass().getClassLoader().getResource(
-               String.format(README_PROPERTIES_PATH, deploymentType, missionId, runtimeId));
+               String.format(README_PROPERTIES_PATH, "zip", missionId, runtimeId));
    }
 
    public String getReadmeTemplate(Mission mission) throws IOException
@@ -52,12 +52,12 @@ public class ReadmeProcessor
    }
 
    @SuppressWarnings("all")
-   public Map<String, String> getRuntimeProperties(DeploymentType deploymentType, Mission mission, Runtime runtime)
+   public Map<String, String> getRuntimeProperties(Mission mission, Runtime runtime)
    {
       Properties props = new Properties();
       try
       {
-         URL url = getPropertiesURL(deploymentType.name().toLowerCase(), mission.getId(), runtime.getId());
+         URL url = getPropertiesURL(mission.getId(), runtime.getId());
          if (url != null)
             props.load(url.openStream());
       }

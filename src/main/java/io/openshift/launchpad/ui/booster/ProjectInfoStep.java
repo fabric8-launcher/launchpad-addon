@@ -71,9 +71,6 @@ public class ProjectInfoStep implements UIWizardStep
    @Inject
    private ProjectName named;
 
-   @Inject
-   private MissionControlValidator missionControlValidator;
-
    /**
     * Used in LaunchpadResource
     */
@@ -120,11 +117,6 @@ public class ProjectInfoStep implements UIWizardStep
             builder.add(runtimeVersion);
          }
       }
-      DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD)
-      {
-         builder.add(named).add(gitHubRepositoryName);
-      }
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version
@@ -135,36 +127,6 @@ public class ProjectInfoStep implements UIWizardStep
       else
       {
          builder.add(groupId).add(artifactId).add(version);
-      }
-   }
-
-   @Override
-   public void validate(UIValidationContext context)
-   {
-      UIContext uiContext = context.getUIContext();
-      if ("next".equals(uiContext.getAttributeMap().get("action")))
-      {
-         // Do not validate again if next() was called
-         return;
-      }
-      DeploymentType deploymentType = (DeploymentType) uiContext.getAttributeMap()
-               .get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD
-               && System.getenv("LAUNCHPAD_MISSION_CONTROL_VALIDATION_SKIP") == null)
-      {
-         if (missionControlValidator.validateOpenShiftTokenExists(context))
-         {
-            missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
-         }
-         if (missionControlValidator.validateGitHubTokenExists(context))
-         {
-            String repository = gitHubRepositoryName.getValue();
-            if (Strings.isNullOrEmpty(repository))
-            {
-               repository = named.getValue();
-            }
-            missionControlValidator.validateGitHubRepositoryExists(context, repository);
-         }
       }
    }
 
@@ -183,7 +145,6 @@ public class ProjectInfoStep implements UIWizardStep
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
-      DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
       Booster booster;
       if (runtimeVersion.getValue() != null)
       {
@@ -194,9 +155,7 @@ public class ProjectInfoStep implements UIWizardStep
          booster = catalogService.getBooster(mission, runtime).get();
       }
       DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
-      String childDirectory = deploymentType == DeploymentType.CD ? named.getValue()
-               : artifactId.getValue();
-      DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
+      DirectoryResource projectDirectory = initialDir.getChildDirectory(artifactId.getValue());
       projectDirectory.mkdirs();
       Path projectDirectoryPath = projectDirectory.getUnderlyingResourceObject().toPath();
       // Copy contents
@@ -297,7 +256,7 @@ public class ProjectInfoStep implements UIWizardStep
             values.put("artifactId", artifactId.getValue());
             values.put("version", version.getValue());
             values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
-            values.putAll(readmeProcessor.getRuntimeProperties(deploymentType, mission, runtime));
+            values.putAll(readmeProcessor.getRuntimeProperties(mission, runtime));
             String readmeOutput = readmeProcessor.processTemplate(template, values);
             projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
             // Delete README.md

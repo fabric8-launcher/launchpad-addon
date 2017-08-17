@@ -25,8 +25,8 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
-import io.openshift.booster.catalog.BoosterCatalogService;
 import io.openshift.booster.catalog.Mission;
+import io.openshift.launchpad.BoosterCatalogServiceFactory;
 
 /**
  *
@@ -39,7 +39,7 @@ public class ChooseMissionStep implements UIWizardStep
    private UISelectOne<Mission> mission;
 
    @Inject
-   private BoosterCatalogService catalogService;
+   private BoosterCatalogServiceFactory catalogServiceFactory;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -53,7 +53,7 @@ public class ChooseMissionStep implements UIWizardStep
       {
          mission.setItemLabelConverter(Mission::getId);
       }
-      mission.setValueChoices(catalogService.getMissions());
+      mission.setValueChoices(catalogServiceFactory.getCatalogService(builder.getUIContext()).getMissions());
       mission.setDefaultValue(() -> {
          Iterator<Mission> iterator = mission.getValueChoices().iterator();
          return (iterator.hasNext()) ? iterator.next() : null;

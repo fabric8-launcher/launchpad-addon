@@ -50,6 +50,7 @@ import io.openshift.booster.catalog.BoosterCatalogService;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
 import io.openshift.booster.catalog.Version;
+import io.openshift.launchpad.BoosterCatalogServiceFactory;
 import io.openshift.launchpad.ReadmeProcessor;
 import io.openshift.launchpad.ui.input.ProjectName;
 
@@ -62,7 +63,7 @@ public class ProjectInfoStep implements UIWizardStep
    private static final Logger logger = Logger.getLogger(ProjectInfoStep.class.getName());
 
    @Inject
-   private BoosterCatalogService catalogService;
+   private BoosterCatalogServiceFactory catalogServiceFactory;
 
    @Inject
    @WithAttributes(label = "Runtime Version")
@@ -111,7 +112,7 @@ public class ProjectInfoStep implements UIWizardStep
       });
       if (mission != null && runtime != null)
       {
-         Set<Version> versions = catalogService.getVersions(mission, runtime);
+         Set<Version> versions = catalogServiceFactory.getCatalogService(context).getVersions(mission, runtime);
          if (versions != null && !versions.isEmpty())
          {
             runtimeVersion.setValueChoices(versions);
@@ -180,20 +181,23 @@ public class ProjectInfoStep implements UIWizardStep
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      UIContext uiContext = context.getUIContext();
+      BoosterCatalogService catalogService = catalogServiceFactory.getCatalogService(uiContext);
+      Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
       Booster booster;
       if (runtimeVersion.getValue() != null)
       {
-         booster = catalogService.getBooster(mission, runtime, runtimeVersion.getValue()).get();
+         booster = catalogService
+                  .getBooster(mission, runtime, runtimeVersion.getValue()).get();
       }
       else
       {
          booster = catalogService.getBooster(mission, runtime).get();
       }
-      DirectoryResource initialDir = (DirectoryResource) context.getUIContext().getInitialSelection().get();
+      DirectoryResource initialDir = (DirectoryResource) uiContext.getInitialSelection().get();
       String childDirectory = deploymentType == DeploymentType.CD ? named.getValue()
                : artifactId.getValue();
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
@@ -211,27 +215,32 @@ public class ProjectInfoStep implements UIWizardStep
          model.setGroupId(groupId.getValue());
          model.setArtifactId(artifactId.getValue());
          model.setVersion(version.getValue());
-         
+
          String profileId = null;
-         if (runtimeVersion.getValue() != null) {
-             profileId = runtimeVersion.getValue().getId();
+         if (runtimeVersion.getValue() != null)
+         {
+            profileId = runtimeVersion.getValue().getId();
          }
-         if (booster.getBuildProfile() != null) {
-             profileId = booster.getBuildProfile();
+         if (booster.getBuildProfile() != null)
+         {
+            profileId = booster.getBuildProfile();
          }
-         if (profileId != null) {
-             // Set the corresponding profile as active
-             for (Profile p : model.getProfiles()) {
-                 boolean isActive = profileId.equals(p.getId());
-                 Activation act = p.getActivation();
-                 if (act == null) {
-                     act = new Activation();
-                     p.setActivation(act);
-                 }
-                 act.setActiveByDefault(isActive);
-             }
+         if (profileId != null)
+         {
+            // Set the corresponding profile as active
+            for (Profile p : model.getProfiles())
+            {
+               boolean isActive = profileId.equals(p.getId());
+               Activation act = p.getActivation();
+               if (act == null)
+               {
+                  act = new Activation();
+                  p.setActivation(act);
+               }
+               act.setActiveByDefault(isActive);
+            }
          }
-         
+
          // Change child modules
          for (String module : model.getModules())
          {
@@ -316,7 +325,7 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
 
-      context.getUIContext().setSelection(projectDirectory);
+      uiContext.setSelection(projectDirectory);
       return Results.success();
    }
 

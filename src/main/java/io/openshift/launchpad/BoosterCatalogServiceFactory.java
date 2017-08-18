@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
@@ -39,6 +41,9 @@ public class BoosterCatalogServiceFactory
    private BoosterCatalogService defaultBoosterCatalog;
 
    private Map<CatalogServiceKey, BoosterCatalogService> cache = new ConcurrentHashMap<>();
+
+   @Resource
+   private ManagedExecutorService async;
 
    public void init(@Observes @Local PostStartup event)
    {
@@ -73,6 +78,7 @@ public class BoosterCatalogServiceFactory
                   BoosterCatalogService service = new BoosterCatalogService.Builder()
                            .catalogRepository(key.getCatalogUrl())
                            .catalogRef(key.getCatalogRef())
+                           .executor(async)
                            .build();
                   service.index();
                   return service;

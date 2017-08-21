@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 rm -rf target/tmpdir
 mkdir -p target/tmpdir

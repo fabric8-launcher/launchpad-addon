@@ -49,7 +49,7 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
    public NavigationResult next(UINavigationContext context) throws Exception
    {
       context.getUIContext().getAttributeMap().put(DeploymentType.class, deploymentType.getValue());
-      return Results.navigateTo(ChooseMissionStep.class);
+      return null;
    }
 
    @Override

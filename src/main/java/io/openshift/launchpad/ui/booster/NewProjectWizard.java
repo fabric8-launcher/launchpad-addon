@@ -22,6 +22,7 @@ import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizard;
@@ -44,7 +45,12 @@ public class NewProjectWizard implements UIWizard
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
-      return Results.navigateTo(ChooseDeploymentTypeStep.class);
+      NavigationResultBuilder builder = NavigationResultBuilder.create();
+      builder.add(ChooseDeploymentTypeStep.class)
+               .add(ChooseMissionStep.class)
+               .add(ChooseRuntimeStep.class)
+               .add(ProjectInfoStep.class);
+      return builder.build();
    }
 
    @Override

@@ -65,7 +65,7 @@ public class ChooseMissionStep implements UIWizardStep
    public NavigationResult next(UINavigationContext context) throws Exception
    {
       context.getUIContext().getAttributeMap().put(Mission.class, mission.getValue());
-      return Results.navigateTo(ChooseRuntimeStep.class);
+      return null;
    }
 
    @Override

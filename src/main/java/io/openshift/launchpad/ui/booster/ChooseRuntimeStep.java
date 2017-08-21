@@ -98,7 +98,7 @@ public class ChooseRuntimeStep implements UIWizardStep
    public NavigationResult next(UINavigationContext context) throws Exception
    {
       context.getUIContext().getAttributeMap().put(Runtime.class, runtime.getValue());
-      return Results.navigateTo(ProjectInfoStep.class);
+      return null;
    }
 
    @Override

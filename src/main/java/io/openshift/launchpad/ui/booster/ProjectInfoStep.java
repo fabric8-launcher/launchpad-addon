@@ -122,10 +122,7 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD)
-      {
-         builder.add(named).add(gitHubRepositoryName);
-      }
+      addDeploymentProperties(builder, deploymentType);
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version
@@ -136,6 +133,14 @@ public class ProjectInfoStep implements UIWizardStep
       else
       {
          builder.add(groupId).add(artifactId).add(version);
+      }
+   }
+
+   protected void addDeploymentProperties(UIBuilder builder, DeploymentType deploymentType)
+   {
+      if (deploymentType == DeploymentType.CD)
+      {
+         builder.add(named).add(gitHubRepositoryName);
       }
    }
 
@@ -327,6 +332,16 @@ public class ProjectInfoStep implements UIWizardStep
 
       uiContext.setSelection(projectDirectory);
       return Results.success();
+   }
+
+   protected ProjectName getNamed()
+   {
+      return named;
+   }
+
+   protected UIInput<String> getGitHubRepositoryName()
+   {
+      return gitHubRepositoryName;
    }
 
    private boolean isNodeJS(Runtime runtime)

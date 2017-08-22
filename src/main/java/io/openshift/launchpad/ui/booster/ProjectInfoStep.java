@@ -128,12 +128,32 @@ public class ProjectInfoStep implements UIWizardStep
          // NodeJS only requires the name and version
          artifactId.setLabel("Name");
          version.setDefaultValue("1.0.0");
-         builder.add(artifactId).add(version);
+         if (isShowArtifactId())
+         {
+            builder.add(artifactId);
+         }
+         builder.add(version);
       }
       else
       {
-         builder.add(groupId).add(artifactId).add(version);
+         builder.add(groupId);
+         if (isShowArtifactId())
+         {
+            builder.add(artifactId);
+         }
+         builder.add(version);
       }
+   }
+
+   /**
+    * Strategy method allowing derived classes to use custom logic to decide if we should show or hide the
+    * artifactID
+    *
+    * @return true if we should show it
+    */
+   protected boolean isShowArtifactId()
+   {
+      return true;
    }
 
    protected void addDeploymentProperties(UIBuilder builder, DeploymentType deploymentType)
@@ -164,15 +184,12 @@ public class ProjectInfoStep implements UIWizardStep
          }
          if (missionControlValidator.validateGitHubTokenExists(context))
          {
-            String repository = gitHubRepositoryName.getValue();
-            if (Strings.isNullOrEmpty(repository))
-            {
-               repository = named.getValue();
-            }
+            String repository = getGithubRepositoryNameValue();
             missionControlValidator.validateGitHubRepositoryExists(context, repository);
          }
       }
    }
+
 
    @Override
    public UICommandMetadata getMetadata(UIContext context)
@@ -203,8 +220,13 @@ public class ProjectInfoStep implements UIWizardStep
          booster = catalogService.getBooster(mission, runtime).get();
       }
       DirectoryResource initialDir = (DirectoryResource) uiContext.getInitialSelection().get();
-      String childDirectory = deploymentType == DeploymentType.CD ? named.getValue()
-               : artifactId.getValue();
+      String projectName = named.getValue();
+      String artifactIdValue = artifactId.getValue();
+      if (Strings.isNullOrEmpty(artifactIdValue)) {
+         artifactIdValue = projectName;
+      }
+      String childDirectory = deploymentType == DeploymentType.CD ? projectName
+               : artifactIdValue;
       DirectoryResource projectDirectory = initialDir.getChildDirectory(childDirectory);
       projectDirectory.mkdirs();
       Path projectDirectoryPath = projectDirectory.getUnderlyingResourceObject().toPath();
@@ -218,7 +240,7 @@ public class ProjectInfoStep implements UIWizardStep
       {
          Model model = modelResource.getCurrentModel();
          model.setGroupId(groupId.getValue());
-         model.setArtifactId(artifactId.getValue());
+         model.setArtifactId(artifactIdValue);
          model.setVersion(version.getValue());
 
          String profileId = null;
@@ -272,7 +294,7 @@ public class ProjectInfoStep implements UIWizardStep
          if (packageJsonResource.exists())
          {
             JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("name", artifactId.getValue());
+            job.add("name", artifactIdValue);
             job.add("version", version.getValue());
             for (Entry<String, JsonValue> entry : packageJsonResource.getJsonObject().entrySet())
             {
@@ -306,11 +328,11 @@ public class ProjectInfoStep implements UIWizardStep
             {
                values.put("runtimeVersion", "");
             }
-            values.put("openShiftProject", named.getValue());
+            values.put("openShiftProject", projectName);
             values.put("groupId", groupId.getValue());
-            values.put("artifactId", artifactId.getValue());
+            values.put("artifactId", artifactIdValue);
             values.put("version", version.getValue());
-            values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), named.getValue()));
+            values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), projectName));
             values.putAll(readmeProcessor.getRuntimeProperties(deploymentType, mission, runtime));
             String readmeOutput = readmeProcessor.processTemplate(template, values);
             projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
@@ -344,6 +366,17 @@ public class ProjectInfoStep implements UIWizardStep
       return gitHubRepositoryName;
    }
 
+
+   protected String getGithubRepositoryNameValue()
+   {
+      String repository = gitHubRepositoryName.getValue();
+      if (Strings.isNullOrEmpty(repository))
+      {
+         repository = named.getValue();
+      }
+      return repository;
+   }
+   
    private boolean isNodeJS(Runtime runtime)
    {
       return runtime != null && "nodejs".equals(runtime.getId());

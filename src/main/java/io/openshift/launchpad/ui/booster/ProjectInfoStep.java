@@ -358,8 +358,13 @@ public class ProjectInfoStep implements UIWizardStep
 
    protected String getReadmeTemplate(Mission mission) throws IOException
    {
-      String template = readmeProcessor.getReadmeTemplate(mission);
+      String template = getReadmeProcessor().getReadmeTemplate(mission);
       return template;
+   }
+
+   protected ReadmeProcessor getReadmeProcessor()
+   {
+      return readmeProcessor;
    }
 
    protected ProjectName getNamed()

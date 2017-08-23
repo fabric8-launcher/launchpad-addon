@@ -8,6 +8,7 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,8 +147,7 @@ public class ProjectInfoStep implements UIWizardStep
    }
 
    /**
-    * Strategy method allowing derived classes to use custom logic to decide if we should show or hide the
-    * artifactID
+    * Strategy method allowing derived classes to use custom logic to decide if we should show or hide the artifactID
     *
     * @return true if we should show it
     */
@@ -190,7 +190,6 @@ public class ProjectInfoStep implements UIWizardStep
       }
    }
 
-
    @Override
    public UICommandMetadata getMetadata(UIContext context)
    {
@@ -222,7 +221,8 @@ public class ProjectInfoStep implements UIWizardStep
       DirectoryResource initialDir = (DirectoryResource) uiContext.getInitialSelection().get();
       String projectName = named.getValue();
       String artifactIdValue = artifactId.getValue();
-      if (Strings.isNullOrEmpty(artifactIdValue)) {
+      if (Strings.isNullOrEmpty(artifactIdValue))
+      {
          artifactIdValue = projectName;
       }
       String childDirectory = deploymentType == DeploymentType.CD ? projectName
@@ -312,7 +312,7 @@ public class ProjectInfoStep implements UIWizardStep
       // Create README.adoc file
       try
       {
-         String template = readmeProcessor.getReadmeTemplate(mission);
+         String template = getReadmeTemplate(mission);
          if (template != null)
          {
             Map<String, String> values = new HashMap<>();
@@ -356,6 +356,12 @@ public class ProjectInfoStep implements UIWizardStep
       return Results.success();
    }
 
+   protected String getReadmeTemplate(Mission mission) throws IOException
+   {
+      String template = readmeProcessor.getReadmeTemplate(mission);
+      return template;
+   }
+
    protected ProjectName getNamed()
    {
       return named;
@@ -366,7 +372,6 @@ public class ProjectInfoStep implements UIWizardStep
       return gitHubRepositoryName;
    }
 
-
    protected String getGithubRepositoryNameValue()
    {
       String repository = gitHubRepositoryName.getValue();
@@ -376,7 +381,7 @@ public class ProjectInfoStep implements UIWizardStep
       }
       return repository;
    }
-   
+
    private boolean isNodeJS(Runtime runtime)
    {
       return runtime != null && "nodejs".equals(runtime.getId());

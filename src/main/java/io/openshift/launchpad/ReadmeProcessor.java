@@ -45,6 +45,16 @@ public class ReadmeProcessor
                String.format(README_PROPERTIES_PATH, deploymentType, missionId, runtimeId));
    }
 
+   public String getReadmeTemplate(String prefix, Mission mission) throws IOException
+   {
+      if (prefix == null)
+      {
+         return getReadmeTemplate(mission);
+      }
+      URL url = getTemplateURL(prefix + "-" + mission.getId());
+      return url == null ? null : loadContents(url);
+   }
+
    public String getReadmeTemplate(Mission mission) throws IOException
    {
       URL url = getTemplateURL(mission.getId());

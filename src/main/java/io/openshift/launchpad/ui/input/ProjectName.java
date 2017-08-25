@@ -29,7 +29,7 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    private static final Pattern SPECIAL_CHARS = Pattern.compile("[-a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9]");
 
    @Inject
-   @WithAttributes(label = "OpenShift Project name", required = true)
+   @WithAttributes(label = "OpenShift Project name", required = true, defaultValue="MyApp")
    @UnwrapValidatedValue
    @Length(min = 1, max = 24)
    private UIInput<String> named;

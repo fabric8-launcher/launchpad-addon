@@ -20,7 +20,11 @@ public enum DeploymentType
    /**
     * Deploy as a ZIP file
     */
-   ZIP("ZIP File");
+   ZIP("ZIP File"),
+   /**
+    * Deploy on Openshift.io (not used in launch)
+    */
+   OSIO("Openshift.io");
 
    private String description;
 

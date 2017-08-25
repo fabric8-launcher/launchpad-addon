@@ -333,8 +333,8 @@ public class ProjectInfoStep implements UIWizardStep
             values.put("artifactId", artifactIdValue);
             values.put("version", version.getValue());
             values.put("targetRepository", Objects.toString(gitHubRepositoryName.getValue(), projectName));
-            values.putAll(readmeProcessor.getRuntimeProperties(deploymentType, mission, runtime));
-            String readmeOutput = readmeProcessor.processTemplate(template, values);
+            values.putAll(getRuntimeProperties(deploymentType, mission, runtime));
+            String readmeOutput = getReadmeProcessor().processTemplate(template, values);
             projectDirectory.getChildOfType(FileResource.class, "README.adoc").setContents(readmeOutput);
             // Delete README.md
             projectDirectory.getChildOfType(FileResource.class, "README.md").delete();
@@ -354,6 +354,11 @@ public class ProjectInfoStep implements UIWizardStep
 
       uiContext.setSelection(projectDirectory);
       return Results.success();
+   }
+
+   protected Map<String, String> getRuntimeProperties(DeploymentType deploymentType, Mission mission, Runtime runtime)
+   {
+      return getReadmeProcessor().getRuntimeProperties(deploymentType, mission, runtime);
    }
 
    protected String getReadmeTemplate(Mission mission) throws IOException

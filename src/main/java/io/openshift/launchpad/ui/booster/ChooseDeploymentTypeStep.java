@@ -7,6 +7,8 @@
 
 package io.openshift.launchpad.ui.booster;
 
+import java.util.EnumSet;
+
 import javax.inject.Inject;
 
 import org.jboss.forge.addon.ui.context.UIBuilder;
@@ -42,6 +44,7 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
       {
          deploymentType.setItemLabelConverter(DeploymentType::getDescription);
       }
+      deploymentType.setValueChoices(EnumSet.of(DeploymentType.CD, DeploymentType.ZIP));
       builder.add(deploymentType);
    }
 

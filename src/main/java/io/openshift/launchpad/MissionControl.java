@@ -10,12 +10,16 @@ package io.openshift.launchpad;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.function.Function;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
@@ -33,6 +37,7 @@ public class MissionControl
    public static final String VALIDATION_MESSAGE_OK = "OK";
 
    private final URI missionControlValidationURI;
+   private final URI missionControlOpenShiftURI;
 
    public MissionControl()
    {
@@ -46,6 +51,9 @@ public class MissionControl
                System.getenv(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT));
       missionControlValidationURI = UriBuilder.fromPath("/api/validate").host(host).scheme("http")
                .port(port != null ? Integer.parseInt(port) : 80).build();
+      missionControlOpenShiftURI = UriBuilder.fromPath("/api/openshift").host(host).scheme("http")
+               .port(port != null ? Integer.parseInt(port) : 80).build();
+
    }
 
    /**
@@ -195,6 +203,18 @@ public class MissionControl
       return validationMessage;
    }
 
+   public List<String> getOpenShiftClusters(String authHeader)
+   {
+      URI targetURI = UriBuilder.fromUri(missionControlOpenShiftURI).path("/clusters").build();
+      return perform(client -> client
+               .target(targetURI)
+               .request(MediaType.APPLICATION_JSON_TYPE)
+               .header(HttpHeaders.AUTHORIZATION, authHeader)
+               .get().readEntity(new GenericType<List<String>>()
+               {
+               }));
+   }
+
    private Throwable rootException(Exception e)
    {
       Throwable root = e;
@@ -207,14 +227,18 @@ public class MissionControl
 
    private int head(URI targetURI, String authHeader) throws ProcessingException
    {
+      return perform(client -> client.target(targetURI).request()
+               .header(HttpHeaders.AUTHORIZATION, authHeader)
+               .head().getStatus());
+   }
+
+   private <T> T perform(Function<Client, T> request)
+   {
       Client client = null;
       try
       {
          client = ClientBuilder.newClient();
-         Response response = client.target(targetURI).request()
-                  .header(HttpHeaders.AUTHORIZATION, authHeader)
-                  .head();
-         return response.getStatus();
+         return request.apply(client);
       }
       finally
       {
@@ -223,5 +247,7 @@ public class MissionControl
             client.close();
          }
       }
+
    }
+
 }

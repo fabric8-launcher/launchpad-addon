@@ -11,7 +11,7 @@
    <version>14-SNAPSHOT</version>
    <properties>
       <version.forge>3.7.2.Final</version.forge>
-      <version.booster-catalog-service>5</version.booster-catalog-service>
+      <version.booster-catalog-service>6</version.booster-catalog-service>
 
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>
@@ -174,10 +174,6 @@
                <groupId>org.glassfish</groupId>
                <artifactId>javax.json</artifactId>
             </exclusion>
-            <exclusion>
-               <groupId>org.eclipse.jgit</groupId>
-               <artifactId>org.eclipse.jgit</artifactId>
-            </exclusion>
          </exclusions>
       </dependency>
 
@@ -210,12 +206,6 @@
       <dependency>
          <groupId>org.jboss.forge.addon</groupId>
          <artifactId>parser-java</artifactId>
-         <classifier>forge-addon</classifier>
-      </dependency>
-
-      <dependency>
-         <groupId>org.jboss.forge.addon</groupId>
-         <artifactId>git</artifactId>
          <classifier>forge-addon</classifier>
       </dependency>
 

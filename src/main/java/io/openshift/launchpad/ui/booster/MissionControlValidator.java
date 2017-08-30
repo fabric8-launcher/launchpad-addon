@@ -86,13 +86,13 @@ public class MissionControlValidator
       }
    }
 
-   public void validateOpenShiftProjectExists(UIValidationContext context, String project)
+   public void validateOpenShiftProjectExists(UIValidationContext context, String project, String cluster)
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       String validationMessage = (String) attributeMap.computeIfAbsent("validate_project_" + project, key -> {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
          String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
-         return missionControlFacade.validateOpenShiftProjectExists(authHeader, project);
+         return missionControlFacade.validateOpenShiftProjectExists(authHeader, project, cluster);
       });
       if (validationMessage != null && !MissionControl.VALIDATION_MESSAGE_OK.equals(validationMessage))
       {

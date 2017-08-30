@@ -96,7 +96,7 @@ public class MissionControlValidator
       });
       if (validationMessage != null && !MissionControl.VALIDATION_MESSAGE_OK.equals(validationMessage))
       {
-         context.addValidationError(context.getCurrentInputComponent(), validationMessage);
+         context.addValidationWarning(context.getCurrentInputComponent(), validationMessage);
       }
    }
 }

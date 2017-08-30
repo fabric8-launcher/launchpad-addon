@@ -62,12 +62,17 @@ public class MissionControl
     * @param project
     * @return a validation message, returns {@link #VALIDATION_MESSAGE_OK} if the project does not exist
     */
-   public String validateOpenShiftProjectExists(String authHeader, String project)
+   public String validateOpenShiftProjectExists(String authHeader, String project, String cluster)
    {
       String validationMessage;
       try
       {
-         URI targetURI = UriBuilder.fromUri(missionControlValidationURI).path("/project/" + project).build();
+         UriBuilder builder = UriBuilder.fromUri(missionControlValidationURI).path("/project/" + project);
+         if (cluster != null)
+         {
+            builder.queryParam("cluster", cluster);
+         }
+         URI targetURI = builder.build();
          if (head(targetURI, authHeader) == Response.Status.OK.getStatusCode())
          {
             validationMessage = "OpenShift Project '" + project + "' already exists";

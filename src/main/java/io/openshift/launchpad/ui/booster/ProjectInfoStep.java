@@ -189,7 +189,8 @@ public class ProjectInfoStep implements UIWizardStep
       {
          if (missionControlValidator.validateOpenShiftTokenExists(context, openShiftCluster.getValue()))
          {
-            missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
+            missionControlValidator.validateOpenShiftProjectExists(context, named.getValue(),
+                     openShiftCluster.getValue());
          }
          if (missionControlValidator.validateGitHubTokenExists(context))
          {

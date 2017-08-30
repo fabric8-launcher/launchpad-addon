@@ -56,13 +56,13 @@ public class MissionControlValidator
       return true;
    }
 
-   public boolean validateOpenShiftTokenExists(UIValidationContext context)
+   public boolean validateOpenShiftTokenExists(UIValidationContext context, String cluster)
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       String validationMessage = (String) attributeMap.computeIfAbsent("token_openshift_exists", key -> {
          List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
          String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
-         return missionControlFacade.validateOpenShiftTokenExists(authHeader);
+         return missionControlFacade.validateOpenShiftTokenExists(authHeader, cluster);
       });
       if (validationMessage != null && !MissionControl.VALIDATION_MESSAGE_OK.equals(validationMessage))
       {

@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.function.Function;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -39,21 +40,19 @@ public class MissionControl
    private final URI missionControlValidationURI;
    private final URI missionControlOpenShiftURI;
 
+   @Inject
    public MissionControl()
    {
-      String host = System.getProperty(LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST,
-               System.getenv(LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST));
-      if (host == null)
-      {
-         host = "mission-control";
-      }
-      String port = System.getProperty(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT,
-               System.getenv(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT));
-      missionControlValidationURI = UriBuilder.fromPath("/api/validate").host(host).scheme("http")
-               .port(port != null ? Integer.parseInt(port) : 80).build();
-      missionControlOpenShiftURI = UriBuilder.fromPath("/api/openshift").host(host).scheme("http")
-               .port(port != null ? Integer.parseInt(port) : 80).build();
+      this(getEnvVarOrSysProp(LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST, "mission-control"),
+               Integer.parseInt(getEnvVarOrSysProp(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT, "80")));
+   }
 
+   public MissionControl(String host, int port)
+   {
+      missionControlValidationURI = UriBuilder.fromPath("/api/validate").host(host).scheme("http")
+               .port(port).build();
+      missionControlOpenShiftURI = UriBuilder.fromPath("/api/openshift").host(host).scheme("http")
+               .port(port).build();
    }
 
    /**
@@ -133,12 +132,17 @@ public class MissionControl
       return validationMessage;
    }
 
-   public String validateOpenShiftTokenExists(String authHeader)
+   public String validateOpenShiftTokenExists(String authHeader, String cluster)
    {
       String validationMessage;
       try
       {
-         URI targetURI = UriBuilder.fromUri(missionControlValidationURI).path("/token/openshift").build();
+         UriBuilder builder = UriBuilder.fromUri(missionControlValidationURI).path("/token/openshift");
+         if (cluster != null)
+         {
+            builder.queryParam("cluster", cluster);
+         }
+         URI targetURI = builder.build();
          if (head(targetURI, authHeader) == Response.Status.OK.getStatusCode())
          {
             validationMessage = VALIDATION_MESSAGE_OK;
@@ -242,6 +246,11 @@ public class MissionControl
                .head().getStatus());
    }
 
+   private static String getEnvVarOrSysProp(String name, String defaultValue)
+   {
+      return System.getProperty(name, System.getenv().getOrDefault(name, defaultValue));
+   }
+
    private <T> T perform(Function<Client, T> request)
    {
       Client client = null;
@@ -257,7 +266,6 @@ public class MissionControl
             client.close();
          }
       }
-
    }
 
 }

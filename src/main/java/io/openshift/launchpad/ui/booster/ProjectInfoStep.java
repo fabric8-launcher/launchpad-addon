@@ -187,7 +187,7 @@ public class ProjectInfoStep implements UIWizardStep
                .get(DeploymentType.class);
       if (deploymentType == DeploymentType.CD)
       {
-         if (missionControlValidator.validateOpenShiftTokenExists(context))
+         if (missionControlValidator.validateOpenShiftTokenExists(context, openShiftCluster.getValue()))
          {
             missionControlValidator.validateOpenShiftProjectExists(context, named.getValue());
          }

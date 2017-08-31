@@ -168,7 +168,7 @@ public class ProjectInfoStep implements UIWizardStep
               builder.add(projectNames);
           }
 
-          if (isShowOpenShiftClusters())
+         if (isShowOpenShiftClusters())
          {
             List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(builder.getUIContext());
             openShiftCluster.setValueChoices(openShiftClusters);

@@ -82,9 +82,6 @@ public class ProjectInfoStep implements UIWizardStep
    @Inject
    private MissionControlValidator missionControlValidator;
 
-   @Inject
-   private ProjectList projectList;
-
    /**
     * Used in LaunchpadResource
     */
@@ -163,7 +160,7 @@ public class ProjectInfoStep implements UIWizardStep
    {
       if (deploymentType == DeploymentType.CD)
       {
-          List<String> projects = projectList.getProjects(builder.getUIContext());
+          List<String> projects = missionControlValidator.getProjects(builder.getUIContext());
           if (projects.isEmpty()) {
               builder.add(named);
           } else {

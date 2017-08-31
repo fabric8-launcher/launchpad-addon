@@ -76,7 +76,14 @@ public class ProjectInfoStep implements UIWizardStep
    private ProjectName named;
 
    @Inject
+   @WithAttributes(label = "Select Project", required = true)
+   private UISelectOne<String> projectNames;
+
+   @Inject
    private MissionControlValidator missionControlValidator;
+
+   @Inject
+   private ProjectList projectList;
 
    /**
     * Used in LaunchpadResource
@@ -129,7 +136,17 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      addDeploymentProperties(builder, deploymentType);
+      if (deploymentType == DeploymentType.CD)
+      {
+         List<String> projects = projectList.getProjects(context);
+         if (projects.isEmpty()) {
+            builder.add(named);
+         } else {
+            projectNames.setValueChoices(projects);
+            builder.add(projectNames);
+         }
+         builder.add(gitHubRepositoryName);
+      }
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version

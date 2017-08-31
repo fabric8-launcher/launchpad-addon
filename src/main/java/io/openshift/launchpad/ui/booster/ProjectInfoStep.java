@@ -157,9 +157,8 @@ public class ProjectInfoStep implements UIWizardStep
    {
       if (deploymentType == DeploymentType.CD)
       {
-         List<String> projects = missionControlValidator.getProjects(builder.getUIContext());
+         named.setCompleter(Completers.fromValues(missionControlValidator.getProjects(builder.getUIContext()));
          builder.add(named);
-         named.setCompleter(Completers.fromValues(projects));
 
          if (isShowOpenShiftClusters())
          {

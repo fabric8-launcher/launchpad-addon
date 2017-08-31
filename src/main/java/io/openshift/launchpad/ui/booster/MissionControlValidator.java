@@ -43,9 +43,11 @@ public class MissionControlValidator
    public List<String> getProjects(UIContext context)
    {
       Map<Object, Object> attributeMap = context.getAttributeMap();
-      List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
-      String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
-      return missionControlFacade.getProjects(authHeader);
+      return (List<String>) attributeMap.computeIfAbsent("projects", key -> {
+         List<String> authList = (List<String>) attributeMap.get(HttpHeaders.AUTHORIZATION);
+         String authHeader = (authList == null || authList.isEmpty()) ? null : authList.get(0);
+         return missionControlFacade.getProjects(authHeader);
+      });
    }
 
    public boolean validateGitHubTokenExists(UIValidationContext context)

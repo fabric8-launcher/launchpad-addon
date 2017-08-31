@@ -136,17 +136,7 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD)
-      {
-         List<String> projects = projectList.getProjects(context);
-         if (projects.isEmpty()) {
-            builder.add(named);
-         } else {
-            projectNames.setValueChoices(projects);
-            builder.add(projectNames);
-         }
-         builder.add(gitHubRepositoryName);
-      }
+      addDeploymentProperties(builder, deploymentType);
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version
@@ -173,8 +163,15 @@ public class ProjectInfoStep implements UIWizardStep
    {
       if (deploymentType == DeploymentType.CD)
       {
-         builder.add(named);
-         if (isShowOpenShiftClusters())
+          List<String> projects = projectList.getProjects(builder.getUIContext());
+          if (projects.isEmpty()) {
+              builder.add(named);
+          } else {
+              projectNames.setValueChoices(projects);
+              builder.add(projectNames);
+          }
+
+          if (isShowOpenShiftClusters())
          {
             List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(builder.getUIContext());
             openShiftCluster.setValueChoices(openShiftClusters);

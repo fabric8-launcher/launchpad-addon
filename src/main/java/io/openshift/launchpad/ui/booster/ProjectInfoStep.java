@@ -44,6 +44,7 @@ import org.jboss.forge.addon.ui.metadata.WithAttributes;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
 import org.jboss.forge.addon.ui.util.Categories;
+import org.jboss.forge.addon.ui.util.Completers;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.furnace.util.Strings;
@@ -74,10 +75,6 @@ public class ProjectInfoStep implements UIWizardStep
 
    @Inject
    private ProjectName named;
-
-   @Inject
-   @WithAttributes(label = "Select Project", required = true)
-   private UISelectOne<String> projectNames;
 
    @Inject
    private MissionControlValidator missionControlValidator;
@@ -160,13 +157,9 @@ public class ProjectInfoStep implements UIWizardStep
    {
       if (deploymentType == DeploymentType.CD)
       {
-          List<String> projects = missionControlValidator.getProjects(builder.getUIContext());
-          if (projects.isEmpty()) {
-              builder.add(named);
-          } else {
-              projectNames.setValueChoices(projects);
-              builder.add(projectNames);
-          }
+         List<String> projects = missionControlValidator.getProjects(builder.getUIContext());
+         builder.add(named);
+         named.setCompleter(Completers.fromValues(projects));
 
          if (isShowOpenShiftClusters())
          {

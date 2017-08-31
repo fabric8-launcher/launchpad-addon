@@ -215,6 +215,16 @@ public class MissionControl
                }));
    }
 
+   public List<String> getProjects(String authHeader)
+   {
+      URI targetURI = UriBuilder.fromUri(missionControlValidationURI).path("/projects").build();
+      return perform(client -> client
+              .target(targetURI)
+              .request(MediaType.APPLICATION_JSON_TYPE)
+              .header(HttpHeaders.AUTHORIZATION, authHeader)
+              .get().readEntity(new GenericType<List<String>>(){}));
+   }
+
    private Throwable rootException(Exception e)
    {
       Throwable root = e;

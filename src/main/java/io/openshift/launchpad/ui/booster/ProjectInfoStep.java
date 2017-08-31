@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -74,7 +75,14 @@ public class ProjectInfoStep implements UIWizardStep
    private ProjectName named;
 
    @Inject
+   @WithAttributes(label = "Select Project", required = true)
+   private UISelectOne<String> projectNames;
+
+   @Inject
    private MissionControlValidator missionControlValidator;
+
+   @Inject
+   private ProjectList projectList;
 
    /**
     * Used in LaunchpadResource
@@ -123,7 +131,17 @@ public class ProjectInfoStep implements UIWizardStep
          }
       }
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
-      addDeploymentProperties(builder, deploymentType);
+      if (deploymentType == DeploymentType.CD)
+      {
+         List<String> projects = projectList.getProjects(context);
+         if (projects.isEmpty()) {
+            builder.add(named);
+         } else {
+            projectNames.setValueChoices(projects);
+            builder.add(projectNames);
+         }
+         builder.add(gitHubRepositoryName);
+      }
       if (isNodeJS(runtime))
       {
          // NodeJS only requires the name and version
@@ -154,14 +172,6 @@ public class ProjectInfoStep implements UIWizardStep
    protected boolean isShowArtifactId()
    {
       return true;
-   }
-
-   protected void addDeploymentProperties(UIBuilder builder, DeploymentType deploymentType)
-   {
-      if (deploymentType == DeploymentType.CD)
-      {
-         builder.add(named).add(gitHubRepositoryName);
-      }
    }
 
    @Override

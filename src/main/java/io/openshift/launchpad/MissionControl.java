@@ -226,12 +226,14 @@ public class MissionControl
 
    public List<String> getProjects(String authHeader)
    {
-      URI targetURI = UriBuilder.fromUri(missionControlValidationURI).path("/projects").build();
+      URI targetURI = UriBuilder.fromUri(missionControlOpenShiftURI).path("/projects").build();
       return perform(client -> client
-              .target(targetURI)
-              .request(MediaType.APPLICATION_JSON_TYPE)
-              .header(HttpHeaders.AUTHORIZATION, authHeader)
-              .get().readEntity(new GenericType<List<String>>(){}));
+               .target(targetURI)
+               .request(MediaType.APPLICATION_JSON_TYPE)
+               .header(HttpHeaders.AUTHORIZATION, authHeader)
+               .get().readEntity(new GenericType<List<String>>()
+               {
+               }));
    }
 
    private Throwable rootException(Exception e)

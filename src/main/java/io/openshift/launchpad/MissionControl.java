@@ -224,9 +224,14 @@ public class MissionControl
                }));
    }
 
-   public List<String> getProjects(String authHeader)
+   public List<String> getProjects(String authHeader, String cluster)
    {
-      URI targetURI = UriBuilder.fromUri(missionControlOpenShiftURI).path("/projects").build();
+      UriBuilder builder = UriBuilder.fromUri(missionControlOpenShiftURI).path("/projects");
+      if (cluster != null)
+      {
+         builder.queryParam("cluster", cluster);
+      }
+      URI targetURI = builder.build();
       return perform(client -> client
                .target(targetURI)
                .request(MediaType.APPLICATION_JSON_TYPE)

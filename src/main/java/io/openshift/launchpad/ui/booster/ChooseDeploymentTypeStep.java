@@ -8,6 +8,8 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -33,8 +35,15 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 public class ChooseDeploymentTypeStep implements UIWizardStep
 {
    @Inject
-   @WithAttributes(label = "Deployment type", type = InputType.RADIO, required = true, defaultValue = "CD")
+   @WithAttributes(label = "Deployment type", type = InputType.RADIO, required = true)
    private UISelectOne<DeploymentType> deploymentType;
+
+   @Inject
+   @WithAttributes(label = "OpenShift Cluster", required = true)
+   private UISelectOne<String> openShiftCluster;
+
+   @Inject
+   private MissionControlValidator missionControlValidator;
 
    @Override
    public void initializeUI(UIBuilder builder) throws Exception
@@ -46,12 +55,24 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
       }
       deploymentType.setValueChoices(EnumSet.of(DeploymentType.CD, DeploymentType.ZIP));
       builder.add(deploymentType);
+      List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(builder.getUIContext());
+      openShiftCluster.setValueChoices(openShiftClusters);
+      if (openShiftClusters.size() > 0)
+      {
+         openShiftCluster.setDefaultValue(openShiftClusters.get(0));
+         if (openShiftClusters.size() > 1)
+         {
+            builder.add(openShiftCluster);
+         }
+      }
    }
 
    @Override
    public NavigationResult next(UINavigationContext context) throws Exception
    {
-      context.getUIContext().getAttributeMap().put(DeploymentType.class, deploymentType.getValue());
+      Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
+      attributeMap.put(DeploymentType.class, deploymentType.getValue());
+      attributeMap.put("OPENSHIFT_CLUSTER", openShiftCluster.getValue());
       return null;
    }
 

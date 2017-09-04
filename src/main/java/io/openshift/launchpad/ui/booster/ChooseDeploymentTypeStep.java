@@ -17,6 +17,7 @@ import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.context.UINavigationContext;
+import org.jboss.forge.addon.ui.context.UIValidationContext;
 import org.jboss.forge.addon.ui.hints.InputType;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
@@ -64,6 +65,16 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
          {
             builder.add(openShiftCluster);
          }
+      }
+   }
+
+   @Override
+   public void validate(UIValidationContext context)
+   {
+      List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(context.getUIContext());
+      if (openShiftClusters.isEmpty())
+      {
+         context.addValidationError(null, "No OpenShift token assigned");
       }
    }
 

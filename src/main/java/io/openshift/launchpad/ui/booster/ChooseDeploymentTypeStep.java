@@ -73,8 +73,7 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
    {
       if (deploymentType.getValue() == DeploymentType.CD)
       {
-         List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(context.getUIContext());
-         if (openShiftClusters.isEmpty())
+         if (!openShiftCluster.getValueChoices().iterator().hasNext())
          {
             context.addValidationError(null, "No OpenShift token assigned");
          }

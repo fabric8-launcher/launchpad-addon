@@ -44,7 +44,7 @@ public class MissionControl
    public MissionControl()
    {
       this(getEnvVarOrSysProp(LAUNCHPAD_MISSIONCONTROL_SERVICE_HOST, "mission-control"),
-               Integer.parseInt(getEnvVarOrSysProp(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT, "80")));
+               Integer.parseInt(getEnvVarOrSysProp(LAUNCHPAD_MISSIONCONTROL_SERVICE_PORT, "8080")));
    }
 
    public MissionControl(String host, int port)

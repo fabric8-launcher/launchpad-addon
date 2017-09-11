@@ -22,6 +22,7 @@ import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.furnace.container.cdi.events.Local;
 import org.jboss.forge.furnace.event.PostStartup;
 
+import io.openshift.booster.catalog.BoosterCatalog;
 import io.openshift.booster.catalog.BoosterCatalogService;
 
 /**
@@ -30,7 +31,7 @@ import io.openshift.booster.catalog.BoosterCatalogService;
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
 @ApplicationScoped
-public class BoosterCatalogServiceFactory
+public class BoosterCatalogFactory
 {
    public static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REPOSITORY";
    public static final String CATALOG_GIT_REF_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REF";
@@ -38,7 +39,7 @@ public class BoosterCatalogServiceFactory
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
    private static final String DEFAULT_GIT_REF = "next";
 
-   private BoosterCatalogService defaultBoosterCatalog;
+   private BoosterCatalog defaultBoosterCatalog;
 
    private Map<CatalogServiceKey, BoosterCatalogService> cache = new ConcurrentHashMap<>();
 
@@ -47,21 +48,21 @@ public class BoosterCatalogServiceFactory
 
    public void init(@Observes @Local PostStartup event)
    {
-      defaultBoosterCatalog = getCatalogService(
+      defaultBoosterCatalog = getCatalog(
                getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL),
                getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF));
    }
 
-   public BoosterCatalogService getCatalogService(UIContext context)
+   public BoosterCatalog getCatalog(UIContext context)
    {
       Map<Object, Object> attributeMap = context.getAttributeMap();
       String catalogUrl = (String) attributeMap.get(CATALOG_GIT_REPOSITORY_PROPERTY_NAME);
       String catalogRef = (String) attributeMap.get(CATALOG_GIT_REF_PROPERTY_NAME);
       if (catalogUrl == null || catalogRef == null)
       {
-         return getDefaultBoosterCatalogService();
+         return getDefaultCatalog();
       }
-      return getCatalogService(catalogUrl, catalogRef);
+      return getCatalog(catalogUrl, catalogRef);
    }
 
    /**
@@ -69,7 +70,7 @@ public class BoosterCatalogServiceFactory
     * @param catalogRef the Git ref to use. Assumes {@link #DEFAULT_GIT_REF} if <code>null</code>
     * @return the {@link BoosterCatalogService} using the given catalog URL/ref tuple
     */
-   public BoosterCatalogService getCatalogService(String catalogUrl, String catalogRef)
+   public BoosterCatalog getCatalog(String catalogUrl, String catalogRef)
    {
       return cache.computeIfAbsent(
                new CatalogServiceKey(Objects.toString(catalogUrl, DEFAULT_GIT_REPOSITORY_URL),
@@ -87,7 +88,7 @@ public class BoosterCatalogServiceFactory
 
    @Produces
    @Singleton
-   public BoosterCatalogService getDefaultBoosterCatalogService()
+   public BoosterCatalog getDefaultCatalog()
    {
       return defaultBoosterCatalog;
    }

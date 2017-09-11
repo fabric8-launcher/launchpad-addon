@@ -30,7 +30,7 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import io.openshift.booster.catalog.Booster;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
-import io.openshift.launchpad.BoosterCatalogServiceFactory;
+import io.openshift.launchpad.BoosterCatalogFactory;
 
 /**
  *
@@ -39,7 +39,7 @@ import io.openshift.launchpad.BoosterCatalogServiceFactory;
 public class ChooseRuntimeStep implements UIWizardStep
 {
    @Inject
-   private BoosterCatalogServiceFactory catalogServiceFactory;
+   private BoosterCatalogFactory catalogServiceFactory;
 
    @Inject
    @WithAttributes(label = "Runtime", required = true)
@@ -60,7 +60,7 @@ public class ChooseRuntimeStep implements UIWizardStep
 
       runtime.setValueChoices(() -> {
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
-         return catalogServiceFactory.getCatalogService(context).getRuntimes(mission);
+         return catalogServiceFactory.getCatalog(context).getRuntimes(mission);
       });
 
       runtime.setDefaultValue(() -> {
@@ -77,7 +77,7 @@ public class ChooseRuntimeStep implements UIWizardStep
       UIContext uiContext = context.getUIContext();
       Mission mission = (Mission) uiContext.getAttributeMap().get(Mission.class);
 
-      Optional<Booster> booster = catalogServiceFactory.getCatalogService(uiContext).getBooster(mission,
+      Optional<Booster> booster = catalogServiceFactory.getCatalog(uiContext).getBooster(mission,
                runtime.getValue());
       if (!booster.isPresent())
       {

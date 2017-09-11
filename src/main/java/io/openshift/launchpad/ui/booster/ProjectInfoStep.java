@@ -47,11 +47,11 @@ import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 import org.jboss.forge.furnace.util.Strings;
 
 import io.openshift.booster.catalog.Booster;
-import io.openshift.booster.catalog.BoosterCatalogService;
+import io.openshift.booster.catalog.BoosterCatalog;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
 import io.openshift.booster.catalog.Version;
-import io.openshift.launchpad.BoosterCatalogServiceFactory;
+import io.openshift.launchpad.BoosterCatalogFactory;
 import io.openshift.launchpad.ReadmeProcessor;
 import io.openshift.launchpad.ui.input.ProjectName;
 
@@ -64,7 +64,7 @@ public class ProjectInfoStep implements UIWizardStep
    private static final Logger logger = Logger.getLogger(ProjectInfoStep.class.getName());
 
    @Inject
-   private BoosterCatalogServiceFactory catalogServiceFactory;
+   private BoosterCatalogFactory catalogFactory;
 
    @Inject
    @WithAttributes(label = "Runtime Version")
@@ -113,7 +113,7 @@ public class ProjectInfoStep implements UIWizardStep
       });
       if (mission != null && runtime != null)
       {
-         Set<Version> versions = catalogServiceFactory.getCatalogService(context).getVersions(mission, runtime);
+         Set<Version> versions = catalogFactory.getCatalog(context).getVersions(mission, runtime);
          if (versions != null && !versions.isEmpty())
          {
             runtimeVersion.setValueChoices(versions);
@@ -194,7 +194,7 @@ public class ProjectInfoStep implements UIWizardStep
    public Result execute(UIExecutionContext context) throws Exception
    {
       UIContext uiContext = context.getUIContext();
-      BoosterCatalogService catalogService = catalogServiceFactory.getCatalogService(uiContext);
+      BoosterCatalog catalog = catalogFactory.getCatalog(uiContext);
       Map<Object, Object> attributeMap = uiContext.getAttributeMap();
       Mission mission = (Mission) attributeMap.get(Mission.class);
       Runtime runtime = (Runtime) attributeMap.get(Runtime.class);
@@ -203,12 +203,11 @@ public class ProjectInfoStep implements UIWizardStep
       Booster booster;
       if (runtimeVersion.getValue() != null)
       {
-         booster = catalogService
-                  .getBooster(mission, runtime, runtimeVersion.getValue()).get();
+         booster = catalog.getBooster(mission, runtime, runtimeVersion.getValue()).get();
       }
       else
       {
-         booster = catalogService.getBooster(mission, runtime).get();
+         booster = catalog.getBooster(mission, runtime).get();
       }
       DirectoryResource initialDir = (DirectoryResource) uiContext.getInitialSelection().get();
       String projectName = named.getValue();
@@ -223,7 +222,7 @@ public class ProjectInfoStep implements UIWizardStep
       projectDirectory.mkdirs();
       Path projectDirectoryPath = projectDirectory.getUnderlyingResourceObject().toPath();
       // Copy contents
-      catalogService.copy(booster, projectDirectoryPath);
+      catalog.copy(booster, projectDirectoryPath);
       // Is it a maven project?
       MavenModelResource modelResource = projectDirectory.getChildOfType(MavenModelResource.class, "pom.xml");
 

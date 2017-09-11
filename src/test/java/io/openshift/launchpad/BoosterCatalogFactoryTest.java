@@ -12,22 +12,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openshift.booster.catalog.BoosterCatalogService;
+import io.openshift.booster.catalog.BoosterCatalog;
 
 /**
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
  */
-public class BoosterCatalogServiceFactoryTest
+public class BoosterCatalogFactoryTest
 {
 
-   private BoosterCatalogServiceFactory factory;
+   private BoosterCatalogFactory factory;
 
    @Before
    public void setUp()
    {
-      System.setProperty(BoosterCatalogServiceFactory.CATALOG_GIT_REF_PROPERTY_NAME, "openshift-online-free");
-      factory = new BoosterCatalogServiceFactory();
+      System.setProperty(BoosterCatalogFactory.CATALOG_GIT_REF_PROPERTY_NAME, "openshift-online-free");
+      factory = new BoosterCatalogFactory();
       // Forcing CDI initialization here
       factory.init(null);
    }
@@ -35,18 +35,18 @@ public class BoosterCatalogServiceFactoryTest
    @Test
    public void testDefaultCatalogServiceNotNullAndIsSingleton()
    {
-      BoosterCatalogService defaultService = factory.getDefaultBoosterCatalogService();
+      BoosterCatalog defaultService = factory.getDefaultCatalog();
       assertThat(defaultService).isNotNull();
-      assertThat(factory.getDefaultBoosterCatalogService()).isSameAs(defaultService);
+      assertThat(factory.getDefaultCatalog()).isSameAs(defaultService);
    }
 
    @Test
    public void testMasterCatalogIsNotSameAsDefault()
    {
       // A null catalogURL means use default repository URL
-      BoosterCatalogService masterService = factory.getCatalogService(null, "master");
+      BoosterCatalog masterService = factory.getCatalog(null, "master");
       assertThat(masterService).isNotNull();
-      assertThat(factory.getDefaultBoosterCatalogService()).isNotSameAs(masterService);
+      assertThat(factory.getDefaultCatalog()).isNotSameAs(masterService);
    }
 
 }

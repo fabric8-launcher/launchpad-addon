@@ -29,6 +29,8 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
+import io.openshift.launchpad.BoosterCatalogFactory;
+
 /**
  *
  * @author <a href="mailto:ggastald@redhat.com">George Gastaldi</a>
@@ -82,7 +84,13 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
    {
       Map<Object, Object> attributeMap = context.getUIContext().getAttributeMap();
       attributeMap.put(DeploymentType.class, deploymentType.getValue());
-      attributeMap.put("OPENSHIFT_CLUSTER", openShiftCluster.getValue());
+      String openShiftClusterValue = openShiftCluster.getValue();
+      attributeMap.put("OPENSHIFT_CLUSTER", openShiftClusterValue);
+      // If a starter cluster was chosen, use the openshift-online-free catalog
+      if (openShiftClusterValue != null && openShiftClusterValue.startsWith("starter"))
+      {
+         attributeMap.put(BoosterCatalogFactory.CATALOG_GIT_REF_PROPERTY_NAME, "openshift-online-free");
+      }
       return null;
    }
 

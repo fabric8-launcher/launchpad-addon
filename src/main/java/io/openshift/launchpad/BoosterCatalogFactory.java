@@ -58,7 +58,7 @@ public class BoosterCatalogFactory
       Map<Object, Object> attributeMap = context.getAttributeMap();
       String catalogUrl = (String) attributeMap.get(CATALOG_GIT_REPOSITORY_PROPERTY_NAME);
       String catalogRef = (String) attributeMap.get(CATALOG_GIT_REF_PROPERTY_NAME);
-      if (catalogUrl == null || catalogRef == null)
+      if (catalogUrl == null && catalogRef == null)
       {
          return getDefaultCatalog();
       }

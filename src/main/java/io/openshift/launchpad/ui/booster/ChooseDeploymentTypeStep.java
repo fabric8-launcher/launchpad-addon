@@ -57,14 +57,11 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
       deploymentType.setValueChoices(EnumSet.of(DeploymentType.CD, DeploymentType.ZIP));
       builder.add(deploymentType);
       List<String> openShiftClusters = missionControlValidator.getOpenShiftClusters(builder.getUIContext());
-      openShiftCluster.setValueChoices(openShiftClusters);
+      openShiftCluster.setValueChoices(openShiftClusters).setEnabled(openShiftClusters.size() > 1);
       if (openShiftClusters.size() > 0)
       {
          openShiftCluster.setDefaultValue(openShiftClusters.get(0));
-         if (openShiftClusters.size() > 1)
-         {
-            builder.add(openShiftCluster);
-         }
+         builder.add(openShiftCluster);
       }
    }
 

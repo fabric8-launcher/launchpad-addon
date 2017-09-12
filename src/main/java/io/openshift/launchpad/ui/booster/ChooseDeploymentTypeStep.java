@@ -87,7 +87,8 @@ public class ChooseDeploymentTypeStep implements UIWizardStep
       String openShiftClusterValue = openShiftCluster.getValue();
       attributeMap.put("OPENSHIFT_CLUSTER", openShiftClusterValue);
       // If a starter cluster was chosen, use the openshift-online-free catalog
-      if (openShiftClusterValue != null && openShiftClusterValue.startsWith("starter"))
+      if (!Boolean.getBoolean("LAUNCHPAD_SKIP_OOF_CATALOG_INDEX") && openShiftClusterValue != null
+               && openShiftClusterValue.startsWith("starter"))
       {
          attributeMap.put(BoosterCatalogFactory.CATALOG_GIT_REF_PROPERTY_NAME, "openshift-online-free");
       }

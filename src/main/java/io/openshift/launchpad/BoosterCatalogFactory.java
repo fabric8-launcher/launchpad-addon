@@ -51,6 +51,8 @@ public class BoosterCatalogFactory
       defaultBoosterCatalog = getCatalog(
                getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL),
                getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF));
+      // Index the openshift-online-free catalog
+      getCatalog(DEFAULT_GIT_REPOSITORY_URL, "openshift-online-free");
    }
 
    public BoosterCatalog getCatalog(UIContext context)

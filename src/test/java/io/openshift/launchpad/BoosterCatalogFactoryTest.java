@@ -29,7 +29,7 @@ public class BoosterCatalogFactoryTest
       System.setProperty(BoosterCatalogFactory.CATALOG_GIT_REF_PROPERTY_NAME, "openshift-online-free");
       factory = new BoosterCatalogFactory();
       // Forcing CDI initialization here
-      factory.init(null);
+      factory.reset();
    }
 
    @Test

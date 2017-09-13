@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
@@ -46,8 +47,15 @@ public class BoosterCatalogFactory
    @Resource
    private ManagedExecutorService async;
 
-   public void init(@Observes @Local PostStartup event)
+   void init(@Observes @Local PostStartup startup)
    {
+      // This will automatically call the reset method when constructed
+   }
+
+   @PostConstruct
+   public void reset()
+   {
+      cache.clear();
       defaultBoosterCatalog = getCatalog(
                getEnvVarOrSysProp(CATALOG_GIT_REPOSITORY_PROPERTY_NAME, DEFAULT_GIT_REPOSITORY_URL),
                getEnvVarOrSysProp(CATALOG_GIT_REF_PROPERTY_NAME, DEFAULT_GIT_REF));

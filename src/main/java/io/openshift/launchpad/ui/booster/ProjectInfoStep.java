@@ -395,6 +395,21 @@ public class ProjectInfoStep implements UIWizardStep
       return gitHubRepositoryName;
    }
 
+   protected UIInput<String> getGroupId()
+   {
+      return groupId;
+   }
+
+   protected UIInput<String> getArtifactId()
+   {
+      return artifactId;
+   }
+
+   protected UIInput<String> getVersion()
+   {
+      return version;
+   }
+
    protected String getGithubRepositoryNameValue()
    {
       String repository = gitHubRepositoryName.getValue();

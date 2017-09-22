@@ -53,7 +53,8 @@ public class ChooseMissionStep implements UIWizardStep
       {
          mission.setItemLabelConverter(Mission::getId);
       }
-      mission.setValueChoices(catalogServiceFactory.getCatalog(builder.getUIContext()).getMissions());
+      String[] filterLabels = catalogServiceFactory.getFilterLabels(builder.getUIContext());
+      mission.setValueChoices(catalogServiceFactory.getCatalog(builder.getUIContext()).getMissions(filterLabels));
       mission.setDefaultValue(() -> {
          Iterator<Mission> iterator = mission.getValueChoices().iterator();
          return (iterator.hasNext()) ? iterator.next() : null;

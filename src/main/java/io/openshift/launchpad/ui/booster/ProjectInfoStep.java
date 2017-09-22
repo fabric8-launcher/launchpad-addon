@@ -113,7 +113,8 @@ public class ProjectInfoStep implements UIWizardStep
       });
       if (mission != null && runtime != null)
       {
-         Set<Version> versions = catalogFactory.getCatalog(context).getVersions(mission, runtime);
+         String[] filterLabels = catalogFactory.getFilterLabels(context);
+         Set<Version> versions = catalogFactory.getCatalog(context).getVersions(mission, runtime, filterLabels);
          if (versions != null && !versions.isEmpty())
          {
             runtimeVersion.setValueChoices(versions);

@@ -60,7 +60,8 @@ public class ChooseRuntimeStep implements UIWizardStep
 
       runtime.setValueChoices(() -> {
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
-         return catalogServiceFactory.getCatalog(context).getRuntimes(mission);
+         String[] filterLabels = catalogServiceFactory.getFilterLabels(builder.getUIContext());
+         return catalogServiceFactory.getCatalog(context).getRuntimes(mission, filterLabels);
       });
 
       runtime.setDefaultValue(() -> {
@@ -76,9 +77,10 @@ public class ChooseRuntimeStep implements UIWizardStep
    {
       UIContext uiContext = context.getUIContext();
       Mission mission = (Mission) uiContext.getAttributeMap().get(Mission.class);
+      String[] filterLabels = catalogServiceFactory.getFilterLabels(uiContext);
 
       Optional<Booster> booster = catalogServiceFactory.getCatalog(uiContext).getBooster(mission,
-               runtime.getValue());
+               runtime.getValue(), filterLabels);
       if (!booster.isPresent())
       {
          context.addValidationError(runtime,

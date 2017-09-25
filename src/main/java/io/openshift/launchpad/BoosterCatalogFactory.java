@@ -7,6 +7,7 @@
 
 package io.openshift.launchpad;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,7 @@ public class BoosterCatalogFactory
 {
    public static final String CATALOG_GIT_REPOSITORY_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REPOSITORY";
    public static final String CATALOG_GIT_REF_PROPERTY_NAME = "LAUNCHPAD_BACKEND_CATALOG_GIT_REF";
+   public static final String LABEL_FILTERS_PROPERTY_NAME = "LAUNCHPAD_BACKEND_LABEL_FILTERS";
 
    private static final String DEFAULT_GIT_REPOSITORY_URL = "https://github.com/openshiftio/booster-catalog.git";
    private static final String DEFAULT_GIT_REF = "next";
@@ -63,6 +65,22 @@ public class BoosterCatalogFactory
       if (!Boolean.getBoolean("LAUNCHPAD_SKIP_OOF_CATALOG_INDEX"))
       {
          getCatalog(DEFAULT_GIT_REPOSITORY_URL, "openshift-online-free");
+      }
+   }
+
+   public String[] getFilterLabels(UIContext context) {
+      Map<Object, Object> attributeMap = context.getAttributeMap();
+      List<String> labels = (List<String>) attributeMap.get(LABEL_FILTERS_PROPERTY_NAME);
+      if( labels!=null && labels.size() > 0 ) {
+         String filters = labels.get(0);
+         if( filters.equals("all") ) {
+            // all is a special case which means that we don't want to apply
+            // any filters.
+            return new String[]{};
+         }
+         return filters.split(",");
+      } else {
+         return new String[]{};
       }
    }
 

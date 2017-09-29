@@ -31,7 +31,7 @@ public class ProjectName extends AbstractUIInputDecorator<String>
    @Inject
    @WithAttributes(label = "OpenShift Project name", required = true)
    @UnwrapValidatedValue
-   @Length(min = 2, max = 24)
+   @Length(min = 2, max = 63)
    private UIInput<String> named;
 
    @Override

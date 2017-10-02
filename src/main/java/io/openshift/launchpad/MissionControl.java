@@ -10,6 +10,7 @@ package io.openshift.launchpad;
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -215,13 +216,16 @@ public class MissionControl
    public List<String> getOpenShiftClusters(String authHeader)
    {
       URI targetURI = UriBuilder.fromUri(missionControlOpenShiftURI).path("/clusters").build();
-      return perform(client -> client
-               .target(targetURI)
-               .request(MediaType.APPLICATION_JSON_TYPE)
-               .header(HttpHeaders.AUTHORIZATION, authHeader)
-               .get().readEntity(new GenericType<List<String>>()
-               {
-               }));
+      try {
+         return perform(client -> client
+                 .target(targetURI)
+                 .request(MediaType.APPLICATION_JSON_TYPE)
+                 .header(HttpHeaders.AUTHORIZATION, authHeader)
+                 .get().readEntity(new GenericType<List<String>>() {
+                 }));
+      } catch (Exception e) {
+         return Collections.emptyList();
+      }
    }
 
    public List<String> getProjects(String authHeader, String cluster)

@@ -8,6 +8,7 @@
 package io.openshift.launchpad.ui.booster;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -25,6 +26,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
+import io.openshift.booster.catalog.DeploymentType;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.launchpad.BoosterCatalogFactory;
 
@@ -53,8 +55,13 @@ public class ChooseMissionStep implements UIWizardStep
       {
          mission.setItemLabelConverter(Mission::getId);
       }
-      String[] filterLabels = catalogServiceFactory.getFilterLabels(builder.getUIContext());
-      mission.setValueChoices(catalogServiceFactory.getCatalog(builder.getUIContext()).getMissions(filterLabels));
+      DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
+      String[] filterLabels = catalogServiceFactory.getFilterLabels(context);
+      Set<Mission> missions = catalogServiceFactory.getCatalog(context).selector()
+              .deploymentType(deploymentType)
+              .labels(filterLabels)
+              .getMissions();
+      mission.setValueChoices(missions);
       mission.setDefaultValue(() -> {
          Iterator<Mission> iterator = mission.getValueChoices().iterator();
          return (iterator.hasNext()) ? iterator.next() : null;

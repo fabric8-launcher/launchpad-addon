@@ -28,6 +28,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
 import io.openshift.booster.catalog.Booster;
+import io.openshift.booster.catalog.DeploymentType;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
 import io.openshift.launchpad.BoosterCatalogFactory;
@@ -59,9 +60,14 @@ public class ChooseRuntimeStep implements UIWizardStep
       }
 
       runtime.setValueChoices(() -> {
+         DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
          Mission mission = (Mission) context.getAttributeMap().get(Mission.class);
          String[] filterLabels = catalogServiceFactory.getFilterLabels(builder.getUIContext());
-         return catalogServiceFactory.getCatalog(context).getRuntimes(mission, filterLabels);
+         return catalogServiceFactory.getCatalog(context).selector()
+                 .deploymentType(deploymentType)
+                 .mission(mission)
+                 .labels(filterLabels)
+                 .getRuntimes();
       });
 
       runtime.setDefaultValue(() -> {

@@ -29,6 +29,7 @@ import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.jboss.forge.addon.ui.wizard.UIWizardStep;
 
+import io.openshift.booster.catalog.DeploymentType;
 import io.openshift.launchpad.BoosterCatalogFactory;
 
 /**

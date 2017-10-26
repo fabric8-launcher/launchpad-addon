@@ -16,9 +16,9 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openshift.booster.catalog.DeploymentType;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
-import io.openshift.launchpad.ui.booster.DeploymentType;
 
 /**
  *

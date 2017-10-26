@@ -48,6 +48,7 @@ import org.jboss.forge.furnace.util.Strings;
 
 import io.openshift.booster.catalog.Booster;
 import io.openshift.booster.catalog.BoosterCatalog;
+import io.openshift.booster.catalog.DeploymentType;
 import io.openshift.booster.catalog.Mission;
 import io.openshift.booster.catalog.Runtime;
 import io.openshift.booster.catalog.Version;

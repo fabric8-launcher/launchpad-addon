@@ -11,7 +11,7 @@
    <version>18-SNAPSHOT</version>
    <properties>
       <version.forge>3.7.2.Final</version.forge>
-      <version.booster-catalog-service>13</version.booster-catalog-service>
+      <version.booster-catalog-service>14</version.booster-catalog-service>
 
       <maven.compiler.source>1.8</maven.compiler.source>
       <maven.compiler.target>1.8</maven.compiler.target>

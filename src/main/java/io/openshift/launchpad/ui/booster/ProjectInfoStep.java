@@ -97,6 +97,10 @@ public class ProjectInfoStep implements UIWizardStep
    private UIInput<String> version;
 
    @Inject
+   @WithAttributes(label = "step", defaultValue = "0")
+   private UIInput<Integer> step;
+
+   @Inject
    private ReadmeProcessor readmeProcessor;
 
    @Override
@@ -124,6 +128,7 @@ public class ProjectInfoStep implements UIWizardStep
             builder.add(runtimeVersion);
          }
       }
+      builder.add(step);
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
       addDeploymentProperties(builder, deploymentType);
       if (isNodeJS(runtime))
@@ -169,7 +174,7 @@ public class ProjectInfoStep implements UIWizardStep
          return;
       }
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD)
+      if (deploymentType == DeploymentType.CD && (!step.hasValue() || Integer.valueOf(0).equals(step.getValue())))
       {
          String openShiftCluster = (String) attributeMap.get("OPENSHIFT_CLUSTER");
          if (missionControlValidator.validateOpenShiftTokenExists(context, openShiftCluster))
@@ -358,6 +363,7 @@ public class ProjectInfoStep implements UIWizardStep
       returnValue.put("openShiftProjectName", projectName);
       returnValue.put("openShiftCluster", openShiftCluster);
       returnValue.put("artifactId", artifactIdValue);
+      returnValue.put("step", String.valueOf(step.getValue()));
 
       return Results.success("", returnValue);
    }

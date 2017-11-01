@@ -11,9 +11,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +65,7 @@ import io.openshift.launchpad.ui.input.ProjectName;
 public class ProjectInfoStep implements UIWizardStep
 {
    private static final Logger logger = Logger.getLogger(ProjectInfoStep.class.getName());
+   private static final String RETRY_STEP = "RETRY_STEP";
 
    @Inject
    private BoosterCatalogFactory catalogFactory;
@@ -97,10 +100,6 @@ public class ProjectInfoStep implements UIWizardStep
    private UIInput<String> version;
 
    @Inject
-   @WithAttributes(label = "step", defaultValue = "0")
-   private UIInput<Integer> step;
-
-   @Inject
    private ReadmeProcessor readmeProcessor;
 
    @Override
@@ -128,7 +127,6 @@ public class ProjectInfoStep implements UIWizardStep
             builder.add(runtimeVersion);
          }
       }
-      builder.add(step);
       DeploymentType deploymentType = (DeploymentType) context.getAttributeMap().get(DeploymentType.class);
       addDeploymentProperties(builder, deploymentType);
       if (isNodeJS(runtime))
@@ -173,8 +171,10 @@ public class ProjectInfoStep implements UIWizardStep
          // Do not validate again if next() was called
          return;
       }
+
+      List<String> step = (List<String>) attributeMap.get(RETRY_STEP);
       DeploymentType deploymentType = (DeploymentType) attributeMap.get(DeploymentType.class);
-      if (deploymentType == DeploymentType.CD && (!step.hasValue() || Integer.valueOf(0).equals(step.getValue())))
+      if (deploymentType == DeploymentType.CD && (step == null || "0".equals(step.get(0))))
       {
          String openShiftCluster = (String) attributeMap.get("OPENSHIFT_CLUSTER");
          if (missionControlValidator.validateOpenShiftTokenExists(context, openShiftCluster))
@@ -363,7 +363,10 @@ public class ProjectInfoStep implements UIWizardStep
       returnValue.put("openShiftProjectName", projectName);
       returnValue.put("openShiftCluster", openShiftCluster);
       returnValue.put("artifactId", artifactIdValue);
-      returnValue.put("step", String.valueOf(step.getValue()));
+      List<String> steps = (List<String>) attributeMap.get(RETRY_STEP);
+      if (steps != null) {
+         returnValue.put("step", steps.get(0));
+      }
 
       return Results.success("", returnValue);
    }

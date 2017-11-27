@@ -1,5 +1,9 @@
 == launchpad-addon
 :idprefix: id_ 
+
+## This repository is no longer maintained! 
+## Moved to https://github.com/fabric8-launch/launcher-backend/
+
 This addon *provides classes* for use in other addons. 
         
 == Setup
